@@ -5,7 +5,7 @@ namespace HttpMock
 {
 	public class RequestHandler
 	{
-		private readonly WebAppResponseBuilder _webResponseBuilder = new WebAppResponseBuilder();
+		private readonly ResponseBuilder _webResponseBuilder = new ResponseBuilder();
 		private HttpStatusCode _responseStatusCode;
 
 		public RequestHandler(string path, RequestProcessor requestProcessor) {
@@ -21,7 +21,7 @@ namespace HttpMock
 			get { return _responseStatusCode; }
 		}
 
-		public WebAppResponseBuilder ResponseBuilder {
+		public ResponseBuilder ResponseBuilder {
 			get { return _webResponseBuilder; }
 		}
 

@@ -53,8 +53,7 @@
     <Compile Include="RequestHandler.cs" />
     <Compile Include="RequestProcessor.cs" />
     <Compile Include="SchedulerDelegate.cs" />
-    <Compile Include="WebAppResponse.cs" />
-    <Compile Include="WebAppResponseBuilder.cs" />
+    <Compile Include="ResponseBuilder.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

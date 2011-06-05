@@ -4,13 +4,13 @@ using Kayak.Http;
 
 namespace HttpMock
 {
-	public class WebAppResponseBuilder
+	public class ResponseBuilder
 
 	{
 		private string _body;
 
 
-		public WebAppResponseBuilder WithBody(string body) {
+		public ResponseBuilder WithBody(string body) {
 			_body = body;
 			return this;
 		}
