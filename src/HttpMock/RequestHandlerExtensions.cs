@@ -2,7 +2,7 @@
 
 namespace HttpMock
 {
-	public static  class AppExtensions
+	public static  class RequestHandlerExtensions
 	{
 		public static void OK(this RequestHandler requestHandler) {
 			requestHandler.RequestProcessor.Add(requestHandler, HttpStatusCode.OK);
