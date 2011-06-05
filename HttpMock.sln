@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpMock", "src\HttpMock\HttpMock.csproj", "{7D7A1C68-6D1C-4AD5-BD2E-CA2D7B76AE1C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpMock.Integration.Tests", "src\HttpMock.Integration.Tests\HttpMock.Integration.Tests.csproj", "{3E61549A-1FAC-416B-BA50-7265E6FC1D03}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7D7A1C68-6D1C-4AD5-BD2E-CA2D7B76AE1C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7D7A1C68-6D1C-4AD5-BD2E-CA2D7B76AE1C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7D7A1C68-6D1C-4AD5-BD2E-CA2D7B76AE1C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7D7A1C68-6D1C-4AD5-BD2E-CA2D7B76AE1C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3E61549A-1FAC-416B-BA50-7265E6FC1D03}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3E61549A-1FAC-416B-BA50-7265E6FC1D03}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3E61549A-1FAC-416B-BA50-7265E6FC1D03}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3E61549A-1FAC-416B-BA50-7265E6FC1D03}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
