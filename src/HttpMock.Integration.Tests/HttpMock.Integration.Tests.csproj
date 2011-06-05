@@ -50,8 +50,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Class2.cs" />
+    <Compile Include="HttpEndPointTests.cs" />
+    <Compile Include="MultipleTestsUsingTheSameStubServer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SystemUnderTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config">

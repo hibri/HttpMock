@@ -11,6 +11,7 @@ namespace HttpMock
 		IHttpEndpoint At(Uri uri);
 		IHttpEndpoint WithNewContext();
 		RequestHandler Stub(Func<RequestProcessor, RequestHandler> func);
+		IHttpEndpoint At(string uri);
 	}
 
 	public class HttpEndpoint : IHttpEndpoint
@@ -36,13 +37,23 @@ namespace HttpMock
 
 			IPEndPoint ipEndPoint = new IPEndPoint(IPAddress.Any,_applicationUri.Port);
 			_scheduler.Post(() => 
-				KayakServer.Factory
-						.CreateHttp(_requestProcessor)
-						.Listen(ipEndPoint));
+				Begin(ipEndPoint));
 
 			_thread = new Thread(_scheduler.Start);
 			_thread.Start();
 			return this;
+		}
+
+		private IDisposable Begin(IPEndPoint ipEndPoint) {
+			IDisposable disposable = KayakServer.Factory
+				.CreateHttp(_requestProcessor)
+				.Listen(ipEndPoint);
+			_requestProcessor.SetCloseObject(disposable);
+			return disposable;
+		}
+
+		public IHttpEndpoint At(string uri) {
+			return At(new Uri(uri));
 		}
 		public IHttpEndpoint WithNewContext() {
 			_requestProcessor.ClearHandlers();
@@ -58,10 +69,12 @@ namespace HttpMock
 		public void Dispose() {
 			try
 			{
+				_requestProcessor.Stop();
 				_thread.Abort();
 			}
 			catch (ThreadAbortException) {
 			}
+			
 			_scheduler.Stop();
 			_scheduler.Dispose();
 		}

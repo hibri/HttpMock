@@ -5,12 +5,17 @@ namespace HttpMock
 	public static  class RequestHandlerExtensions
 	{
 		public static void OK(this RequestHandler requestHandler) {
-			requestHandler.RequestProcessor.Add(requestHandler, HttpStatusCode.OK);
+			requestHandler.WithStatus(HttpStatusCode.OK);
 		}
-		public static RequestHandler Return(this RequestHandler requestHandler, string hello) {
 
-			requestHandler.ResponseBuilder.WithBody(hello);
-			return requestHandler;
+		public static void WithStatus(this RequestHandler requestHandler, HttpStatusCode httpStatusCode) {
+			requestHandler.ResponseBuilder.WithStatus(httpStatusCode);
+			requestHandler.RequestProcessor.Add(requestHandler);
+		}
+
+		public static void NotFound(this RequestHandler requestHandler)
+		{
+			requestHandler.WithStatus(HttpStatusCode.NotFound);
 		}
 	}
 }

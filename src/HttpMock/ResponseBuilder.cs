@@ -9,7 +9,7 @@ namespace HttpMock
 
 	{
 		private string _body;
-		private static HttpStatusCode _httpStatusCode = HttpStatusCode.OK;
+		private  HttpStatusCode _httpStatusCode = HttpStatusCode.OK;
 
 
 		public ResponseBuilder WithBody(string body) {

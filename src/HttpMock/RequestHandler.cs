@@ -19,5 +19,11 @@ namespace HttpMock
 		public ResponseBuilder ResponseBuilder {
 			get { return _webResponseBuilder; }
 		}
+
+		public RequestHandler Return( string responseBody) {
+
+			_webResponseBuilder.WithBody(responseBody);
+			return this;
+		}
 	}
 }
