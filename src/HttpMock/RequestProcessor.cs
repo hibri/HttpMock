@@ -23,13 +23,13 @@ namespace HttpMock
 			if (handler != null) {
 				var headers = handler.ResponseBuilder.BuildHeaders();
 
-				body = handler.ResponseBuilder.BuildBody();
-				response.OnResponse(headers, body);
+				var responseBody = handler.ResponseBuilder.BuildBody();
+				response.OnResponse(headers, responseBody);
 			}
 			else {
 				HttpResponseHead headers;
-				body = GetNotStubbedResponse(request, out headers);
-				response.OnResponse(headers, body);
+				var responseBody = GetNotStubbedResponse(request, out headers);
+				response.OnResponse(headers, responseBody);
 			}
 		}
 
