@@ -37,6 +37,29 @@ namespace StubHttp
 
 			Assert.That(wc.DownloadString("Http://localhost:8081/secondtest/"), Is.EqualTo(stubbedReponse));
 		}
+
+		[Test]
+		public void Stubs_should_be_unique_within_context()
+		{
+			var wc = new WebClient();
+			string stubbedReponseOne = "Response for first test in context";
+			string stubbedReponseTwo = "Response for second test in context";
+
+			var stubHttp = _httpEndpoint.WithNewContext();
+
+			stubHttp
+				.Stub(x => x.Post("/firsttest"))
+				.Return(stubbedReponseOne).OK();
+
+			stubHttp
+				.Stub(x => x.Post("/secondtest"))
+				.Return(stubbedReponseTwo).OK();
+
+			Assert.That(wc.DownloadString("Http://localhost:8081/firsttest/"), Is.EqualTo(stubbedReponseOne));
+			Assert.That(wc.DownloadString("Http://localhost:8081/secondtest/"), Is.EqualTo(stubbedReponseTwo));
+
+		}
+
 		
 		[TestFixtureTearDown]
 		public void TearDown() {

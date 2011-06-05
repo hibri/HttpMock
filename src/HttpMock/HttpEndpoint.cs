@@ -9,12 +9,12 @@ namespace HttpMock
 	public interface IHttpEndpoint : IDisposable
 	{
 		IHttpEndpoint At(Uri uri);
-		IHttpEndpoint WithNewContext();
-		RequestHandler Stub(Func<RequestProcessor, RequestHandler> func);
+		IStubHttp WithNewContext();
+		
 		IHttpEndpoint At(string uri);
 	}
 
-	public class HttpEndpoint : IHttpEndpoint
+	public class HttpEndpoint : IHttpEndpoint, IStubHttp
 	{
 		private Uri _applicationUri;
 		private RequestProcessor _requestProcessor;
@@ -55,7 +55,7 @@ namespace HttpMock
 		public IHttpEndpoint At(string uri) {
 			return At(new Uri(uri));
 		}
-		public IHttpEndpoint WithNewContext() {
+		public IStubHttp WithNewContext() {
 			_requestProcessor.ClearHandlers();
 			return this;
 		}
@@ -78,5 +78,10 @@ namespace HttpMock
 			_scheduler.Stop();
 			_scheduler.Dispose();
 		}
+	}
+
+	public interface IStubHttp
+	{
+		RequestHandler Stub(Func<RequestProcessor, RequestHandler> func);
 	}
 }

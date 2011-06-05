@@ -11,11 +11,13 @@ namespace StubHttp
 		[Test]
 		public void SUT_should_return_stubbed_response() {
 			IHttpEndpoint httpEndpoint = new HttpEndpoint()
-				.At("http://localhost:8083/someapp")
+				.At("http://localhost:8083/someapp");
+
+			IStubHttp stubHttp = httpEndpoint
 				.WithNewContext();
 
 			const string expected = "<xml><>response>Hello World</response></xml>";
-			httpEndpoint.Stub(x => x.Get("/someendpoint"))
+			stubHttp.Stub(x => x.Get("/someendpoint"))
 				.Return(expected)
 				.OK();
 
@@ -29,26 +31,27 @@ namespace StubHttp
 
 		[Test]
 		public void Should_return_expected_ok_response() {
-			IHttpEndpoint httpEndpoint = new HttpEndpoint()
-				.At(new Uri("Http://localhost:8080/api"))
+			var httpEndPoint = new HttpEndpoint()
+				.At(new Uri("Http://localhost:8080/api"));
+			var stubHttp = httpEndPoint
 				.WithNewContext();
 
-			httpEndpoint
+			stubHttp
 				.Stub(x => x.Get("/"))
 				.Return("Index")
 				.OK();
 
-			httpEndpoint
+			stubHttp
 				.Stub(x => x.Get("/status"))
 				.Return("Hello")
 				.OK();
 
-			httpEndpoint
+			stubHttp
 				.Stub(x => x.Get("/echo"))
 				.Return("Echo")
 				.NotFound();
 
-			httpEndpoint
+			stubHttp
 				.Stub(x => x.Get("/echo2"))
 				.Return("Nothing")
 				.WithStatus(HttpStatusCode.Unauthorized);
@@ -75,7 +78,7 @@ namespace StubHttp
 				Assert.That(((WebException)ex).Status, Is.EqualTo(WebExceptionStatus.ProtocolError));
 			}
 
-			httpEndpoint.Dispose();
+			httpEndPoint.Dispose();
 		}
 	}
 }
