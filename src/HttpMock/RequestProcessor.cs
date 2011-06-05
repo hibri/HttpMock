@@ -9,12 +9,10 @@ namespace HttpMock
 {
 	public class RequestProcessor : IHttpRequestDelegate
 	{
-		private readonly Uri _appBaseUri;
 		private readonly string _applicationPath;
 		private Dictionary<string, RequestHandler> _handlers;
 
 		public RequestProcessor(Uri appBaseUri) {
-			_appBaseUri = appBaseUri;
 			_applicationPath = appBaseUri.AbsolutePath;
 		}
 
@@ -46,7 +44,7 @@ namespace HttpMock
 		}
 
 		public void Add(RequestHandler requestHandler, HttpStatusCode httpStatusCode) {
-			requestHandler.SetStatusCode(httpStatusCode);
+			requestHandler.ResponseBuilder.WithStatus(httpStatusCode);
 			_handlers.Add(requestHandler.Path, requestHandler);
 		}
 

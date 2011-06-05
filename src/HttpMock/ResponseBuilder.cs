@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Net;
 using Kayak;
 using Kayak.Http;
 
@@ -8,6 +9,7 @@ namespace HttpMock
 
 	{
 		private string _body;
+		private static HttpStatusCode _httpStatusCode = HttpStatusCode.OK;
 
 
 		public ResponseBuilder WithBody(string body) {
@@ -22,7 +24,7 @@ namespace HttpMock
 		public HttpResponseHead BuildHeaders() {
 			return new HttpResponseHead
 			       	{
-			       		Status = "200 OK",
+			       		Status = string.Format("{0} OK", (int)_httpStatusCode),
 			       		Headers = new Dictionary<string, string>
 			       		          	{
 			       		          		{HttpHeaderNames.ContentType, "text/plain"},
@@ -33,6 +35,10 @@ namespace HttpMock
 
 		private string GetBody() {
 			return _body;
+		}
+
+		public void WithStatus(HttpStatusCode httpStatusCode) {
+			_httpStatusCode = httpStatusCode;
 		}
 	}
 }

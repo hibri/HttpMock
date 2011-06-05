@@ -6,7 +6,6 @@ namespace HttpMock
 	public class RequestHandler
 	{
 		private readonly ResponseBuilder _webResponseBuilder = new ResponseBuilder();
-		private HttpStatusCode _responseStatusCode;
 
 		public RequestHandler(string path, RequestProcessor requestProcessor) {
 			Path = path;
@@ -17,17 +16,8 @@ namespace HttpMock
 		public RequestProcessor RequestProcessor { get; set; }
 		public KayakScheduler Scheduler { get; set; }
 
-		public HttpStatusCode ResponseStatusCode {
-			get { return _responseStatusCode; }
-		}
-
 		public ResponseBuilder ResponseBuilder {
 			get { return _webResponseBuilder; }
-		}
-
-
-		public void SetStatusCode(HttpStatusCode httpStatusCode) {
-			_responseStatusCode = httpStatusCode;
 		}
 	}
 }
