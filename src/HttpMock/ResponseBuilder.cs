@@ -25,8 +25,8 @@ namespace HttpMock
 			       		Status = "200 OK",
 			       		Headers = new Dictionary<string, string>
 			       		          	{
-			       		          		{"Content-Type", "text/plain"},
-			       		          		{"Content-Length", GetBody().Length.ToString()},
+			       		          		{HttpHeaderNames.ContentType, "text/plain"},
+			       		          		{HttpHeaderNames.ContentLength, GetBody().Length.ToString()},
 			       		          	}
 			       	};
 		}
