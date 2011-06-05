@@ -24,7 +24,7 @@ namespace HttpMock
 		public HttpResponseHead BuildHeaders() {
 			return new HttpResponseHead
 			       	{
-			       		Status = string.Format("{0} {1}", (int)_httpStatusCode, HttpStatusCodeDescriptions.GetStatusDescription(_httpStatusCode)),
+			       		Status = string.Format("{0} {1}", (int)_httpStatusCode, _httpStatusCode),
 			       		Headers = new Dictionary<string, string>
 			       		          	{
 			       		          		{HttpHeaderNames.ContentType, "text/plain"},
@@ -39,17 +39,6 @@ namespace HttpMock
 
 		public void WithStatus(HttpStatusCode httpStatusCode) {
 			_httpStatusCode = httpStatusCode;
-		}
-	}
-
-	public class HttpStatusCodeDescriptions
-	{
-		private static readonly Dictionary<HttpStatusCode, string> _httpStatusCodeDescriptions = new Dictionary<HttpStatusCode, string>
-		                                                                 	{{HttpStatusCode.OK, "OK"},
-																			 {HttpStatusCode.NotFound, "NotFound"}};
-
-		public static string GetStatusDescription(HttpStatusCode httpStatusCode) {
-			return _httpStatusCodeDescriptions[httpStatusCode];
 		}
 	}
 }
