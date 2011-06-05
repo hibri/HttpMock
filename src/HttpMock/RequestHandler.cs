@@ -5,8 +5,14 @@ namespace HttpMock
 {
 	public class RequestHandler
 	{
+		private readonly WebAppResponseBuilder _webResponseBuilder = new WebAppResponseBuilder();
 		private HttpStatusCode _responseStatusCode;
-		private WebAppResponseBuilder _webResponseBuilder = new WebAppResponseBuilder();
+
+		public RequestHandler(string path, RequestProcessor requestProcessor) {
+			Path = path;
+			RequestProcessor = requestProcessor;
+		}
+
 		public string Path { get; set; }
 		public RequestProcessor RequestProcessor { get; set; }
 		public KayakScheduler Scheduler { get; set; }
@@ -18,12 +24,6 @@ namespace HttpMock
 		public WebAppResponseBuilder ResponseBuilder {
 			get { return _webResponseBuilder; }
 		}
-
-		public RequestHandler(string path, RequestProcessor requestProcessor) {
-			Path = path;
-			RequestProcessor = requestProcessor;
-		}
-
 
 
 		public void SetStatusCode(HttpStatusCode httpStatusCode) {

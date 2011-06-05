@@ -19,25 +19,13 @@ namespace HttpMock
 		}
 
 		public void OnRequest(HttpRequestHead request, IDataProducer body, IHttpResponseDelegate response) {
-			Console.WriteLine(request.Uri);
-			Console.WriteLine(_appBaseUri.AbsolutePath);
 
 			string pathToMatch = request.Uri.Remove(request.Uri.IndexOf(_applicationPath, 0), _applicationPath.Length);
 			RequestHandler handler = _handlers.Where(x => x.Key.Equals(pathToMatch)).FirstOrDefault().Value;
 			if (handler != null) {
-				Console.WriteLine("Handler : " + handler.Path);
-				string data = handler.ResponseBuilder.Build();
-				var headers = new HttpResponseHead
-				              	{
-				              		Status = "200 OK",
-				              		Headers = new Dictionary<string, string>
-				              		          	{
-				              		          		{"Content-Type", "text/plain"},
-				              		          		{"Content-Length", data.Length.ToString()},
-				              		          	}
-				              	};
+				var headers = handler.ResponseBuilder.BuildHeaders();
 
-				body = new BufferedBody(data);
+				body = handler.ResponseBuilder.BuildBody();
 				response.OnResponse(headers, body);
 			}
 			else {
