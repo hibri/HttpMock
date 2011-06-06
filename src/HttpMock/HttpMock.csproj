@@ -47,9 +47,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="HttpHeaderNames.cs" />
+    <Compile Include="HttpServer.cs" />
+    <Compile Include="HttpServerFactory.cs" />
+    <Compile Include="IHttpMockRepository.cs" />
+    <Compile Include="IStubHttp.cs" />
     <Compile Include="RequestHandlerExtensions.cs" />
     <Compile Include="BufferedBody.cs" />
-    <Compile Include="HttpEndpoint.cs" />
+    <Compile Include="HttpMockRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RequestHandler.cs" />
     <Compile Include="RequestProcessor.cs" />

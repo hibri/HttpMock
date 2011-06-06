@@ -8,15 +8,9 @@ namespace HttpMock
 {
 	public class RequestProcessor : IHttpRequestDelegate
 	{
-		private readonly string _applicationPath;
+		private string _applicationPath;
 		private Dictionary<string, RequestHandler> _handlers;
 		private IDisposable _closeObject;
-
-		public RequestProcessor(Uri appBaseUri) {
-			_applicationPath = appBaseUri.AbsolutePath;
-			if (_applicationPath == "/")
-				_applicationPath = "";
-		}
 
 		public void OnRequest(HttpRequestHead request, IDataProducer body, IHttpResponseDelegate response) {
 
@@ -76,6 +70,12 @@ namespace HttpMock
 		}
 		public  void Stop() {
 			_closeObject.Dispose();
+		}
+
+		public void SetBaseUri(string baseUri) {
+			_applicationPath = baseUri;
+			if (_applicationPath == "/")
+				_applicationPath = "";
 		}
 	}
 }

@@ -10,11 +10,9 @@ namespace StubHttp
 	{
 		[Test]
 		public void SUT_should_return_stubbed_response() {
-			IHttpEndpoint httpEndpoint = new HttpEndpoint()
-				.At("http://localhost:8083/someapp");
+			IStubHttp stubHttp = HttpMockRepository
+				.At("http://localhost:8080/someapp");
 
-			IStubHttp stubHttp = httpEndpoint
-				.WithNewContext();
 
 			const string expected = "<xml><>response>Hello World</response></xml>";
 			stubHttp.Stub(x => x.Get("/someendpoint"))
@@ -24,17 +22,15 @@ namespace StubHttp
 			string result = new SystemUnderTest().GetData();
 
 			Assert.That(result, Is.EqualTo(expected));
-			httpEndpoint.Dispose();
+			
 		}
 
 		
 
 		[Test]
 		public void Should_return_expected_ok_response() {
-			var httpEndPoint = new HttpEndpoint()
+			IStubHttp stubHttp = HttpMockRepository
 				.At(new Uri("Http://localhost:8080/api"));
-			var stubHttp = httpEndPoint
-				.WithNewContext();
 
 			stubHttp
 				.Stub(x => x.Get("/"))
@@ -78,7 +74,7 @@ namespace StubHttp
 				Assert.That(((WebException)ex).Status, Is.EqualTo(WebExceptionStatus.ProtocolError));
 			}
 
-			httpEndPoint.Dispose();
+			
 		}
 	}
 }
