@@ -5,6 +5,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpMock", "src\HttpMock\Ht
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpMock.Integration.Tests", "src\HttpMock.Integration.Tests\HttpMock.Integration.Tests.csproj", "{3E61549A-1FAC-416B-BA50-7265E6FC1D03}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpMock.Unit.Tests", "src\HttpMock.Unit.Tests\HttpMock.Unit.Tests.csproj", "{92735A21-16E8-46BC-859D-AB96F137C457}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -19,6 +21,10 @@ Global
 		{3E61549A-1FAC-416B-BA50-7265E6FC1D03}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3E61549A-1FAC-416B-BA50-7265E6FC1D03}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3E61549A-1FAC-416B-BA50-7265E6FC1D03}.Release|Any CPU.Build.0 = Release|Any CPU
+		{92735A21-16E8-46BC-859D-AB96F137C457}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{92735A21-16E8-46BC-859D-AB96F137C457}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{92735A21-16E8-46BC-859D-AB96F137C457}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{92735A21-16E8-46BC-859D-AB96F137C457}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

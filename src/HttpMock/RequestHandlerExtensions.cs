@@ -17,5 +17,21 @@ namespace HttpMock
 		{
 			requestHandler.WithStatus(HttpStatusCode.NotFound);
 		}
+
+		public static RequestHandler AsXmlContent(this RequestHandler requestHandler) {
+			return requestHandler.AsContentType("text/xml");
+		}
+
+		public static RequestHandler AsContentType(this RequestHandler requestHandler, string contentType) {
+			requestHandler.ResponseBuilder.WithContentType(contentType);
+			return requestHandler;
+		}
+
+		public static RequestHandler AddHeader(this RequestHandler requestHandler, string header, string headerValue) {
+			requestHandler.ResponseBuilder.AddHeader(header, headerValue);
+			return requestHandler;
+		}
+
+
 	}
 }

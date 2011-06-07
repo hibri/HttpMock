@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Kayak;
 using Kayak.Http;
@@ -14,8 +15,9 @@ namespace HttpMock
 
 		public void OnRequest(HttpRequestHead request, IDataProducer body, IHttpResponseDelegate response) {
 
-			string pathToMatch = request.Uri.Remove(request.Uri.IndexOf(_applicationPath, 0), _applicationPath.Length).Replace("/", "");
-			RequestHandler handler = _handlers.Where(x => x.Key.Equals(pathToMatch)).FirstOrDefault().Value;
+			Debug.WriteLine("Processing :" + request.Uri);
+			
+			RequestHandler handler = _handlers.Where(x => MatchPath( x.Key, request.Uri)).FirstOrDefault().Value;
 			if (handler != null) {
 
 				var headers = handler.ResponseBuilder.BuildHeaders();
@@ -25,11 +27,15 @@ namespace HttpMock
 			}
 			else {
 				ResponseBuilder stubNotFoundResponseBuilder = new ResponseBuilder();
-				stubNotFoundResponseBuilder.WithBody(string.Format("Stub not found for {0} : {1}", request.Method, request.Uri));
+				stubNotFoundResponseBuilder.Return(string.Format("Stub not found for {0} : {1}", request.Method, request.Uri));
 				HttpResponseHead headers = stubNotFoundResponseBuilder.BuildHeaders();
 				var responseBody = stubNotFoundResponseBuilder.BuildBody();
 				response.OnResponse(headers, responseBody);
 			}
+		}
+
+		private bool MatchPath(string path, string requestUri) {
+			return requestUri.StartsWith(path);
 		}
 
 		public RequestHandler Get(string path) {
@@ -51,7 +57,7 @@ namespace HttpMock
 		}
 
 		private RequestHandler AddHandler(string path) {
-			string cleanedPath = path.Replace("/","");
+			string cleanedPath = _applicationPath + path;
 			var requestHandler = new RequestHandler(cleanedPath, this);
 
 			return requestHandler;
@@ -73,9 +79,16 @@ namespace HttpMock
 		}
 
 		public void SetBaseUri(string baseUri) {
-			_applicationPath = baseUri;
-			if (_applicationPath == "/")
-				_applicationPath = "";
+			if (baseUri.EndsWith("/")) {
+				_applicationPath = baseUri.TrimEnd('/');
+			}
+
+			else if (!baseUri.StartsWith("/")) {
+				_applicationPath = "/" + baseUri;
+			}
+			else {
+				_applicationPath = baseUri;
+			}
 		}
 	}
 }

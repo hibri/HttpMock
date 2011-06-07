@@ -22,7 +22,13 @@ namespace HttpMock
 
 		public RequestHandler Return( string responseBody) {
 
-			_webResponseBuilder.WithBody(responseBody);
+			_webResponseBuilder.Return(responseBody);
+			return this;
+		}
+
+		public RequestHandler ReturnFile(string pathToFile)
+		{
+			_webResponseBuilder.WithFile(pathToFile);
 			return this;
 		}
 	}
