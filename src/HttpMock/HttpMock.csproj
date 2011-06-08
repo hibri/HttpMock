@@ -34,11 +34,11 @@
   <ItemGroup>
     <Reference Include="HttpMachine, Version=0.9.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\HttpMachine.0.9.0.0\lib\HttpMachine.dll</HintPath>
+      <HintPath>..\..\lib\HttpMachine.dll</HintPath>
     </Reference>
     <Reference Include="Kayak, Version=0.6.1.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\Kayak.0.6.1.0\lib\Kayak.dll</HintPath>
+      <HintPath>..\..\lib\Kayak.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
