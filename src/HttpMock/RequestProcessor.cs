@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net;
 using Kayak;
 using Kayak.Http;
 
@@ -19,19 +20,19 @@ namespace HttpMock
 			
 			RequestHandler handler = _handlers.Where(x => MatchPath( x.Key, request.Uri)).FirstOrDefault().Value;
 			if (handler != null) {
-
-				var headers = handler.ResponseBuilder.BuildHeaders();
-				var responseBody = handler.ResponseBuilder.BuildBody();
-				response.OnResponse(headers, responseBody);
-
+				response.OnResponse(handler.ResponseBuilder.BuildHeaders(), handler.ResponseBuilder.BuildBody());
 			}
 			else {
-				ResponseBuilder stubNotFoundResponseBuilder = new ResponseBuilder();
-				stubNotFoundResponseBuilder.Return(string.Format("Stub not found for {0} : {1}", request.Method, request.Uri));
-				HttpResponseHead headers = stubNotFoundResponseBuilder.BuildHeaders();
-				var responseBody = stubNotFoundResponseBuilder.BuildBody();
-				response.OnResponse(headers, responseBody);
+				ResponseBuilder stubNotFoundResponseBuilder = GetStubNotFoundResponse(request);
+				response.OnResponse(stubNotFoundResponseBuilder.BuildHeaders(), stubNotFoundResponseBuilder.BuildBody());
 			}
+		}
+
+		private ResponseBuilder GetStubNotFoundResponse(HttpRequestHead request) {
+			ResponseBuilder stubNotFoundResponseBuilder = new ResponseBuilder();
+			stubNotFoundResponseBuilder.Return(string.Format("Stub not found for {0} : {1}", request.Method, request.Uri));
+			stubNotFoundResponseBuilder.WithStatus(HttpStatusCode.NotFound);
+			return stubNotFoundResponseBuilder;
 		}
 
 		private bool MatchPath(string path, string requestUri) {
