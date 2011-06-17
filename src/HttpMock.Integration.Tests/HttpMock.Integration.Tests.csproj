@@ -60,11 +60,6 @@
     <Compile Include="UsingMultipleServersTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config">
-      <SubType>Designer</SubType>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\HttpMock\HttpMock.csproj">
       <Project>{7D7A1C68-6D1C-4AD5-BD2E-CA2D7B76AE1C}</Project>
       <Name>HttpMock</Name>
