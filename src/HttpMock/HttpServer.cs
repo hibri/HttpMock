@@ -10,6 +10,8 @@ namespace HttpMock
 	{
 		RequestHandler Stub(Func<RequestProcessor, RequestHandler> func);
 		IStubHttp WithNewContext();
+		IStubHttp WithNewContext(string baseUri);
+		void Start();
 	}
 
 	public class HttpServer : IHttpServer, IStubHttp

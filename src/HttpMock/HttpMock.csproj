@@ -50,8 +50,10 @@
   <ItemGroup>
     <Compile Include="HttpHeaderNames.cs" />
     <Compile Include="HttpServer.cs" />
+    <Compile Include="HttpServerBuilder.cs" />
     <Compile Include="HttpServerFactory.cs" />
     <Compile Include="IHttpMockRepository.cs" />
+    <Compile Include="IHttpServerBuilder.cs" />
     <Compile Include="IStubHttp.cs" />
     <Compile Include="RequestHandlerExtensions.cs" />
     <Compile Include="BufferedBody.cs" />
