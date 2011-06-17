@@ -17,36 +17,30 @@ namespace HttpMock
 	public class HttpServer : IHttpServer, IStubHttp
 	{
 		protected RequestProcessor _requestProcessor;
-		private ISchedulerDelegate _schedulerDelegate;
-		protected KayakScheduler _scheduler;
+		protected IScheduler _scheduler;
 		private Thread _thread;
 		private Uri _uri;
 
 		public HttpServer(Uri uri)
 		{
 			_uri = uri;
-			_schedulerDelegate = new SchedulerDelegate();
-			_scheduler = new KayakScheduler(_schedulerDelegate);
+			_scheduler = new KayakScheduler(new SchedulerDelegate());
 			_requestProcessor = new RequestProcessor();
 			
 
 			
 		}
 
-		public KayakScheduler Scheduler {
-			get { return _scheduler; }
-		}
-
 		public void Start() {
 			IPEndPoint ipEndPoint = new IPEndPoint(IPAddress.Any, _uri.Port);
 			_scheduler.Post(() => 
-			                Begin(ipEndPoint));
+			                Listen(ipEndPoint));
 
 			_thread = new Thread(_scheduler.Start);
 			_thread.Start();
 		}
 
-		private IDisposable Begin(IPEndPoint ipEndPoint) {
+		private IDisposable Listen(IPEndPoint ipEndPoint) {
 			IDisposable disposable = KayakServer.Factory
 				.CreateHttp(_requestProcessor)
 				.Listen(ipEndPoint);
