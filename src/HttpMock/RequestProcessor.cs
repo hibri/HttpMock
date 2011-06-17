@@ -40,24 +40,24 @@ namespace HttpMock
 		}
 
 		public RequestHandler Get(string path) {
-			return AddHandler(path);
+			return CreateHandler(path);
 		}
 
 		public RequestHandler Post(string path) {
-			return AddHandler(path);
+			return CreateHandler(path);
 		}
 
 		public RequestHandler Put(string path)
 		{
-			return AddHandler(path);
+			return CreateHandler(path);
 		}
 
 		public RequestHandler Delete(string path)
 		{
-			return AddHandler(path);
+			return CreateHandler(path);
 		}
 
-		private RequestHandler AddHandler(string path) {
+		private RequestHandler CreateHandler(string path) {
 			string cleanedPath = _applicationPath + path;
 			var requestHandler = new RequestHandler(cleanedPath, this);
 

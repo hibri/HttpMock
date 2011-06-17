@@ -41,11 +41,11 @@ namespace HttpMock
 		}
 
 		private IDisposable Listen(IPEndPoint ipEndPoint) {
-			IDisposable disposable = KayakServer.Factory
+			IDisposable server = KayakServer.Factory
 				.CreateHttp(_requestProcessor)
 				.Listen(ipEndPoint);
-			_requestProcessor.SetCloseObject(disposable);
-			return disposable;
+			_requestProcessor.SetCloseObject(server);
+			return server;
 		}
 
 		public void Dispose() {
