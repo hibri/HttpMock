@@ -33,10 +33,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="HttpMachine">
-      <HintPath>..\..\packages\HttpMachine.0.9.0.0\lib\HttpMachine.dll</HintPath>
+      <HintPath>..\..\lib\HttpMachine.dll</HintPath>
     </Reference>
     <Reference Include="Kayak">
-      <HintPath>..\..\packages\Kayak.0.6.1.0\lib\Kayak.dll</HintPath>
+      <HintPath>..\..\lib\Kayak.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework">
       <HintPath>..\..\packages\NUnit.2.5.10.11092\lib\nunit.framework.dll</HintPath>
