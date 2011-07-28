@@ -8,9 +8,7 @@ using Kayak.Http;
 namespace HttpMock
 {
 	public class ResponseBuilder
-
 	{
-		private string _body;
 		private  HttpStatusCode _httpStatusCode = HttpStatusCode.OK;
 		private string _contentType = "text/plain";
 		private IDataProducer _responseBodyBuilder = new BufferedBody("");
