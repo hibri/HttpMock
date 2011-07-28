@@ -63,6 +63,9 @@
     <Compile Include="UsingMultipleServersTests.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="App.local.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
