@@ -8,8 +8,8 @@
     <ProjectGuid>{3E61549A-1FAC-416B-BA50-7265E6FC1D03}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>StubHttp</RootNamespace>
-    <AssemblyName>StubHttp</AssemblyName>
+    <RootNamespace>SevenDigital.HttpMock.Integration.Tests</RootNamespace>
+    <AssemblyName>SevenDigital.HttpMock.Integration.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />

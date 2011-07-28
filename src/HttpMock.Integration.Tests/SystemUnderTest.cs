@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace StubHttp
+namespace SevenDigital.HttpMock.Integration.Tests
 {
 	public class SystemUnderTest
 	{

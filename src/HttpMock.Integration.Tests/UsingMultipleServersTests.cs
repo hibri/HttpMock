@@ -2,7 +2,7 @@
 using HttpMock;
 using NUnit.Framework;
 
-namespace StubHttp
+namespace SevenDigital.HttpMock.Integration.Tests
 {
 	[TestFixture]
 	public class UsingMultipleServersTests
