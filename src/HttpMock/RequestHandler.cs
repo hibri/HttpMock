@@ -13,6 +13,7 @@ namespace HttpMock
 		}
 
 		public string Path { get; set; }
+		public string Method { get; set; }
 		public RequestProcessor RequestProcessor { get; set; }
 		public KayakScheduler Scheduler { get; set; }
 
