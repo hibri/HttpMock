@@ -26,7 +26,7 @@ namespace HttpMock
 			if(_handlers.Count() < 1)
 				throw new ApplicationException("No handlers have been set up, why do I even bother");
 			
-			RequestHandler handler = _handlers.Where(x => MatchPath( x.Key, request.Uri)).FirstOrDefault().Value;
+			RequestHandler handler = _handlers.Where(x => MatchPath( x.Key, request.Uri) && x.Value.Method == request.Method).FirstOrDefault().Value;
 			if (handler != null) {
 				response.OnResponse(handler.ResponseBuilder.BuildHeaders(), handler.ResponseBuilder.BuildBody());
 			}

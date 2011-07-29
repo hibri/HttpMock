@@ -59,7 +59,7 @@ namespace HttpMock.Unit.Tests {
 			const string expected = "lost";
 			var dataProducer = MockRepository.GenerateStub<IDataProducer>();
 			var httpResponseDelegate = MockRepository.GenerateStub<IHttpResponseDelegate>();
-			var request = new HttpRequestHead {Uri = expected};
+			var request = new HttpRequestHead {Uri = expected, Method = "GET"};
 
 			RequestHandler requestHandler = _processor.Get(expected);
 			_processor.Add(requestHandler);
