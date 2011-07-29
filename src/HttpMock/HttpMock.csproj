@@ -55,6 +55,7 @@
     <Compile Include="IHttpMockRepository.cs" />
     <Compile Include="IHttpServerBuilder.cs" />
     <Compile Include="IStubHttp.cs" />
+    <Compile Include="IStubResponse.cs" />
     <Compile Include="RequestHandlerExtensions.cs" />
     <Compile Include="BufferedBody.cs" />
     <Compile Include="HttpMockRepository.cs" />
@@ -63,6 +64,7 @@
     <Compile Include="RequestProcessor.cs" />
     <Compile Include="SchedulerDelegate.cs" />
     <Compile Include="ResponseBuilder.cs" />
+    <Compile Include="StubNotFoundResponse.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

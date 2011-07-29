@@ -1,11 +1,12 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using HttpMock;
 using NUnit.Framework;
 
 namespace SevenDigital.HttpMock.Integration.Tests
 {
 	[TestFixture]
-	public class MultipleTestsUsingTheSameStubServer
+	public class MultipleTestsUsingTheSameStubServerAndDifferentUris
 	{
 		private IStubHttp _httpMockRepository;
 
@@ -48,9 +49,13 @@ namespace SevenDigital.HttpMock.Integration.Tests
 
 			IStubHttp stubHttp = _httpMockRepository.WithNewContext();
 
-			stubHttp.Stub(x => x.Post("/firsttest")).Return(stubbedReponseOne).OK();
+			stubHttp.Stub(x => x.Post("/firsttest"))
+				.Return(stubbedReponseOne)
+				.OK();
 
-			stubHttp.Stub(x => x.Post("/secondtest")).Return(stubbedReponseTwo).OK();
+			stubHttp.Stub(x => x.Post("/secondtest"))
+				.Return(stubbedReponseTwo)
+				.OK();
 
 			Assert.That(wc.UploadString("Http://localhost:8080/firsttest/", ""), Is.EqualTo(stubbedReponseOne));
 			Assert.That(wc.UploadString("Http://localhost:8080/secondtest/", ""), Is.EqualTo(stubbedReponseTwo));

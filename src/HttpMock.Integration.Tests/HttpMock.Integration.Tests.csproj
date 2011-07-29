@@ -8,8 +8,8 @@
     <ProjectGuid>{3E61549A-1FAC-416B-BA50-7265E6FC1D03}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>StubHttp</RootNamespace>
-    <AssemblyName>StubHttp</AssemblyName>
+    <RootNamespace>SevenDigital.HttpMock.Integration.Tests</RootNamespace>
+    <AssemblyName>SevenDigital.HttpMock.Integration.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -44,6 +44,9 @@
     <Reference Include="nunit.mocks">
       <HintPath>..\..\packages\NUnit.2.5.10.11092\lib\nunit.mocks.dll</HintPath>
     </Reference>
+    <Reference Include="pnunit.framework">
+      <HintPath>..\..\packages\NUnit.2.5.10.11092\lib\pnunit.framework.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -53,11 +56,20 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="HttpEndPointTests.cs" />
-    <Compile Include="MultipleTestsUsingTheSameStubServer.cs" />
+    <Compile Include="MultipleTestsUsingTheSameStubServerAndDifferentUris.cs" />
+    <Compile Include="MultipleTestsUsingTheSameStubServerWithDifferentHttpMethods.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SameServerUsingDifferentBaseUrlsTests.cs" />
     <Compile Include="SystemUnderTest.cs" />
     <Compile Include="UsingMultipleServersTests.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="App.local.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\HttpMock\HttpMock.csproj">
