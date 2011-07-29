@@ -9,10 +9,14 @@ namespace HttpMock.Unit.Tests {
 	public class RequestProcessorTests
 	{
 		private RequestProcessor _processor;
+		private IDataProducer _dataProducer;
+		private IHttpResponseDelegate _httpResponseDelegate;
 
 		[SetUp]
 		public void SetUp() {
 			_processor = new RequestProcessor();
+			_dataProducer = MockRepository.GenerateStub<IDataProducer>();
+			_httpResponseDelegate = MockRepository.GenerateStub<IHttpResponseDelegate>();
 		}
 
 		[Test]
@@ -47,9 +51,7 @@ namespace HttpMock.Unit.Tests {
 
 		[Test]
 		public void OnRequest_should_throw_applicationexception_if_no_handlers_supplied() {
-			var dataProducer = MockRepository.GenerateStub<IDataProducer>();
-			var httpResponseDelegate = MockRepository.GenerateStub<IHttpResponseDelegate>();
-			var applicationException = Assert.Throws<ApplicationException>(() => _processor.OnRequest(new HttpRequestHead(), dataProducer, httpResponseDelegate));
+			var applicationException = Assert.Throws<ApplicationException>(() => _processor.OnRequest(new HttpRequestHead(), _dataProducer, _httpResponseDelegate));
 
 			Assert.That(applicationException.Message, Is.EqualTo("No handlers have been set up, why do I even bother"));
 		}
@@ -57,15 +59,25 @@ namespace HttpMock.Unit.Tests {
 		[Test]
 		public void Matching_handler_should_output_handlers_expected_response() {
 			const string expected = "lost";
-			var dataProducer = MockRepository.GenerateStub<IDataProducer>();
-			var httpResponseDelegate = MockRepository.GenerateStub<IHttpResponseDelegate>();
 			var request = new HttpRequestHead {Uri = expected, Method = "GET"};
 
 			RequestHandler requestHandler = _processor.Get(expected);
 			_processor.Add(requestHandler);
-			_processor.OnRequest(request, dataProducer, httpResponseDelegate);
+			_processor.OnRequest(request, _dataProducer, _httpResponseDelegate);
 
-			httpResponseDelegate.AssertWasCalled(x => x.OnResponse(requestHandler.ResponseBuilder.BuildHeaders(), requestHandler.ResponseBuilder.BuildBody()));
+			_httpResponseDelegate.AssertWasCalled(x => x.OnResponse(requestHandler.ResponseBuilder.BuildHeaders(), requestHandler.ResponseBuilder.BuildBody()));
+		}
+
+		[Test]
+		public void Matching_HEAD_handler_should_output_handlers_expected_response_with_null_body() {
+			const string expected = "lost";
+			var request = new HttpRequestHead { Uri = expected, Method = "HEAD" };
+
+			RequestHandler requestHandler = _processor.Head(expected);
+			_processor.Add(requestHandler);
+			_processor.OnRequest(request, _dataProducer, _httpResponseDelegate);
+
+			_httpResponseDelegate.AssertWasCalled(x => x.OnResponse(requestHandler.ResponseBuilder.BuildHeaders(), null));
 		}
 
 		[Test]
@@ -76,10 +88,6 @@ namespace HttpMock.Unit.Tests {
 			defaultResponse.Stub(x => x.Get(new HttpRequestHead())).IgnoreArguments().Return(expectedResponseBuilder);
 
 			_processor = new RequestProcessor(defaultResponse);
-
-			var dataProducer = MockRepository.GenerateStub<IDataProducer>();
-			var httpResponseDelegate = MockRepository.GenerateStub<IHttpResponseDelegate>();
-
 			const string uriToMatch = "whatwereallywant";
 			const string uriThatDoesNotMatch = "zigazigahhh";
 
@@ -87,9 +95,9 @@ namespace HttpMock.Unit.Tests {
 
 			RequestHandler requestHandler = _processor.Get(uriThatDoesNotMatch);
 			_processor.Add(requestHandler);
-			_processor.OnRequest(actualRequest, dataProducer, httpResponseDelegate);
+			_processor.OnRequest(actualRequest, _dataProducer, _httpResponseDelegate);
 
-			httpResponseDelegate.AssertWasCalled(x => x.OnResponse(expectedResponseBuilder.BuildHeaders(), expectedResponseBuilder.BuildBody()));
+			_httpResponseDelegate.AssertWasCalled(x => x.OnResponse(expectedResponseBuilder.BuildHeaders(), expectedResponseBuilder.BuildBody()));
 		}
 	}
 }

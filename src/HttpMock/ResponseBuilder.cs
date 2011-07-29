@@ -47,7 +47,7 @@ namespace HttpMock
 
 		public void WithFile(string pathToFile) {
 			if(File.Exists(pathToFile)) {
-				FileInfo fileInfo = new FileInfo(pathToFile);
+				var fileInfo = new FileInfo(pathToFile);
 				_contentLength = (int) fileInfo.Length;
 				FileStream fileStream = fileInfo.Open(FileMode.Open, FileAccess.Read);
 				_responseBodyBuilder = new StreamedBody(fileStream, _contentLength);

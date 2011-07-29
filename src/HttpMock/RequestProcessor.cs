@@ -9,7 +9,7 @@ namespace HttpMock
 	public class RequestProcessor : IHttpRequestDelegate
 	{
 		private string _applicationPath;
-		private Dictionary<string, RequestHandler> _handlers = new Dictionary<string, RequestHandler>();
+		private List<RequestHandler> _handlers = new List<RequestHandler>();
 		private IDisposable _closeObject;
 		private readonly IStubResponse _defaultResponse;
 
@@ -26,9 +26,10 @@ namespace HttpMock
 			if(_handlers.Count() < 1)
 				throw new ApplicationException("No handlers have been set up, why do I even bother");
 			
-			RequestHandler handler = _handlers.Where(x => MatchPath( x.Key, request.Uri) && x.Value.Method == request.Method).FirstOrDefault().Value;
+			RequestHandler handler = _handlers.Where(x => MatchPath( x.Path, request.Uri) && x.Method == request.Method).FirstOrDefault();
 			if (handler != null) {
-				response.OnResponse(handler.ResponseBuilder.BuildHeaders(), handler.ResponseBuilder.BuildBody());
+				IDataProducer dataProducer = handler.Method != "HEAD" ? handler.ResponseBuilder.BuildBody() : null;
+				response.OnResponse(handler.ResponseBuilder.BuildHeaders(),dataProducer);
 			}
 			else {
 				ResponseBuilder stubNotFoundResponseBuilder = _defaultResponse.Get(request);
@@ -59,11 +60,11 @@ namespace HttpMock
 		}
 		
 		public void ClearHandlers() {
-			_handlers = new Dictionary<string, RequestHandler>();
+			_handlers = new List<RequestHandler>();
 		}
 
 		public void Add(RequestHandler requestHandler) {
-			_handlers.Add(requestHandler.Path, requestHandler);
+			_handlers.Add(requestHandler);
 		}
 
 		public void SetCloseObject(IDisposable closeObject) {
