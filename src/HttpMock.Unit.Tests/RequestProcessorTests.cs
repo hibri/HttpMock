@@ -71,7 +71,7 @@ namespace HttpMock.Unit.Tests {
 
 		[Test]
 		public void No_matching_handlers_should_output_stub_not_found_response() {
-			
+			//MockRepository.GenerateStub<>();
 		}
 	}
 }
