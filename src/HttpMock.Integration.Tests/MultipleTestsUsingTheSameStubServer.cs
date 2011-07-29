@@ -18,18 +18,26 @@ namespace SevenDigital.HttpMock.Integration.Tests
 		public void FirstTest() {
 			var wc = new WebClient();
 			string stubbedReponse = "Response for first test";
-			_httpMockRepository.WithNewContext().Stub(x => x.Post("/firsttest")).Return(stubbedReponse).OK();
+			_httpMockRepository
+				.WithNewContext()
+				.Stub(x => x.Post("/firsttest"))
+				.Return(stubbedReponse)
+				.OK();
 
-			Assert.That(wc.DownloadString("Http://localhost:8080/firsttest/"), Is.EqualTo(stubbedReponse));
+			Assert.That(wc.UploadString("Http://localhost:8080/firsttest/", ""), Is.EqualTo(stubbedReponse));
 		}
 
 		[Test]
 		public void SecondTest() {
 			var wc = new WebClient();
 			string stubbedReponse = "Response for second test";
-			_httpMockRepository.WithNewContext().Stub(x => x.Post("/secondtest")).Return(stubbedReponse).OK();
+			_httpMockRepository
+				.WithNewContext()
+				.Stub(x => x.Post("/secondtest"))
+				.Return(stubbedReponse)
+				.OK();
 
-			Assert.That(wc.DownloadString("Http://localhost:8080/secondtest/"), Is.EqualTo(stubbedReponse));
+			Assert.That(wc.UploadString("Http://localhost:8080/secondtest/", ""), Is.EqualTo(stubbedReponse));
 		}
 
 		[Test]
@@ -44,8 +52,8 @@ namespace SevenDigital.HttpMock.Integration.Tests
 
 			stubHttp.Stub(x => x.Post("/secondtest")).Return(stubbedReponseTwo).OK();
 
-			Assert.That(wc.DownloadString("Http://localhost:8080/firsttest/"), Is.EqualTo(stubbedReponseOne));
-			Assert.That(wc.DownloadString("Http://localhost:8080/secondtest/"), Is.EqualTo(stubbedReponseTwo));
+			Assert.That(wc.UploadString("Http://localhost:8080/firsttest/", ""), Is.EqualTo(stubbedReponseOne));
+			Assert.That(wc.UploadString("Http://localhost:8080/secondtest/", ""), Is.EqualTo(stubbedReponseTwo));
 		}
 	}
 }
