@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Kayak;
 using Kayak.Http;
 using NUnit.Framework;
@@ -55,6 +52,26 @@ namespace HttpMock.Unit.Tests {
 			var applicationException = Assert.Throws<ApplicationException>(() => _processor.OnRequest(new HttpRequestHead(), dataProducer, httpResponseDelegate));
 
 			Assert.That(applicationException.Message, Is.EqualTo("No handlers have been set up, why do I even bother"));
+		}
+
+		[Test]
+		public void Matching_handler_should_output_handlers_expected_response() {
+			const string expected = "lost";
+			var dataProducer = MockRepository.GenerateStub<IDataProducer>();
+			var httpResponseDelegate = MockRepository.GenerateStub<IHttpResponseDelegate>();
+			var request = new HttpRequestHead {Uri = expected};
+
+			RequestHandler requestHandler = _processor.Get(expected);
+			
+			_processor.Add(requestHandler);
+			_processor.OnRequest(request, dataProducer, httpResponseDelegate);
+
+			httpResponseDelegate.AssertWasCalled(x => x.OnResponse(requestHandler.ResponseBuilder.BuildHeaders(), requestHandler.ResponseBuilder.BuildBody()));
+		}
+
+		[Test]
+		public void No_matching_handlers_should_output_stub_not_found_response() {
+			
 		}
 	}
 }

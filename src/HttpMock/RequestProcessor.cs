@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Net;
 using Kayak;
 using Kayak.Http;
 
@@ -11,12 +9,12 @@ namespace HttpMock
 	public class RequestProcessor : IHttpRequestDelegate
 	{
 		private string _applicationPath;
-		private Dictionary<string, RequestHandler> _handlers;
+		private Dictionary<string, RequestHandler> _handlers = new Dictionary<string, RequestHandler>();
 		private IDisposable _closeObject;
-
+		
 		public void OnRequest(HttpRequestHead request, IDataProducer body, IHttpResponseDelegate response) {
 
-			if(_handlers == null || _handlers.Count() < 1)
+			if(_handlers.Count() < 1)
 				throw new ApplicationException("No handlers have been set up, why do I even bother");
 			
 			RequestHandler handler = _handlers.Where(x => MatchPath( x.Key, request.Uri)).FirstOrDefault().Value;
@@ -24,7 +22,7 @@ namespace HttpMock
 				response.OnResponse(handler.ResponseBuilder.BuildHeaders(), handler.ResponseBuilder.BuildBody());
 			}
 			else {
-				ResponseBuilder stubNotFoundResponseBuilder = GetStubNotFoundResponse(request);
+				ResponseBuilder stubNotFoundResponseBuilder = new StubNotFoundResponse().Get(request);
 				response.OnResponse(stubNotFoundResponseBuilder.BuildHeaders(), stubNotFoundResponseBuilder.BuildBody());
 			}
 		}
@@ -78,13 +76,6 @@ namespace HttpMock
 			else {
 				_applicationPath = baseUri;
 			}
-		}
-
-		private ResponseBuilder GetStubNotFoundResponse(HttpRequestHead request) {
-			var stubNotFoundResponseBuilder = new ResponseBuilder();
-			stubNotFoundResponseBuilder.Return(string.Format("Stub not found for {0} : {1}", request.Method, request.Uri));
-			stubNotFoundResponseBuilder.WithStatus(HttpStatusCode.NotFound);
-			return stubNotFoundResponseBuilder;
 		}
 
 		private RequestHandler AddHandler(string path, string method) {
