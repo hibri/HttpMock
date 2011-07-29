@@ -62,7 +62,6 @@ namespace HttpMock.Unit.Tests {
 			var request = new HttpRequestHead {Uri = expected};
 
 			RequestHandler requestHandler = _processor.Get(expected);
-			
 			_processor.Add(requestHandler);
 			_processor.OnRequest(request, dataProducer, httpResponseDelegate);
 
@@ -71,7 +70,26 @@ namespace HttpMock.Unit.Tests {
 
 		[Test]
 		public void No_matching_handlers_should_output_stub_not_found_response() {
-			//MockRepository.GenerateStub<>();
+			var defaultResponse = MockRepository.GenerateStub<IStubResponse>();
+			var expectedResponseBuilder = new ResponseBuilder();
+			
+			defaultResponse.Stub(x => x.Get(new HttpRequestHead())).IgnoreArguments().Return(expectedResponseBuilder);
+
+			_processor = new RequestProcessor(defaultResponse);
+
+			var dataProducer = MockRepository.GenerateStub<IDataProducer>();
+			var httpResponseDelegate = MockRepository.GenerateStub<IHttpResponseDelegate>();
+
+			const string uriToMatch = "whatwereallywant";
+			const string uriThatDoesNotMatch = "zigazigahhh";
+
+			var actualRequest = new HttpRequestHead { Uri = uriToMatch };
+
+			RequestHandler requestHandler = _processor.Get(uriThatDoesNotMatch);
+			_processor.Add(requestHandler);
+			_processor.OnRequest(actualRequest, dataProducer, httpResponseDelegate);
+
+			httpResponseDelegate.AssertWasCalled(x => x.OnResponse(expectedResponseBuilder.BuildHeaders(), expectedResponseBuilder.BuildBody()));
 		}
 	}
 }
