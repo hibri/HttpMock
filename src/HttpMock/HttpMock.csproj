@@ -53,6 +53,7 @@
     <Compile Include="HttpServerFactory.cs" />
     <Compile Include="IHttpMockRepository.cs" />
     <Compile Include="IStubHttp.cs" />
+    <Compile Include="IStubResponse.cs" />
     <Compile Include="RequestHandlerExtensions.cs" />
     <Compile Include="BufferedBody.cs" />
     <Compile Include="HttpMockRepository.cs" />
@@ -61,6 +62,7 @@
     <Compile Include="RequestProcessor.cs" />
     <Compile Include="SchedulerDelegate.cs" />
     <Compile Include="ResponseBuilder.cs" />
+    <Compile Include="StubNotFoundResponse.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

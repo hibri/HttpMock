@@ -11,7 +11,16 @@ namespace HttpMock
 		private string _applicationPath;
 		private Dictionary<string, RequestHandler> _handlers = new Dictionary<string, RequestHandler>();
 		private IDisposable _closeObject;
-		
+		private readonly IStubResponse _defaultResponse;
+
+		public RequestProcessor() {
+			_defaultResponse = new StubNotFoundResponse();
+		}
+
+		public RequestProcessor(IStubResponse defaultResponse) {
+			_defaultResponse = defaultResponse;
+		}
+
 		public void OnRequest(HttpRequestHead request, IDataProducer body, IHttpResponseDelegate response) {
 
 			if(_handlers.Count() < 1)
@@ -22,7 +31,7 @@ namespace HttpMock
 				response.OnResponse(handler.ResponseBuilder.BuildHeaders(), handler.ResponseBuilder.BuildBody());
 			}
 			else {
-				ResponseBuilder stubNotFoundResponseBuilder = new StubNotFoundResponse().Get(request);
+				ResponseBuilder stubNotFoundResponseBuilder = _defaultResponse.Get(request);
 				response.OnResponse(stubNotFoundResponseBuilder.BuildHeaders(), stubNotFoundResponseBuilder.BuildBody());
 			}
 		}
