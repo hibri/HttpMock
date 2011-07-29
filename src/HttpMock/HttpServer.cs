@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Threading;
+using System.Threading.Tasks;
 using Kayak;
 using Kayak.Http;
 
@@ -16,7 +17,6 @@ namespace HttpMock
 	{
 		protected RequestProcessor _requestProcessor;
 		private ISchedulerDelegate _schedulerDelegate;
-		protected KayakScheduler _scheduler;
 		private Thread _thread;
 		private Uri _uri;
 
@@ -24,45 +24,27 @@ namespace HttpMock
 		{
 			_uri = uri;
 			_schedulerDelegate = new SchedulerDelegate();
-			_scheduler = new KayakScheduler(_schedulerDelegate);
 			_requestProcessor = new RequestProcessor();
-			
-
-			
-		}
-
-		public KayakScheduler Scheduler {
-			get { return _scheduler; }
 		}
 
 		public void Start() {
-			IPEndPoint ipEndPoint = new IPEndPoint(IPAddress.Any, _uri.Port);
-			_scheduler.Post(() => 
-			                Begin(ipEndPoint));
+			var ipEndPoint = new IPEndPoint(IPAddress.Any, _uri.Port);
+			var scheduler = KayakScheduler.Factory.Create(new SchedulerDelegate());
+			scheduler.Post(() => 
+						KayakServer.Factory
+							.CreateHttp(_requestProcessor, scheduler)
+							.Listen(ipEndPoint)
+			);
 
-			_thread = new Thread(_scheduler.Start);
-			_thread.Start();
-		}
-
-		private IDisposable Begin(IPEndPoint ipEndPoint) {
-			IDisposable disposable = KayakServer.Factory
-				.CreateHttp(_requestProcessor)
-				.Listen(ipEndPoint);
-			_requestProcessor.SetCloseObject(disposable);
-			return disposable;
+			Task.Factory.StartNew(() => scheduler.Start());
 		}
 
 		public void Dispose() {
-			try
-			{
+			try {
 				_requestProcessor.Stop();
 				_thread.Abort();
-			}
-			catch (ThreadAbortException) {
-			}
-			
-			_scheduler.Stop();
-			_scheduler.Dispose();
+			} catch (ThreadAbortException) {}
+
 		}
 
 		public RequestHandler Stub(Func<RequestProcessor, RequestHandler> func)

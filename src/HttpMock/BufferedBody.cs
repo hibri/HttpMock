@@ -26,6 +26,13 @@ namespace HttpMock
 		}
 	}
 
+	class NoBody : IDataProducer
+	{
+		public IDisposable Connect(IDataConsumer channel) {
+			return null;
+		}
+	}
+
 	class StreamedBody : IDataProducer
 	{
 		private readonly Stream _stream;

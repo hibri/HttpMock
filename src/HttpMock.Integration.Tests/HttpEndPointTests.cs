@@ -1,7 +1,12 @@
 ﻿using System;
 using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
 using HttpMock;
+using Kayak;
+using Kayak.Http;
 using NUnit.Framework;
+using Rhino.Mocks;
 
 namespace SevenDigital.HttpMock.Integration.Tests
 {
@@ -25,12 +30,25 @@ namespace SevenDigital.HttpMock.Integration.Tests
 			
 		}
 
-		
+		//[Test]
+		//public void Spike() {
+		//    IPEndPoint ipEndPoint = new IPEndPoint(IPAddress.Any, 10001);
+		//    var schedulerDelegate = MockRepository.GenerateStub<ISchedulerDelegate>(); ;
+		//    //scheduler.Post(() => Begin(ipEndPoint));
+		//    Begin(ipEndPoint);
+		//    Task.Factory.StartNew(() => Begin(ipEndPoint));
+		//}
+
+		//private static void Begin(IPEndPoint ipEndPoint) {
+		//    var httpRequestDelegate = MockRepository.GenerateStub<IHttpRequestDelegate>();
+		//    KayakServer.Factory
+		//                .CreateHttp(httpRequestDelegate)
+		//                .Listen(ipEndPoint);
+		//}
 
 		[Test]
 		public void Should_return_expected_ok_response() {
-			IStubHttp stubHttp = HttpMockRepository
-				.At(new Uri("Http://localhost:8080/api"));
+			IStubHttp stubHttp = HttpMockRepository.At(new Uri("Http://localhost:8080/api"));
 
 			stubHttp
 				.Stub(x => x.Get("/"))
