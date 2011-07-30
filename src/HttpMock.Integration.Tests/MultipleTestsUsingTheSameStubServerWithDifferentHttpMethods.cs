@@ -8,13 +8,13 @@ namespace SevenDigital.HttpMock.Integration.Tests
 	[TestFixture]
 	public class MultipleTestsUsingTheSameStubServerWithDifferentHttpMethods
 	{
-		private const string ENDPOINT_TO_HIT = "http://localhost:8080/endpoint";
+		private const string ENDPOINT_TO_HIT = "http://localhost:9191/endpoint";
 		private IStubHttp _httpMockRepository;
 
 		[TestFixtureSetUp]
 		public void SetUp() {
-			_httpMockRepository = HttpMockRepository.At("http://localhost:8080/");
-
+			_httpMockRepository = HttpMockRepository.At("http://localhost:9191/");
+			
 			_httpMockRepository
 				.Stub(x => x.Get("/endpoint"))
 				.Return("I am a GET")
@@ -39,7 +39,6 @@ namespace SevenDigital.HttpMock.Integration.Tests
 				.Stub(x => x.Head("/endpoint"))
 				.Return("I am a HEAD")
 				.OK();
-
 		}
 
 		[Test]
