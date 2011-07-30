@@ -24,7 +24,7 @@ namespace HttpMock
 		public HttpServer(Uri uri)
 		{
 			_uri = uri;
-			_scheduler = new KayakScheduler(new SchedulerDelegate());
+			_scheduler = KayakScheduler.Factory.Create(new SchedulerDelegate());
 			_requestProcessor = new RequestProcessor();
 			
 
@@ -43,7 +43,7 @@ namespace HttpMock
 			IPEndPoint ipEndPoint = new IPEndPoint(IPAddress.Any, _uri.Port);
 			_scheduler.Post(() => {
 			                	KayakServer.Factory
-			                		.CreateHttp(_requestProcessor)
+			                		.CreateHttp(_requestProcessor, _scheduler)
 			                		.Listen(ipEndPoint);
 			                });
 
