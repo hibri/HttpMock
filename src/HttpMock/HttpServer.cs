@@ -32,20 +32,26 @@ namespace HttpMock
 		}
 
 		public void Start() {
-			IPEndPoint ipEndPoint = new IPEndPoint(IPAddress.Any, _uri.Port);
-			_scheduler.Post(() => 
-			                Listen(ipEndPoint));
 
-			_thread = new Thread(_scheduler.Start);
+			_thread = new Thread(StartListening);
 			_thread.Start();
+
 		}
 
-		private IDisposable Listen(IPEndPoint ipEndPoint) {
-			IDisposable server = KayakServer.Factory
-				.CreateHttp(_requestProcessor)
-				.Listen(ipEndPoint);
-			_requestProcessor.SetCloseObject(server);
-			return server;
+		private void StartListening() {
+			Console.WriteLine("Listener thread about to start");
+			IPEndPoint ipEndPoint = new IPEndPoint(IPAddress.Any, _uri.Port);
+			_scheduler.Post(() => {
+			                	KayakServer.Factory
+			                		.CreateHttp(_requestProcessor)
+			                		.Listen(ipEndPoint);
+			                });
+
+			_scheduler.Start();
+
+			
+
+		
 		}
 
 		public void Dispose() {

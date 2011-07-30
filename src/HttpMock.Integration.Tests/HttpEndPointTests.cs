@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Net;
+using System.Net.Sockets;
+using System.Threading;
 using HttpMock;
 using NUnit.Framework;
 
@@ -23,6 +25,19 @@ namespace SevenDigital.HttpMock.Integration.Tests
 
 			Assert.That(result, Is.EqualTo(expected));
 			
+		}
+
+		[Test]
+		public void Should_start_listening_before_stubs_have_been_set() {
+			var uri = new Uri("Http://localhost:8080/api");
+			IStubHttp stubHttp = HttpMockRepository
+				.At(uri);
+
+			using (var tcpClient = new TcpClient()) {
+				tcpClient.Connect(uri.Host, uri.Port);
+
+				Assert.That(tcpClient.Connected, Is.True);
+			}
 		}
 
 		
@@ -51,7 +66,6 @@ namespace SevenDigital.HttpMock.Integration.Tests
 				.Stub(x => x.Get("/echo2"))
 				.Return("Nothing")
 				.WithStatus(HttpStatusCode.Unauthorized);
-
 
 			var wc = new WebClient();
 			Console.WriteLine(wc.DownloadString("Http://localhost:8080/api/"));
