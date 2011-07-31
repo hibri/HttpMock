@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using System.Net.Sockets;
 using System.Threading;
 using Kayak;
 using Kayak.Http;
@@ -35,11 +36,29 @@ namespace HttpMock
 
 			_thread = new Thread(StartListening);
 			_thread.Start();
+			WaitTillServerIsListening();
+		}
 
+		private void WaitTillServerIsListening() {
+			int timesToWait = 5;
+			using(var tcpClient = new TcpClient() ) {
+				int attempts = 0;
+				while (attempts < timesToWait) {
+					TryConnect(tcpClient);
+					if (tcpClient.Connected) {
+						break;
+					}
+					Thread.Sleep(10);
+					attempts++;
+				}
+			}
+		}
+
+		private void TryConnect(TcpClient tcpClient) {
+			tcpClient.Connect(_uri.Host, _uri.Port);
 		}
 
 		private void StartListening() {
-			Console.WriteLine("Listener thread about to start");
 			IPEndPoint ipEndPoint = new IPEndPoint(IPAddress.Any, _uri.Port);
 			_scheduler.Post(() => {
 			                	KayakServer.Factory
