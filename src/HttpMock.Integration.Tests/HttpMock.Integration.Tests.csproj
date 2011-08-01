@@ -65,6 +65,7 @@
     <Compile Include="SameServerUsingDifferentBaseUrlsTests.cs" />
     <Compile Include="SystemUnderTest.cs" />
     <Compile Include="UsingMultipleServersTests.cs" />
+    <Compile Include="UsingTheSameStubServerAndDifferentQueryRequestParams.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="App.local.config">

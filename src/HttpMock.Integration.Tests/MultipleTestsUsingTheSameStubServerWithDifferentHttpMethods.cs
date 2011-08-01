@@ -14,7 +14,7 @@ namespace SevenDigital.HttpMock.Integration.Tests
 		[TestFixtureSetUp]
 		public void SetUp() {
 			_httpMockRepository = HttpMockRepository.At("http://localhost:9191/");
-			
+
 			_httpMockRepository
 				.Stub(x => x.Get("/endpoint"))
 				.Return("I am a GET")

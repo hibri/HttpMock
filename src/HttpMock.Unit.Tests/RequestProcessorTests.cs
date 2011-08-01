@@ -11,12 +11,23 @@ namespace HttpMock.Unit.Tests {
 		private RequestProcessor _processor;
 		private IDataProducer _dataProducer;
 		private IHttpResponseDelegate _httpResponseDelegate;
+		private IMatchingRule _ruleThatReturnsFirstHandler;
+		private IMatchingRule _ruleThatReturnsNoHandlers;
+		private IStubResponse _defaultResponse;
 
 		[SetUp]
 		public void SetUp() {
 			_processor = new RequestProcessor();
 			_dataProducer = MockRepository.GenerateStub<IDataProducer>();
 			_httpResponseDelegate = MockRepository.GenerateStub<IHttpResponseDelegate>();
+
+			_defaultResponse = MockRepository.GenerateStub<IStubResponse>();
+
+			_ruleThatReturnsFirstHandler = MockRepository.GenerateStub<IMatchingRule>();
+			_ruleThatReturnsFirstHandler.Stub(x => x.IsEndpointMatch(null, new HttpRequestHead())).IgnoreArguments().Return(true).Repeat.Once();
+
+			_ruleThatReturnsNoHandlers = MockRepository.GenerateStub<IMatchingRule>();
+			_ruleThatReturnsNoHandlers.Stub(x => x.IsEndpointMatch(null, new HttpRequestHead())).IgnoreArguments().Return(false);
 		}
 
 		[Test]
@@ -57,47 +68,41 @@ namespace HttpMock.Unit.Tests {
 		}
 
 		[Test]
-		public void Matching_handler_should_output_handlers_expected_response() {
-			const string expected = "lost";
-			var request = new HttpRequestHead {Uri = expected, Method = "GET"};
+		public void If_no_handlers_found_should_fire_onresponse_with_default_response() {
 
-			RequestHandler requestHandler = _processor.Get(expected);
+			var expectedResponseBuilder = new ResponseBuilder();
+
+			_defaultResponse.Stub(x => x.Get(new HttpRequestHead())).IgnoreArguments().Return(expectedResponseBuilder);
+
+			_processor = new RequestProcessor(_defaultResponse, _ruleThatReturnsNoHandlers);
+
+			_processor.Add(_processor.Get("test"));
+			_processor.OnRequest(new HttpRequestHead(), _dataProducer, _httpResponseDelegate);
+
+			_httpResponseDelegate.AssertWasCalled(x => x.OnResponse(expectedResponseBuilder.BuildHeaders(), expectedResponseBuilder.BuildBody()));
+		}
+
+		[Test]
+		public void If_a_handler_found_should_fire_onresponse_with_that_repsonse() {
+			_processor = new RequestProcessor(_defaultResponse, _ruleThatReturnsFirstHandler);
+
+			RequestHandler requestHandler = _processor.Get("test");
 			_processor.Add(requestHandler);
-			_processor.OnRequest(request, _dataProducer, _httpResponseDelegate);
+			_processor.OnRequest(new HttpRequestHead(), _dataProducer, _httpResponseDelegate);
 
 			_httpResponseDelegate.AssertWasCalled(x => x.OnResponse(requestHandler.ResponseBuilder.BuildHeaders(), requestHandler.ResponseBuilder.BuildBody()));
 		}
-
+		
 		[Test]
 		public void Matching_HEAD_handler_should_output_handlers_expected_response_with_null_body() {
-			const string expected = "lost";
-			var request = new HttpRequestHead { Uri = expected, Method = "HEAD" };
 
-			RequestHandler requestHandler = _processor.Head(expected);
+			_processor = new RequestProcessor(_defaultResponse, _ruleThatReturnsFirstHandler);
+
+			RequestHandler requestHandler = _processor.Head("test");
 			_processor.Add(requestHandler);
-			_processor.OnRequest(request, _dataProducer, _httpResponseDelegate);
+			_processor.OnRequest(new HttpRequestHead(), _dataProducer, _httpResponseDelegate);
 
 			_httpResponseDelegate.AssertWasCalled(x => x.OnResponse(requestHandler.ResponseBuilder.BuildHeaders(), null));
-		}
-
-		[Test]
-		public void No_matching_handlers_should_output_stub_not_found_response() {
-			var defaultResponse = MockRepository.GenerateStub<IStubResponse>();
-			var expectedResponseBuilder = new ResponseBuilder();
-			
-			defaultResponse.Stub(x => x.Get(new HttpRequestHead())).IgnoreArguments().Return(expectedResponseBuilder);
-
-			_processor = new RequestProcessor(defaultResponse);
-			const string uriToMatch = "whatwereallywant";
-			const string uriThatDoesNotMatch = "zigazigahhh";
-
-			var actualRequest = new HttpRequestHead { Uri = uriToMatch };
-
-			RequestHandler requestHandler = _processor.Get(uriThatDoesNotMatch);
-			_processor.Add(requestHandler);
-			_processor.OnRequest(actualRequest, _dataProducer, _httpResponseDelegate);
-
-			_httpResponseDelegate.AssertWasCalled(x => x.OnResponse(expectedResponseBuilder.BuildHeaders(), expectedResponseBuilder.BuildBody()));
 		}
 	}
 }

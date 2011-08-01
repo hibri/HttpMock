@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
+using System.Web;
 using Kayak;
 using Kayak.Http;
 
@@ -12,24 +14,28 @@ namespace HttpMock
 		private List<RequestHandler> _handlers = new List<RequestHandler>();
 		private IDisposable _closeObject;
 		private readonly IStubResponse _defaultResponse;
+		private readonly IMatchingRule _matchingRule;
 
 		public RequestProcessor() {
 			_defaultResponse = new StubNotFoundResponse();
+			_matchingRule = new EndpointMatchingRule();
 		}
 
-		public RequestProcessor(IStubResponse defaultResponse) {
+		public RequestProcessor(IStubResponse defaultResponse, IMatchingRule matchingRule) {
 			_defaultResponse = defaultResponse;
+			_matchingRule = matchingRule;
 		}
 
 		public void OnRequest(HttpRequestHead request, IDataProducer body, IHttpResponseDelegate response) {
 
 			if(_handlers.Count() < 1)
 				throw new ApplicationException("No handlers have been set up, why do I even bother");
-			
-			RequestHandler handler = _handlers.Where(x => MatchPath( x.Path, request.Uri) && x.Method == request.Method).FirstOrDefault();
+
+			RequestHandler handler = _handlers.Where(x => _matchingRule.IsEndpointMatch(x, request)).FirstOrDefault();
+
 			if (handler != null) {
 				IDataProducer dataProducer = handler.Method != "HEAD" ? handler.ResponseBuilder.BuildBody() : null;
-				response.OnResponse(handler.ResponseBuilder.BuildHeaders(),dataProducer);
+				response.OnResponse(handler.ResponseBuilder.BuildHeaders(), dataProducer);
 			}
 			else {
 				ResponseBuilder stubNotFoundResponseBuilder = _defaultResponse.Get(request);
@@ -92,10 +98,6 @@ namespace HttpMock
 			string cleanedPath = _applicationPath + path;
 			var requestHandler = new RequestHandler(cleanedPath, this) {Method = method};
 			return requestHandler;
-		}
-
-		private bool MatchPath(string path, string requestUri) {
-			return requestUri.StartsWith(path);
 		}
 	}
 }
