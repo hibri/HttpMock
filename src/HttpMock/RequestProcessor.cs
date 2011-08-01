@@ -34,12 +34,13 @@ namespace HttpMock
 			RequestHandler handler = _handlers.Where(x => _matchingRule.IsEndpointMatch(x, request)).FirstOrDefault();
 
 			if (handler != null) {
-				IDataProducer dataProducer = handler.Method != "HEAD" ? handler.ResponseBuilder.BuildBody() : null;
+				IDataProducer dataProducer = request.Method != "HEAD" ? handler.ResponseBuilder.BuildBody() : null;
 				response.OnResponse(handler.ResponseBuilder.BuildHeaders(), dataProducer);
 			}
 			else {
 				ResponseBuilder stubNotFoundResponseBuilder = _defaultResponse.Get(request);
-				response.OnResponse(stubNotFoundResponseBuilder.BuildHeaders(), stubNotFoundResponseBuilder.BuildBody());
+				IDataProducer dataProducer = request.Method != "HEAD" ? stubNotFoundResponseBuilder.BuildBody() : null;
+				response.OnResponse(stubNotFoundResponseBuilder.BuildHeaders(), dataProducer);
 			}
 		}
 

@@ -100,9 +100,27 @@ namespace HttpMock.Unit.Tests {
 
 			RequestHandler requestHandler = _processor.Head("test");
 			_processor.Add(requestHandler);
-			_processor.OnRequest(new HttpRequestHead(), _dataProducer, _httpResponseDelegate);
+			var httpRequestHead = new HttpRequestHead {Method = "HEAD"};
+			_processor.OnRequest(httpRequestHead, _dataProducer, _httpResponseDelegate);
 
 			_httpResponseDelegate.AssertWasCalled(x => x.OnResponse(requestHandler.ResponseBuilder.BuildHeaders(), null));
+		}
+
+		[Test]
+		public void Unmatching_HEAD_handler_should_output_defaultresponse_with_null_body() {
+
+			var expectedResponseBuilder = new ResponseBuilder();
+
+			var httpRequestHead = new HttpRequestHead {Method = "HEAD"};
+			_defaultResponse.Stub(x => x.Get(httpRequestHead)).IgnoreArguments().Return(expectedResponseBuilder);
+
+			_processor = new RequestProcessor(_defaultResponse, _ruleThatReturnsNoHandlers);
+
+			RequestHandler requestHandler = _processor.Head("test");
+			_processor.Add(requestHandler);
+			_processor.OnRequest(httpRequestHead, _dataProducer, _httpResponseDelegate);
+
+			_httpResponseDelegate.AssertWasCalled(x => x.OnResponse(expectedResponseBuilder.BuildHeaders(), null));
 		}
 	}
 }

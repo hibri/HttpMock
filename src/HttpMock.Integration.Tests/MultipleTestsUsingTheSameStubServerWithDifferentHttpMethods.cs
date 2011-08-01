@@ -71,6 +71,20 @@ namespace SevenDigital.HttpMock.Integration.Tests
 			}
 		}
 
+		[Test]
+		public void Should_head_fail() {
+			var webRequest = (HttpWebRequest)WebRequest.Create("http://localhost:9191/endpoint?param=one");
+			webRequest.Method = "HEAD";
+			try {
+				using (var response = webRequest.GetResponse()) {
+					Assert.That(response.Headers.Count, Is.GreaterThan(0));
+					Assert.That(response.GetResponseStream().CanSeek, Is.False);
+				}
+			} catch(WebException ex){
+				Assert.That(((HttpWebResponse)ex.Response).StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
+			}
+		}
+
 		private void AssertResponse(string method, string expected) {
 
 			var webRequest = (HttpWebRequest)WebRequest.Create(ENDPOINT_TO_HIT);

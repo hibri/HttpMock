@@ -14,9 +14,9 @@ namespace SevenDigital.HttpMock.Integration.Tests
 	{
 		private const string ENDPOINT_TO_HIT = "http://localhost:9191/endpoint";
 		private IStubHttp _httpMockRepository;
-		private readonly IDictionary<string,string> _firstSetOfParams = new Dictionary<string, string>{{"firstArg","1"}};
-		private readonly IDictionary<string, string> _secondSetOfParams = new Dictionary<string, string> { { "secondArg", "2" } };
-		private readonly IDictionary<string, string> _thirdSetOfParams = new Dictionary<string, string> { { "thirdArg", "3" } };
+		private readonly IDictionary<string,string> _firstSetOfParams = new Dictionary<string, string>{ {"trackId","1"}, {"formatId", "1"} };
+		private readonly IDictionary<string, string> _secondSetOfParams = new Dictionary<string, string> { { "trackId", "2" }, { "formatId", "2" } };
+		private readonly IDictionary<string, string> _thirdSetOfParams = new Dictionary<string, string> { { "trackId", "3" }, { "formatId", "3" } };
 
 		[TestFixtureSetUp]
 		public void SetUp() {
