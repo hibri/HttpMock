@@ -72,12 +72,12 @@ namespace SevenDigital.HttpMock.Integration.Tests
 		}
 
 		[Test]
-		public void Should_head_fail() {
+		public void If_no_Mocked_Endpoints_matched_then_should_return_404_with_HttpMockError_status() {
 			var webRequest = (HttpWebRequest)WebRequest.Create("http://localhost:9191/endpoint?param=one");
-			//webRequest.Method = "HEAD";
 			try {
 				using (var response = webRequest.GetResponse()) {
 					Assert.That(response.Headers.Count, Is.GreaterThan(0));
+					Assert.That(response.Headers["HttpMockError"], Is.Not.Null);
 					Assert.That(response.GetResponseStream().CanSeek, Is.False);
 				}
 			} catch(WebException ex){
