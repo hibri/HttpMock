@@ -8,8 +8,8 @@
     <ProjectGuid>{92735A21-16E8-46BC-859D-AB96F137C457}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>HttpMock.Unit.Tests</RootNamespace>
-    <AssemblyName>HttpMock.Unit.Tests</AssemblyName>
+    <RootNamespace>SevenDigital.HttpMock.Unit.Tests</RootNamespace>
+    <AssemblyName>SevenDigital.HttpMock.Unit.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
