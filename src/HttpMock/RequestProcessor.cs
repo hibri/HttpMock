@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Linq;
-using System.Web;
 using Kayak;
 using Kayak.Http;
 
@@ -13,16 +11,13 @@ namespace HttpMock
 		private string _applicationPath;
 		private List<RequestHandler> _handlers = new List<RequestHandler>();
 		private IDisposable _closeObject;
-		private readonly IStubResponse _defaultResponse;
 		private readonly IMatchingRule _matchingRule;
 
 		public RequestProcessor() {
-			_defaultResponse = new StubNotFoundResponse();
 			_matchingRule = new EndpointMatchingRule();
 		}
 
-		public RequestProcessor(IStubResponse defaultResponse, IMatchingRule matchingRule) {
-			_defaultResponse = defaultResponse;
+		public RequestProcessor(IMatchingRule matchingRule) {
 			_matchingRule = matchingRule;
 		}
 
@@ -33,15 +28,15 @@ namespace HttpMock
 
 			RequestHandler handler = _handlers.Where(x => _matchingRule.IsEndpointMatch(x, request)).FirstOrDefault();
 
-			if (handler != null) {
-				IDataProducer dataProducer = request.Method != "HEAD" ? handler.ResponseBuilder.BuildBody() : null;
-				response.OnResponse(handler.ResponseBuilder.BuildHeaders(), dataProducer);
+			if (handler == null) {
+				var dictionary = new Dictionary<string, string> { { HttpHeaderNames.ContentLength, "0" } };
+				var notFoundResponse = new HttpResponseHead {Status = string.Format("{0} {1}", 404, "NotFound"), Headers = dictionary};
+				response.OnResponse(notFoundResponse, null);
+				return;
 			}
-			else {
-				ResponseBuilder stubNotFoundResponseBuilder = _defaultResponse.Get(request);
-				IDataProducer dataProducer = request.Method != "HEAD" ? stubNotFoundResponseBuilder.BuildBody() : null;
-				response.OnResponse(stubNotFoundResponseBuilder.BuildHeaders(), dataProducer);
-			}
+
+			IDataProducer dataProducer = request.Method != "HEAD" ? handler.ResponseBuilder.BuildBody() : null;
+			response.OnResponse(handler.ResponseBuilder.BuildHeaders(), dataProducer);
 		}
 
 		public RequestHandler Get(string path) {

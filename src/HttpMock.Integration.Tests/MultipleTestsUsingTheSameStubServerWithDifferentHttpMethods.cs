@@ -74,7 +74,7 @@ namespace SevenDigital.HttpMock.Integration.Tests
 		[Test]
 		public void Should_head_fail() {
 			var webRequest = (HttpWebRequest)WebRequest.Create("http://localhost:9191/endpoint?param=one");
-			webRequest.Method = "HEAD";
+			//webRequest.Method = "HEAD";
 			try {
 				using (var response = webRequest.GetResponse()) {
 					Assert.That(response.Headers.Count, Is.GreaterThan(0));

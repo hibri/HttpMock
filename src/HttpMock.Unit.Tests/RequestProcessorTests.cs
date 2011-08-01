@@ -68,23 +68,18 @@ namespace HttpMock.Unit.Tests {
 		}
 
 		[Test]
-		public void If_no_handlers_found_should_fire_onresponse_with_default_response() {
+		public void If_no_handlers_found_should_fire_onresponse_with_a_404() {
 
-			var expectedResponseBuilder = new ResponseBuilder();
-
-			_defaultResponse.Stub(x => x.Get(new HttpRequestHead())).IgnoreArguments().Return(expectedResponseBuilder);
-
-			_processor = new RequestProcessor(_defaultResponse, _ruleThatReturnsNoHandlers);
+			_processor = new RequestProcessor(_ruleThatReturnsNoHandlers);
 
 			_processor.Add(_processor.Get("test"));
 			_processor.OnRequest(new HttpRequestHead(), _dataProducer, _httpResponseDelegate);
-
-			_httpResponseDelegate.AssertWasCalled(x => x.OnResponse(expectedResponseBuilder.BuildHeaders(), expectedResponseBuilder.BuildBody()));
+			_httpResponseDelegate.AssertWasCalled(x => x.OnResponse(Arg<HttpResponseHead>.Matches(y => y.Status == "404 NotFound"), Arg<IDataProducer>.Is.Null));
 		}
 
 		[Test]
 		public void If_a_handler_found_should_fire_onresponse_with_that_repsonse() {
-			_processor = new RequestProcessor(_defaultResponse, _ruleThatReturnsFirstHandler);
+			_processor = new RequestProcessor(_ruleThatReturnsFirstHandler);
 
 			RequestHandler requestHandler = _processor.Get("test");
 			_processor.Add(requestHandler);
@@ -96,7 +91,7 @@ namespace HttpMock.Unit.Tests {
 		[Test]
 		public void Matching_HEAD_handler_should_output_handlers_expected_response_with_null_body() {
 
-			_processor = new RequestProcessor(_defaultResponse, _ruleThatReturnsFirstHandler);
+			_processor = new RequestProcessor(_ruleThatReturnsFirstHandler);
 
 			RequestHandler requestHandler = _processor.Head("test");
 			_processor.Add(requestHandler);
@@ -104,23 +99,6 @@ namespace HttpMock.Unit.Tests {
 			_processor.OnRequest(httpRequestHead, _dataProducer, _httpResponseDelegate);
 
 			_httpResponseDelegate.AssertWasCalled(x => x.OnResponse(requestHandler.ResponseBuilder.BuildHeaders(), null));
-		}
-
-		[Test]
-		public void Unmatching_HEAD_handler_should_output_defaultresponse_with_null_body() {
-
-			var expectedResponseBuilder = new ResponseBuilder();
-
-			var httpRequestHead = new HttpRequestHead {Method = "HEAD"};
-			_defaultResponse.Stub(x => x.Get(httpRequestHead)).IgnoreArguments().Return(expectedResponseBuilder);
-
-			_processor = new RequestProcessor(_defaultResponse, _ruleThatReturnsNoHandlers);
-
-			RequestHandler requestHandler = _processor.Head("test");
-			_processor.Add(requestHandler);
-			_processor.OnRequest(httpRequestHead, _dataProducer, _httpResponseDelegate);
-
-			_httpResponseDelegate.AssertWasCalled(x => x.OnResponse(expectedResponseBuilder.BuildHeaders(), null));
 		}
 	}
 }
