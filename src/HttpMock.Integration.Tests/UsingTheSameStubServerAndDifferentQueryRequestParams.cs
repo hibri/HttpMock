@@ -57,7 +57,7 @@ namespace SevenDigital.HttpMock.Integration.Tests
 			
 			string aggregate = queryString.Select(x => x.Key + "=" + x.Value + "&").Aggregate((a, b) => a + b).Trim('&');
 
-			var webRequest = (HttpWebRequest)WebRequest.Create(string.Format("{0}?{1}", ENDPOINT_TO_HIT, aggregate));
+			var webRequest = (HttpWebRequest)WebRequest.Create(string.Format("{0}?{1}&abirdinthehand=twointhebush", ENDPOINT_TO_HIT, aggregate));
 			using (var response = webRequest.GetResponse()) {
 				using (var sr = new StreamReader(response.GetResponseStream())) {
 					string readToEnd = sr.ReadToEnd();

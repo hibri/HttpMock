@@ -29,7 +29,12 @@ namespace HttpMock
 			RequestHandler handler = _handlers.Where(x => _matchingRule.IsEndpointMatch(x, request)).FirstOrDefault();
 
 			if (handler == null) {
-				var dictionary = new Dictionary<string, string> { { HttpHeaderNames.ContentLength, "0" }, {"HttpMockError", "StubNotFound"} };
+				var dictionary = new Dictionary<string, string>
+				{
+					{ HttpHeaderNames.ContentLength, "0" }, 
+					{"HttpMockError", "StubNotFound"}
+				};
+
 				var notFoundResponse = new HttpResponseHead { Status = string.Format("{0} {1}", 404, "NotFound"), Headers = dictionary };
 				response.OnResponse(notFoundResponse, null);
 				return;
