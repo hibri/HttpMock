@@ -73,7 +73,7 @@ namespace SevenDigital.HttpMock.Integration.Tests
 
 		[Test]
 		public void If_no_Mocked_Endpoints_matched_then_should_return_404_with_HttpMockError_status() {
-			var webRequest = (HttpWebRequest)WebRequest.Create("http://localhost:9191/endpoint?param=one");
+			var webRequest = (HttpWebRequest)WebRequest.Create("http://localhost:9191/zendpoint");
 			try {
 				using (var response = webRequest.GetResponse()) {
 					Assert.That(response.Headers.Count, Is.GreaterThan(0));
