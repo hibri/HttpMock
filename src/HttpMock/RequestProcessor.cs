@@ -10,7 +10,6 @@ namespace HttpMock
 	{
 		private string _applicationPath;
 		private List<RequestHandler> _handlers = new List<RequestHandler>();
-		private IDisposable _closeObject;
 		private readonly IMatchingRule _matchingRule;
 
 		public RequestProcessor() {
