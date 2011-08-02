@@ -21,15 +21,13 @@ namespace HttpMock
 		protected IScheduler _scheduler;
 		private Thread _thread;
 		private Uri _uri;
+		private IDisposable _disposableServer;
 
 		public HttpServer(Uri uri)
 		{
 			_uri = uri;
 			_scheduler = KayakScheduler.Factory.Create(new SchedulerDelegate());
 			_requestProcessor = new RequestProcessor();
-			
-
-			
 		}
 
 		public void Start() {
@@ -40,7 +38,7 @@ namespace HttpMock
 		}
 
 		private void WaitTillServerIsListening() {
-			int timesToWait = 5;
+			const int timesToWait = 5;
 			using(var tcpClient = new TcpClient() ) {
 				int attempts = 0;
 				while (attempts < timesToWait) {
@@ -59,24 +57,20 @@ namespace HttpMock
 		}
 
 		private void StartListening() {
-			IPEndPoint ipEndPoint = new IPEndPoint(IPAddress.Any, _uri.Port);
+			var ipEndPoint = new IPEndPoint(IPAddress.Any, _uri.Port);
 			_scheduler.Post(() => {
-			                	KayakServer.Factory
-			                		.CreateHttp(_requestProcessor, _scheduler)
-			                		.Listen(ipEndPoint);
-			                });
+			                	_disposableServer = KayakServer.Factory
+									.CreateHttp(_requestProcessor, _scheduler)
+									.Listen(ipEndPoint);
+								});
 
 			_scheduler.Start();
-
-			
-
-		
 		}
 
 		public void Dispose() {
 			try
 			{
-				_requestProcessor.Stop();
+				_disposableServer.Dispose();
 				_thread.Abort();
 			}
 			catch (ThreadAbortException) {

@@ -31,10 +31,10 @@ namespace HttpMock
 			AddHeader(HttpHeaderNames.ContentLength, _contentLength.ToString()); 
 			
 			return new HttpResponseHead
-			       	{
-			       		Status = string.Format("{0} {1}", (int)_httpStatusCode, _httpStatusCode),
-			       		Headers = _headers
-			       	};
+			{
+				Status = string.Format("{0} {1}", (int)_httpStatusCode, _httpStatusCode),
+				Headers = _headers
+			};
 		}
 
 		public void WithStatus(HttpStatusCode httpStatusCode) {
@@ -48,11 +48,9 @@ namespace HttpMock
 		public void WithFile(string pathToFile) {
 			if(File.Exists(pathToFile)) {
 				var fileInfo = new FileInfo(pathToFile);
-				_contentLength = (int) fileInfo.Length;
-				FileStream fileStream = fileInfo.Open(FileMode.Open, FileAccess.Read);
-				_responseBodyBuilder = new StreamedBody(fileStream, _contentLength);
-			}
-			else {
+				_contentLength = (int)fileInfo.Length;
+				_responseBodyBuilder = new FileResponseBody(pathToFile);
+			} else {
 				throw new InvalidOperationException("File does not exsist/accessible at :" + pathToFile);
 			}
 		}

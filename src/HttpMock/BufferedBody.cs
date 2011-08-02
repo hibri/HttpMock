@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Text;
+using System.Threading;
 using Kayak;
 
 namespace HttpMock
@@ -33,11 +34,31 @@ namespace HttpMock
 		}
 	}
 
+	class FileResponseBody : IDataProducer
+	{
+		private readonly string _filepath;
+		const int BUFFER_SIZE = 2048;
+		public FileResponseBody(string filepath) {
+			_filepath = filepath;
+		}
+
+		public IDisposable Connect(IDataConsumer channel) {
+
+			var fileInfo = new FileInfo(_filepath);
+			
+			using(FileStream fileStream = fileInfo.Open(FileMode.Open, FileAccess.Read)) {
+				var buffer = new byte[fileInfo.Length];
+				fileStream.Read(buffer, 0, BUFFER_SIZE);
+				channel.OnData(new ArraySegment<byte>(buffer), null);
+				return null;
+			}
+		}
+	}
+
 	class StreamedBody : IDataProducer
 	{
 		private readonly Stream _stream;
 		private readonly int _contentLength;
-		private int _bytesSent;
 		private IDataConsumer _channel;
 		const int BUFFER_SIZE = 2048;
 		public StreamedBody(Stream stream, int contentLength) {
@@ -46,23 +67,14 @@ namespace HttpMock
 		}
 
 		public IDisposable Connect(IDataConsumer channel) {
-			_bytesSent = 0;
 			_channel = channel;
 
 			using (_stream) {
 				byte[] buffer = new byte[_contentLength];
-				_bytesSent = _stream.Read(buffer, 0, BUFFER_SIZE);
+				_stream.Read(buffer, 0, BUFFER_SIZE);
 
 				_channel.OnData(new ArraySegment<byte>(buffer), null);
 				return null;
-			}
-		}
-
-		private void WriteData() {
-			
-			if(_bytesSent <= _contentLength) {
-				
-				
 			}
 		}
 	}

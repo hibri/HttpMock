@@ -10,7 +10,6 @@ namespace HttpMock
 			return _httpServerFactory.Create(uri).WithNewContext(uri.AbsolutePath);
 		}
 
-
 		public static IStubHttp At(string uri) {
 			return At(new Uri(uri));
 		}

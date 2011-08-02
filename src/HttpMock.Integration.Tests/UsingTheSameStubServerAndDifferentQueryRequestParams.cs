@@ -12,7 +12,7 @@ namespace SevenDigital.HttpMock.Integration.Tests
 	[TestFixture]
 	public class UsingTheSameStubServerAndDifferentQueryRequestParams
 	{
-		private const string ENDPOINT_TO_HIT = "http://localhost:9191/endpoint";
+		private const string ENDPOINT_TO_HIT = "http://localhost:1125/endpoint";
 		private IStubHttp _httpMockRepository;
 		private readonly IDictionary<string,string> _firstSetOfParams = new Dictionary<string, string>{ {"trackId","1"}, {"formatId", "1"} };
 		private readonly IDictionary<string, string> _secondSetOfParams = new Dictionary<string, string> { { "trackId", "2" }, { "formatId", "2" } };
@@ -20,7 +20,7 @@ namespace SevenDigital.HttpMock.Integration.Tests
 
 		[TestFixtureSetUp]
 		public void SetUp() {
-			_httpMockRepository = HttpMockRepository.At("http://localhost:9191/");
+			_httpMockRepository = HttpMockRepository.At("http://localhost:1125/");
 
 			_httpMockRepository.Stub(x => x.Get("/endpoint"))
 				.WithParams(_firstSetOfParams)

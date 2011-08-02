@@ -19,8 +19,10 @@ namespace SevenDigital.HttpMock.Integration.Tests
 		public void FirstTest() {
 			var wc = new WebClient();
 			string stubbedReponse = "Response for first test";
-			_httpMockRepository
-				.WithNewContext()
+			var stubHttp = _httpMockRepository
+				.WithNewContext();
+
+			stubHttp
 				.Stub(x => x.Post("/firsttest"))
 				.Return(stubbedReponse)
 				.OK();

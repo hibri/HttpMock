@@ -38,9 +38,10 @@ namespace HttpMock
 			return this;
 		}
 
-		public RequestHandler ReturnFile(string pathToFile)
-		{
+		public RequestHandler ReturnFile(string pathToFile) {
+			var fileName = System.IO.Path.GetFileName(pathToFile);
 			_webResponseBuilder.WithFile(pathToFile);
+			_webResponseBuilder.AddHeader("Content-Disposition", string.Format("attachment; filename=\"{0}\"", fileName));
 			return this;
 		}
 

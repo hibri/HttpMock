@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Net;
 using System.Net.Sockets;
-using System.Threading;
 using HttpMock;
 using NUnit.Framework;
 
@@ -10,6 +9,7 @@ namespace SevenDigital.HttpMock.Integration.Tests
 	[TestFixture]
 	public class HttpEndPointTests
 	{
+
 		[Test]
 		public void SUT_should_return_stubbed_response() {
 			IStubHttp stubHttp = HttpMockRepository
