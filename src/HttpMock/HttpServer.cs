@@ -10,18 +10,21 @@ namespace HttpMock
 	public interface IHttpServer : IDisposable
 	{
 		RequestHandler Stub(Func<RequestProcessor, RequestHandler> func);
-		IStubHttp WithNewContext();
-		IStubHttp WithNewContext(string baseUri);
+		IHttpServer WithNewContext();
+		IHttpServer WithNewContext(string baseUri);
 		void Start();
+		void Dispose();
+		string WhatDoIHave();
 	}
 
-	public class HttpServer : IHttpServer, IStubHttp
+	public class HttpServer : IHttpServer
 	{
-		protected RequestProcessor _requestProcessor;
-		protected IScheduler _scheduler;
-		private Thread _thread;
-		private Uri _uri;
+		private readonly RequestProcessor _requestProcessor;
+		private readonly IScheduler _scheduler;
+		private readonly Uri _uri;
 		private IDisposable _disposableServer;
+		
+		private Thread _thread;
 
 		public HttpServer(Uri uri)
 		{
@@ -31,7 +34,6 @@ namespace HttpMock
 		}
 
 		public void Start() {
-
 			_thread = new Thread(StartListening);
 			_thread.Start();
 			WaitTillServerIsListening();
@@ -39,45 +41,35 @@ namespace HttpMock
 
 		private void WaitTillServerIsListening() {
 			const int timesToWait = 5;
+			int attempts = 0;
 			using(var tcpClient = new TcpClient() ) {
-				int attempts = 0;
 				while (attempts < timesToWait) {
-					TryConnect(tcpClient);
+					tcpClient.Connect(_uri.Host, _uri.Port);
 					if (tcpClient.Connected) {
-						break;
+						return;
 					}
-					Thread.Sleep(10);
+					Thread.Sleep(100);
 					attempts++;
 				}
+				throw new InvalidOperationException("Kayak server not listening yet.");
 			}
-		}
-
-		private void TryConnect(TcpClient tcpClient) {
-			tcpClient.Connect(_uri.Host, _uri.Port);
 		}
 
 		private void StartListening() {
 			var ipEndPoint = new IPEndPoint(IPAddress.Any, _uri.Port);
 			_scheduler.Post(() => {
-			                	_disposableServer = KayakServer.Factory
-									.CreateHttp(_requestProcessor, _scheduler)
-									.Listen(ipEndPoint);
-								});
+				_disposableServer = KayakServer.Factory
+					.CreateHttp(_requestProcessor, _scheduler)
+					.Listen(ipEndPoint);
+			});
 
 			_scheduler.Start();
 		}
 
 		public void Dispose() {
-			try
-			{
-				_disposableServer.Dispose();
-				_thread.Abort();
-			}
-			catch (ThreadAbortException) {
-			}
-			
 			_scheduler.Stop();
 			_scheduler.Dispose();
+			_disposableServer.Dispose();
 		}
 
 		public RequestHandler Stub(Func<RequestProcessor, RequestHandler> func)
@@ -85,15 +77,20 @@ namespace HttpMock
 			return func.Invoke(_requestProcessor);
 		}
 
-		public IStubHttp WithNewContext() {
+		public IHttpServer WithNewContext() {
 			_requestProcessor.ClearHandlers();
 			return this;
 		}
 
-		public IStubHttp WithNewContext(string baseUri) {
+		public IHttpServer WithNewContext(string baseUri) {
 			_requestProcessor.SetBaseUri(baseUri);
 			WithNewContext();
 			return this;
+		}
+
+		public string WhatDoIHave()
+		{
+			return _requestProcessor.WhatDoIHave();
 		}
 	}
 }

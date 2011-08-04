@@ -22,7 +22,6 @@ namespace HttpMock
 		}
 
 		public IDataProducer BuildBody() {
-			
 			return _responseBodyBuilder;
 		}
 

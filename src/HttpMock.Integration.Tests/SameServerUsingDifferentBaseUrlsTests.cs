@@ -21,7 +21,6 @@ namespace SevenDigital.HttpMock.Integration.Tests
 			Assert.That(wc.DownloadString("http://localhost:8080/appone/endpoint"), Is.EqualTo(expected));
 		}
 
-
 		[Test]
 		public void UsingAppTwo()
 		{

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Kayak;
 using Kayak.Http;
 
@@ -21,9 +22,10 @@ namespace HttpMock
 		}
 
 		public void OnRequest(HttpRequestHead request, IDataProducer body, IHttpResponseDelegate response) {
-
-			if(_handlers.Count() < 1)
-				throw new ApplicationException("No handlers have been set up, why do I even bother");
+			if (_handlers.Count() < 1) {
+				ReturnHttpMockNotFound(response);
+				return;
+			}
 
 			RequestHandler handler = _handlers.Where(x => _matchingRule.IsEndpointMatch(x, request)).FirstOrDefault();
 
@@ -38,7 +40,10 @@ namespace HttpMock
 
 		private static void ReturnHttpMockNotFound(IHttpResponseDelegate response) {
 			var dictionary = new Dictionary<string, string>
-			{{HttpHeaderNames.ContentLength, "0"}, {"HttpMockError", "StubNotFound"}};
+			{
+				{ HttpHeaderNames.ContentLength, "0" }, 
+				{ "SevenDigital-HttpMockError", "No handler found to handle request" }
+			};
 
 			var notFoundResponse = new HttpResponseHead
 			{Status = string.Format("{0} {1}", 404, "NotFound"), Headers = dictionary};
@@ -92,6 +97,17 @@ namespace HttpMock
 			string cleanedPath = _applicationPath + path;
 			var requestHandler = new RequestHandler(cleanedPath, this) {Method = method};
 			return requestHandler;
+		}
+
+		public string WhatDoIHave()
+		{
+			var stringBuilder = new StringBuilder();
+			stringBuilder.AppendLine("Handlers:");
+			foreach(var handler in _handlers)
+			{
+				stringBuilder.Append(handler.ToString());
+			}
+			return stringBuilder.ToString();
 		}
 	}
 }

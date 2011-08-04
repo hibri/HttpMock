@@ -31,7 +31,5 @@ namespace HttpMock
 			requestHandler.ResponseBuilder.AddHeader(header, headerValue);
 			return requestHandler;
 		}
-
-
 	}
 }

@@ -19,7 +19,6 @@ namespace SevenDigital.HttpMock.Integration.Tests
 			Assert.That(wc.DownloadString("http://localhost:8080/app/endpoint"), Is.EqualTo(expected));
 		}
 
-
 		[Test]
 		public void Using8081()
 		{

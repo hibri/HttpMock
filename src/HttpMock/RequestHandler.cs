@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
 
 namespace HttpMock
 {
@@ -48,6 +50,15 @@ namespace HttpMock
 		public RequestHandler WithParams(IDictionary<string,string> nameValueCollection) {
 			QueryParams = nameValueCollection;
 			return this;
+		}
+
+		public override string ToString()
+		{
+			var sb = new StringBuilder();
+			sb.AppendFormat("{0}:{1}{2}", Path, Method, Environment.NewLine);
+			foreach(var param in QueryParams)
+				sb.AppendLine(string.Format("{0}:{1}", param.Key, param.Value));
+			return sb.ToString();
 		}
 	}
 }

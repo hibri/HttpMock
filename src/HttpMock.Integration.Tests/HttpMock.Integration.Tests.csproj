@@ -69,9 +69,6 @@
     <Content Include="res\transcode-input.mp3">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <None Include="packages.config">
-      <SubType>Designer</SubType>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\HttpMock\HttpMock.csproj">

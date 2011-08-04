@@ -9,69 +9,75 @@ namespace SevenDigital.HttpMock.Integration.Tests
 	[TestFixture]
 	public class HttpEndPointTests
 	{
+		private IHttpServer _stubHttp;
 
 		[Test]
 		public void SUT_should_return_stubbed_response() {
-			IStubHttp stubHttp = HttpMockRepository
-				.At("http://localhost:8080/someapp");
-
+			_stubHttp = HttpMockRepository.At("http://localhost:8080/");
 
 			const string expected = "<xml><>response>Hello World</response></xml>";
-			stubHttp.Stub(x => x.Get("/someendpoint"))
+			_stubHttp.Stub(x => x.Get("/endpoint"))
 				.Return(expected)
 				.OK();
 
-			string result = new SystemUnderTest().GetData();
+			Console.WriteLine(_stubHttp.WhatDoIHave());
 
+			string result = 	new WebClient().DownloadString("http://localhost:8080/endpoint");
+
+			Console.WriteLine("RESPONSE: {0}", result);
 			Assert.That(result, Is.EqualTo(expected));
-			
 		}
 
 		[Test]
 		public void Should_start_listening_before_stubs_have_been_set() {
-			var uri = new Uri("Http://localhost:8080/api");
-			IStubHttp stubHttp = HttpMockRepository
-				.At(uri);
+			_stubHttp = HttpMockRepository.At("http://localhost:8080/");
+
+			_stubHttp.Stub(x => x.Get("/endpoint"))
+				.Return("listening")
+				.OK();
 
 			using (var tcpClient = new TcpClient()) {
-				tcpClient.Connect(uri.Host, uri.Port);
+				tcpClient.Connect(new Uri("Http://localhost:8080/").Host, new Uri("Http://localhost:8080/").Port);
 
 				Assert.That(tcpClient.Connected, Is.True);
-			}
-		}
 
-		
+				tcpClient.Close();
+			}
+
+			string result = new WebClient().DownloadString("http://localhost:8080/endpoint");
+
+			Console.WriteLine("RESPONSE: {0}", result);
+			Assert.That(result, Is.EqualTo("listening"));
+		}
 
 		[Test]
 		public void Should_return_expected_ok_response() {
-			IStubHttp stubHttp = HttpMockRepository
-				.At(new Uri("Http://localhost:8080/api"));
+			string endpoint = "Http://localhost:8080/";
+			_stubHttp = HttpMockRepository.At(endpoint);
 
-			stubHttp
-				.Stub(x => x.Get("/"))
-				.Return("Index")
-				.OK();
-
-			stubHttp
-				.Stub(x => x.Get("/status"))
+			_stubHttp
+				.Stub(x => x.Get("/api2/status"))
 				.Return("Hello")
 				.OK();
 
-			stubHttp
-				.Stub(x => x.Get("/echo"))
+			_stubHttp
+				.Stub(x => x.Get("/api2/echo"))
 				.Return("Echo")
 				.NotFound();
 
-			stubHttp
-				.Stub(x => x.Get("/echo2"))
+			_stubHttp
+				.Stub(x => x.Get("/api2/echo2"))
 				.Return("Nothing")
 				.WithStatus(HttpStatusCode.Unauthorized);
 
+			Console.WriteLine(_stubHttp.WhatDoIHave());
+
 			var wc = new WebClient();
-			Console.WriteLine(wc.DownloadString("Http://localhost:8080/api/"));
-			Console.WriteLine(wc.DownloadString("Http://localhost:8080/api/status"));
+
+			Assert.That(wc.DownloadString(string.Format("{0}api2/status", endpoint)), Is.EqualTo("Hello"));
+
 			try {
-				Console.WriteLine(wc.DownloadString("Http://localhost:8080/api/echo"));
+				Console.WriteLine(wc.DownloadString(endpoint + "api2/echo"));
 			}
 			catch (Exception ex) {
 				Assert.That(ex, Is.InstanceOf(typeof (WebException)));
@@ -80,15 +86,13 @@ namespace SevenDigital.HttpMock.Integration.Tests
 
 			try
 			{
-				Console.WriteLine(wc.DownloadString("Http://localhost:8080/api/echo2"));
+				Console.WriteLine(wc.DownloadString(endpoint + "api2/echo2"));
 			}
 			catch (Exception ex)
 			{
 				Assert.That(ex, Is.InstanceOf(typeof(WebException)));
 				Assert.That(((WebException)ex).Status, Is.EqualTo(WebExceptionStatus.ProtocolError));
 			}
-
-			
 		}
 	}
 }
