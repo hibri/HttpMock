@@ -61,15 +61,7 @@ namespace HttpMock.Unit.Tests {
 		}
 
 		[Test]
-		public void OnRequest_should_throw_applicationexception_if_no_handlers_supplied() {
-			var applicationException = Assert.Throws<ApplicationException>(() => _processor.OnRequest(new HttpRequestHead(), _dataProducer, _httpResponseDelegate));
-
-			Assert.That(applicationException.Message, Is.EqualTo("No handlers have been set up, why do I even bother"));
-		}
-
-		[Test]
 		public void If_no_handlers_found_should_fire_onresponse_with_a_404() {
-
 			_processor = new RequestProcessor(_ruleThatReturnsNoHandlers);
 
 			_processor.Add(_processor.Get("test"));
