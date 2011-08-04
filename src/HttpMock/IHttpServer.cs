@@ -8,7 +8,6 @@ namespace HttpMock
 		IHttpServer WithNewContext();
 		IHttpServer WithNewContext(string baseUri);
 		void Start();
-		void Dispose();
 		string WhatDoIHave();
 		bool IsAvailable();
 	}
