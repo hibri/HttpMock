@@ -7,16 +7,6 @@ using Kayak.Http;
 
 namespace HttpMock
 {
-	public interface IHttpServer : IDisposable
-	{
-		RequestHandler Stub(Func<RequestProcessor, RequestHandler> func);
-		IHttpServer WithNewContext();
-		IHttpServer WithNewContext(string baseUri);
-		void Start();
-		void Dispose();
-		string WhatDoIHave();
-	}
-
 	public class HttpServer : IHttpServer
 	{
 		private readonly RequestProcessor _requestProcessor;
@@ -36,22 +26,23 @@ namespace HttpMock
 		public void Start() {
 			_thread = new Thread(StartListening);
 			_thread.Start();
-			WaitTillServerIsListening();
+			if (!IsAvailable()) throw new InvalidOperationException("Kayak server not listening yet.");
 		}
 
-		private void WaitTillServerIsListening() {
+		public bool IsAvailable()
+		{
 			const int timesToWait = 5;
 			int attempts = 0;
 			using(var tcpClient = new TcpClient() ) {
 				while (attempts < timesToWait) {
 					tcpClient.Connect(_uri.Host, _uri.Port);
 					if (tcpClient.Connected) {
-						return;
+						return true;
 					}
 					Thread.Sleep(100);
 					attempts++;
 				}
-				throw new InvalidOperationException("Kayak server not listening yet.");
+				return false;
 			}
 		}
 

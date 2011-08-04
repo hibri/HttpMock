@@ -50,7 +50,7 @@ namespace HttpMock
 				_contentLength = (int)fileInfo.Length;
 				_responseBodyBuilder = new FileResponseBody(pathToFile);
 			} else {
-				throw new InvalidOperationException("File does not exsist/accessible at :" + pathToFile);
+				throw new InvalidOperationException("File does not exist/accessible at :" + pathToFile);
 			}
 		}
 

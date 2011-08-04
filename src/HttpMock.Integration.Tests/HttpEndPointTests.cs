@@ -13,7 +13,7 @@ namespace SevenDigital.HttpMock.Integration.Tests
 
 		[Test]
 		public void SUT_should_return_stubbed_response() {
-			_stubHttp = HttpMockRepository.At("http://localhost:8080/");
+			_stubHttp = HttpMockRepository.At("http://localhost:9191/");
 
 			const string expected = "<xml><>response>Hello World</response></xml>";
 			_stubHttp.Stub(x => x.Get("/endpoint"))
@@ -22,7 +22,7 @@ namespace SevenDigital.HttpMock.Integration.Tests
 
 			Console.WriteLine(_stubHttp.WhatDoIHave());
 
-			string result = 	new WebClient().DownloadString("http://localhost:8080/endpoint");
+			string result = 	new WebClient().DownloadString("http://localhost:9191/endpoint");
 
 			Console.WriteLine("RESPONSE: {0}", result);
 			Assert.That(result, Is.EqualTo(expected));
@@ -30,21 +30,21 @@ namespace SevenDigital.HttpMock.Integration.Tests
 
 		[Test]
 		public void Should_start_listening_before_stubs_have_been_set() {
-			_stubHttp = HttpMockRepository.At("http://localhost:8080/");
+			_stubHttp = HttpMockRepository.At("http://localhost:9191/");
 
 			_stubHttp.Stub(x => x.Get("/endpoint"))
 				.Return("listening")
 				.OK();
 
 			using (var tcpClient = new TcpClient()) {
-				tcpClient.Connect(new Uri("Http://localhost:8080/").Host, new Uri("Http://localhost:8080/").Port);
+				tcpClient.Connect(new Uri("Http://localhost:9191/").Host, new Uri("Http://localhost:9191/").Port);
 
 				Assert.That(tcpClient.Connected, Is.True);
 
 				tcpClient.Close();
 			}
 
-			string result = new WebClient().DownloadString("http://localhost:8080/endpoint");
+			string result = new WebClient().DownloadString("http://localhost:9191/endpoint");
 
 			Console.WriteLine("RESPONSE: {0}", result);
 			Assert.That(result, Is.EqualTo("listening"));
@@ -52,7 +52,7 @@ namespace SevenDigital.HttpMock.Integration.Tests
 
 		[Test]
 		public void Should_return_expected_ok_response() {
-			string endpoint = "Http://localhost:8080/";
+			string endpoint = "Http://localhost:9191/";
 			_stubHttp = HttpMockRepository.At(endpoint);
 
 			_stubHttp

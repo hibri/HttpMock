@@ -6,12 +6,13 @@ namespace HttpMock
 	{
 		private static readonly HttpServerFactory _httpServerFactory = new HttpServerFactory(new HttpServerBuilder());
 
-		public static IHttpServer At(Uri uri) {
-			return _httpServerFactory.Create(uri).WithNewContext(uri.AbsolutePath);
-		}
-
 		public static IHttpServer At(string uri) {
 			return At(new Uri(uri));
+		}
+
+		public static IHttpServer At(Uri uri)
+		{
+			return _httpServerFactory.Get(uri).WithNewContext(uri.AbsolutePath);
 		}
 	}
 }
