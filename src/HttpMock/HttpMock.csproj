@@ -53,11 +53,9 @@
     <Compile Include="FileResponseBody.cs" />
     <Compile Include="HttpHeaderNames.cs" />
     <Compile Include="HttpServer.cs" />
-    <Compile Include="HttpServerBuilder.cs" />
     <Compile Include="HttpServerFactory.cs" />
     <Compile Include="IHttpMockRepository.cs" />
     <Compile Include="IHttpServer.cs" />
-    <Compile Include="IHttpServerBuilder.cs" />
     <Compile Include="IMatchingRule.cs" />
     <Compile Include="IStubResponse.cs" />
     <Compile Include="RequestHandlerExtensions.cs" />

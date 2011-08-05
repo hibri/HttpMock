@@ -5,12 +5,7 @@ namespace HttpMock
 {
 	public class HttpServerFactory
 	{
-		private readonly IHttpServerBuilder _httpServerBuilder;
 		private readonly Dictionary<int, IHttpServer> _httpServers = new Dictionary<int, IHttpServer>();
-
-		public HttpServerFactory(IHttpServerBuilder httpServerBuilder) {
-			_httpServerBuilder = httpServerBuilder;
-		}
 
 		public IHttpServer Get(Uri uri)
 		{
@@ -32,7 +27,7 @@ namespace HttpMock
 		}
 
 		private IHttpServer BuildServer(Uri uri) {
-			IHttpServer httpServer = _httpServerBuilder.Build(uri);
+			IHttpServer httpServer = new HttpServer(uri);
 			httpServer.Start();
 			return httpServer;
 		}

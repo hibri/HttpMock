@@ -4,7 +4,7 @@ namespace HttpMock
 {
 	public static class HttpMockRepository
 	{
-		private static readonly HttpServerFactory _httpServerFactory = new HttpServerFactory(new HttpServerBuilder());
+		private static readonly HttpServerFactory _httpServerFactory = new HttpServerFactory();
 
 		public static IHttpServer At(string uri) {
 			return At(new Uri(uri));
