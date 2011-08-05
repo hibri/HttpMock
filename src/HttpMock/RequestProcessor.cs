@@ -32,9 +32,11 @@ namespace HttpMock
 			RequestHandler handler = _handlers.Where(x => _matchingRule.IsEndpointMatch(x, request)).FirstOrDefault();
 
 			if (handler == null) {
+				Debug.WriteLine("No Handlers matched");
 				ReturnHttpMockNotFound(response);
 				return;
 			}
+			Debug.WriteLine("Matched a handler {0},{1}, {2}", handler.Method, handler.Path , handler.QueryParams);
 
 			IDataProducer dataProducer = request.Method != "HEAD" ? handler.ResponseBuilder.BuildBody() : null;
 			response.OnResponse(handler.ResponseBuilder.BuildHeaders(), dataProducer);
