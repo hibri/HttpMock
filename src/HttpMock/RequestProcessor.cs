@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using Kayak;
@@ -22,6 +23,7 @@ namespace HttpMock
 		}
 
 		public void OnRequest(HttpRequestHead request, IDataProducer body, IHttpResponseDelegate response) {
+			Debug.WriteLine("Start Processing request for : {0}:{1}", request.Method , request.Uri);
 			if (_handlers.Count() < 1) {
 				ReturnHttpMockNotFound(response);
 				return;
@@ -36,6 +38,7 @@ namespace HttpMock
 
 			IDataProducer dataProducer = request.Method != "HEAD" ? handler.ResponseBuilder.BuildBody() : null;
 			response.OnResponse(handler.ResponseBuilder.BuildHeaders(), dataProducer);
+			Debug.WriteLine("End Processing request for : {0}:{1}", request.Method, request.Uri);
 		}
 
 		private static void ReturnHttpMockNotFound(IHttpResponseDelegate response) {
