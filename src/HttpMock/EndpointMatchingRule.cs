@@ -19,20 +19,26 @@ namespace HttpMock
 
 			bool httpMethodsMatch = requestHandler.Method == request.Method;
 			
-			bool parametersExist = true;
+			bool queryParamMatch = true;
+			bool shouldMatchQueryParams = (requestHandler.QueryParams.Count > 0);
+			
+			if (shouldMatchQueryParams) {
+				queryParamMatch = MatchQueryParams(requestHandler, requestQueryParams);
+			}
 
+			return uriStartsWith && httpMethodsMatch && queryParamMatch;
+		}
+
+		private static bool MatchQueryParams(IRequestHandler requestHandler, Dictionary<string, string> requestQueryParams) {
 			foreach (var queryParam in requestHandler.QueryParams) {
-				if(!requestQueryParams.ContainsKey(queryParam.Key)) {
-					parametersExist = false;
-					break;
+				if (!requestQueryParams.ContainsKey(queryParam.Key)) {
+					return false;
 				}
 				if (requestQueryParams[queryParam.Key] != queryParam.Value) {
-					parametersExist = false;
-					break;
+					return false;
 				}
 			}
-			
-			return uriStartsWith && httpMethodsMatch && parametersExist;
+			return true;
 		}
 
 		private static Dictionary<string, string> GetQueryParams(HttpRequestHead request) {
