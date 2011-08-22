@@ -94,5 +94,43 @@ namespace SevenDigital.HttpMock.Integration.Tests
 				Assert.That(((WebException)ex).Status, Is.EqualTo(WebExceptionStatus.ProtocolError));
 			}
 		}
+
+
+		[Test]
+		public void Should_hit_the_same_url_multiple_times()
+		{
+			string endpoint = "Http://localhost:9191/";
+			_stubHttp = HttpMockRepository.At(endpoint);
+
+			
+
+			_stubHttp
+				.Stub(x => x.Get("/api2/echo"))
+				.Return("Echo")
+				.NotFound();
+
+			_stubHttp
+				.Stub(x => x.Get("/api2/echo2"))
+				.Return("Nothing")
+				.WithStatus(HttpStatusCode.Unauthorized);
+
+			Console.WriteLine(_stubHttp.WhatDoIHave());
+
+			for (int count = 0; count < 6; count++) {
+				RequestEcho(endpoint);	
+			}
+			
+		}
+
+		private static void RequestEcho(string endpoint) {
+			var wc = new WebClient();
+
+			try {
+				Console.WriteLine(wc.DownloadString(endpoint + "api2/echo"));
+			} catch (Exception ex) {
+				Assert.That(ex, Is.InstanceOf(typeof (WebException)));
+				Assert.That(((WebException) ex).Status, Is.EqualTo(WebExceptionStatus.ProtocolError));
+			}
+		}
 	}
 }

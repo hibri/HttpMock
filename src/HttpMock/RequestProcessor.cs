@@ -41,6 +41,7 @@ namespace HttpMock
 			IDataProducer dataProducer = request.Method != "HEAD" ? handler.ResponseBuilder.BuildBody() : null;
 			response.OnResponse(handler.ResponseBuilder.BuildHeaders(), dataProducer);
 			Debug.WriteLine("End Processing request for : {0}:{1}", request.Method, request.Uri);
+			return;
 		}
 
 		private static void ReturnHttpMockNotFound(IHttpResponseDelegate response) {

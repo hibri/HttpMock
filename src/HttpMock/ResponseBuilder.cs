@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using Kayak;
@@ -27,13 +28,17 @@ namespace HttpMock
 
 		public HttpResponseHead BuildHeaders() {
 			AddHeader(HttpHeaderNames.ContentType, _contentType); 
-			AddHeader(HttpHeaderNames.ContentLength, _contentLength.ToString()); 
-			
-			return new HttpResponseHead
+			AddHeader(HttpHeaderNames.ContentLength, _contentLength.ToString());
+
+			var headers = new HttpResponseHead
 			{
 				Status = string.Format("{0} {1}", (int)_httpStatusCode, _httpStatusCode),
 				Headers = _headers
 			};
+			Debug.WriteLine("Headers :{0}", headers);
+			return headers;
+
+			
 		}
 
 		public void WithStatus(HttpStatusCode httpStatusCode) {
