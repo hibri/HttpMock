@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Sockets;
 using HttpMock;
 using NUnit.Framework;
+using log4net.Config;
 
 namespace SevenDigital.HttpMock.Integration.Tests
 {
@@ -122,6 +123,7 @@ namespace SevenDigital.HttpMock.Integration.Tests
 			
 		}
 
+
 		private static void RequestEcho(string endpoint) {
 			var wc = new WebClient();
 
@@ -132,5 +134,15 @@ namespace SevenDigital.HttpMock.Integration.Tests
 				Assert.That(((WebException) ex).Status, Is.EqualTo(WebExceptionStatus.ProtocolError));
 			}
 		}
+
 	}
+
+	[SetUpFixture]
+	public class AssemblySetup
+	{
+		public AssemblySetup() {
+			XmlConfigurator.Configure();
+		}
+	}
+
 }

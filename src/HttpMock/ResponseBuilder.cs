@@ -35,7 +35,6 @@ namespace HttpMock
 				Status = string.Format("{0} {1}", (int)_httpStatusCode, _httpStatusCode),
 				Headers = _headers
 			};
-			Debug.WriteLine("Headers :{0}", headers);
 			return headers;
 
 			

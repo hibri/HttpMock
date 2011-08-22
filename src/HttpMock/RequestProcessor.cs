@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using Kayak;
 using Kayak.Http;
+using log4net;
 
 namespace HttpMock
 {
@@ -13,9 +15,11 @@ namespace HttpMock
 		private string _applicationPath;
 		private List<RequestHandler> _handlers = new List<RequestHandler>();
 		private readonly IMatchingRule _matchingRule;
+		private static readonly ILog _log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
 		public RequestProcessor() {
 			_matchingRule = new EndpointMatchingRule();
+
 		}
 
 		public RequestProcessor(IMatchingRule matchingRule) {
@@ -23,7 +27,7 @@ namespace HttpMock
 		}
 
 		public void OnRequest(HttpRequestHead request, IDataProducer body, IHttpResponseDelegate response) {
-			Debug.WriteLine("Start Processing request for : {0}:{1}", request.Method , request.Uri);
+			_log.DebugFormat("Start Processing request for : {0}:{1}", request.Method , request.Uri);
 			if (_handlers.Count() < 1) {
 				ReturnHttpMockNotFound(response);
 				return;
@@ -32,15 +36,15 @@ namespace HttpMock
 			RequestHandler handler = _handlers.Where(x => _matchingRule.IsEndpointMatch(x, request)).FirstOrDefault();
 
 			if (handler == null) {
-				Debug.WriteLine("No Handlers matched");
+				_log.DebugFormat("No Handlers matched");
 				ReturnHttpMockNotFound(response);
 				return;
 			}
-			Debug.WriteLine("Matched a handler {0},{1}, {2}", handler.Method, handler.Path , handler.QueryParams);
+			_log.DebugFormat("Matched a handler {0},{1}, {2}", handler.Method, handler.Path , handler.QueryParams);
 
 			IDataProducer dataProducer = request.Method != "HEAD" ? handler.ResponseBuilder.BuildBody() : null;
 			response.OnResponse(handler.ResponseBuilder.BuildHeaders(), dataProducer);
-			Debug.WriteLine("End Processing request for : {0}:{1}", request.Method, request.Uri);
+			_log.DebugFormat("End Processing request for : {0}:{1}", request.Method, request.Uri);
 			return;
 		}
 
