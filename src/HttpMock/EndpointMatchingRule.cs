@@ -34,7 +34,7 @@ namespace HttpMock
 				if (!requestQueryParams.ContainsKey(queryParam.Key)) {
 					return false;
 				}
-				if (requestQueryParams[queryParam.Key] != queryParam.Value) {
+				if (!String.Equals(requestQueryParams[queryParam.Key], queryParam.Value, StringComparison.OrdinalIgnoreCase)) {
 					return false;
 				}
 			}

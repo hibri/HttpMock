@@ -116,5 +116,19 @@ namespace HttpMock.Unit.Tests
 			var endpointMatchingRule = new EndpointMatchingRule();
 			Assert.That(endpointMatchingRule.IsEndpointMatch(requestHandler, httpRequestHead));
 		}
+
+		[Test]
+		public void should_do_a_case_insensitive_match_on_query_string_parameter_values() {
+
+			var requestHandler = MockRepository.GenerateStub<IRequestHandler>();
+			requestHandler.Path = "test";
+			requestHandler.Method = "GET";
+			requestHandler.QueryParams = new Dictionary<string, string> { { "myParam", "one" } };
+
+			var httpRequestHead = new HttpRequestHead { Uri = "test?myParam=OnE", Method = "GET" };
+
+			var endpointMatchingRule = new EndpointMatchingRule();
+			Assert.That(endpointMatchingRule.IsEndpointMatch(requestHandler, httpRequestHead));
+		}
 	}
 }
