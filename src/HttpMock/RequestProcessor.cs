@@ -53,7 +53,6 @@ namespace HttpMock
 			foreach (KeyValuePair<string, string> param in queryParams) {
 				sb.AppendFormat("{0}={1}&", param.Key, param.Value);
 			}
-			sb.Remove(sb.Length - 1, 1);
 			return sb.ToString();
 		}
 
