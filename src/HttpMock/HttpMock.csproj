@@ -57,6 +57,7 @@
     <Compile Include="IHttpServer.cs" />
     <Compile Include="IMatchingRule.cs" />
     <Compile Include="IStubResponse.cs" />
+    <Compile Include="QueryParamMatch.cs" />
     <Compile Include="RequestHandlerExtensions.cs" />
     <Compile Include="BufferedBody.cs" />
     <Compile Include="HttpMockRepository.cs" />

@@ -23,30 +23,18 @@ namespace HttpMock
 			bool shouldMatchQueryParams = (requestHandler.QueryParams.Count > 0);
 			
 			if (shouldMatchQueryParams) {
-				queryParamMatch = MatchQueryParams(requestHandler, requestQueryParams);
+				queryParamMatch = new QueryParamMatch().MatchQueryParams(requestHandler, requestQueryParams);
 			}
 
 			return uriStartsWith && httpMethodsMatch && queryParamMatch;
 		}
 
-		private static bool MatchQueryParams(IRequestHandler requestHandler, Dictionary<string, string> requestQueryParams) {
-			foreach (var queryParam in requestHandler.QueryParams) {
-				if (!requestQueryParams.ContainsKey(queryParam.Key)) {
-					return false;
-				}
-				if (!String.Equals(requestQueryParams[queryParam.Key], queryParam.Value, StringComparison.OrdinalIgnoreCase)) {
-					return false;
-				}
-			}
-			return true;
-		}
-
 		private static Dictionary<string, string> GetQueryParams(HttpRequestHead request) {
-			int pos = request.Uri.LastIndexOf('?');
-			if(pos < 1)
+			int positionOfQueryStart = request.Uri.LastIndexOf('?');
+			if(positionOfQueryStart < 1)
 				return new Dictionary<string, string>();
 
-			string queryString = request.Uri.Substring(pos);
+			string queryString = request.Uri.Substring(positionOfQueryStart);
 			NameValueCollection valueCollection = HttpUtility.ParseQueryString(queryString);
 			var requestQueryParams = valueCollection.AllKeys.ToDictionary(k => k, k => valueCollection[k]);
 			return requestQueryParams;
