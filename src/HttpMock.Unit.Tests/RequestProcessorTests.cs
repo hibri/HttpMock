@@ -92,5 +92,39 @@ namespace HttpMock.Unit.Tests {
 
 			_httpResponseDelegate.AssertWasCalled(x => x.OnResponse(requestHandler.ResponseBuilder.BuildHeaders(), null));
 		}
+
+		[Test]
+		public void When_a_handler_is_added_should_be_able_to_find_it() {
+			string expectedPath = "/blah/test";
+			string expectedMethod = "GET";
+
+			var requestProcessor = new RequestProcessor(null);
+			
+			requestProcessor.Add(requestProcessor.Get(expectedPath));
+
+			var handler = requestProcessor.FindHandler(expectedPath, expectedMethod);
+
+			Assert.That(handler.Path, Is.EqualTo(expectedPath));
+			Assert.That(handler.Method, Is.EqualTo(expectedMethod));
+
+		}
+
+		[Test]
+		public void When_a_handler_is_hit_handlers_request_count_is_incremented() {
+
+			string expectedPath = "/blah/test";
+			string expectedMethod = "GET";
+
+			var requestProcessor = new RequestProcessor(_ruleThatReturnsFirstHandler);
+
+			requestProcessor.Add(requestProcessor.Get(expectedPath));
+			var httpRequestHead = new HttpRequestHead();
+			httpRequestHead.Path = expectedPath;
+			httpRequestHead.Method = expectedPath;
+			requestProcessor.OnRequest(httpRequestHead, _dataProducer, _httpResponseDelegate);
+
+			var handler = requestProcessor.FindHandler(expectedPath, expectedMethod);
+			Assert.That(handler.RequestCount(), Is.EqualTo(1));
+		}
 	}
 }

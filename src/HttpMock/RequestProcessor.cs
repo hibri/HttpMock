@@ -10,7 +10,11 @@ using log4net;
 
 namespace HttpMock
 {
-	public class RequestProcessor : IHttpRequestDelegate
+	public interface IRequestProcessor {
+		RequestHandler FindHandler(string path, string method);
+	}
+
+	public class RequestProcessor : IHttpRequestDelegate, IRequestProcessor
 	{
 		private string _applicationPath;
 		private List<RequestHandler> _handlers = new List<RequestHandler>();
@@ -40,12 +44,21 @@ namespace HttpMock
 				ReturnHttpMockNotFound(response);
 				return;
 			}
-			_log.DebugFormat("Matched a handler {0},{1}, {2}", handler.Method, handler.Path , handler.QueryParams);
+			_log.DebugFormat("Matched a handler {0},{1}, {2}", handler.Method, handler.Path , DumpQueryParams(handler.QueryParams));
+			handler.RecordRequest();
 
 			IDataProducer dataProducer = request.Method != "HEAD" ? handler.ResponseBuilder.BuildBody() : null;
 			response.OnResponse(handler.ResponseBuilder.BuildHeaders(), dataProducer);
 			_log.DebugFormat("End Processing request for : {0}:{1}", request.Method, request.Uri);
 			return;
+		}
+
+		private static string DumpQueryParams(IDictionary<string, string> queryParams) {
+			StringBuilder sb = new StringBuilder();
+			foreach (KeyValuePair<string, string> param in queryParams) {
+				sb.AppendFormat("{0}={1}&", param.Key, param.Value);
+			}
+			return sb.ToString();
 		}
 
 		private static void ReturnHttpMockNotFound(IHttpResponseDelegate response) {
@@ -81,7 +94,7 @@ namespace HttpMock
 		public RequestHandler Head(string path) {
 			return AddHandler(path, "HEAD");
 		}
-		
+
 		public void ClearHandlers() {
 			_handlers = new List<RequestHandler>();
 		}
@@ -118,6 +131,11 @@ namespace HttpMock
 				stringBuilder.Append(handler.ToString());
 			}
 			return stringBuilder.ToString();
+		}
+
+		public RequestHandler FindHandler(string path, string method) {
+			string cleanedPath = _applicationPath + path;
+			return _handlers.Where(x => x.Path == cleanedPath && x.Method == method).FirstOrDefault();
 		}
 	}
 }

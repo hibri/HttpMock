@@ -18,6 +18,7 @@ namespace HttpMock
 	public class RequestHandler : IRequestHandler
 	{
 		private readonly ResponseBuilder _webResponseBuilder = new ResponseBuilder();
+		private int _requestCount;
 
 		public RequestHandler(string path, RequestProcessor requestProcessor) {
 			Path = path;
@@ -59,6 +60,14 @@ namespace HttpMock
 			foreach(var param in QueryParams)
 				sb.AppendLine(string.Format("{0}:{1}", param.Key, param.Value));
 			return sb.ToString();
+		}
+
+		public int RequestCount() {
+			return _requestCount;
+		}
+
+		public void RecordRequest() {
+			_requestCount++;
 		}
 	}
 }

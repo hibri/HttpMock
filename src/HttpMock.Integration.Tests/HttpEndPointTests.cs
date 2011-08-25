@@ -3,7 +3,6 @@ using System.Net;
 using System.Net.Sockets;
 using HttpMock;
 using NUnit.Framework;
-using log4net.Config;
 
 namespace SevenDigital.HttpMock.Integration.Tests
 {
@@ -137,11 +136,19 @@ namespace SevenDigital.HttpMock.Integration.Tests
 
 	}
 
-	[SetUpFixture]
-	public class AssemblySetup
+	[TestFixture]
+	public class HttpExpectationTests
 	{
-		public AssemblySetup() {
-			XmlConfigurator.Configure();
+		[Test]
+		public void Should_hit_a_get() {
+			var stubHttp = HttpMockRepository.At("http://localhost:90");
+			stubHttp.Stub(x => x.Get("/api/status")).Return("OK").OK();
+
+			new WebClient().DownloadString("http://localhost:90/api/status");
+
+			stubHttp.AssertWasCalled(x => x.Get("/api/status"));
+
+
 		}
 	}
 

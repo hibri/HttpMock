@@ -15,12 +15,14 @@ namespace HttpMock
 		private IDisposable _disposableServer;
 		
 		private Thread _thread;
+		private readonly RequestVerifier _requestVerifier;
 
 		public HttpServer(Uri uri)
 		{
 			_uri = uri;
 			_scheduler = KayakScheduler.Factory.Create(new SchedulerDelegate());
 			_requestProcessor = new RequestProcessor();
+			_requestVerifier = new RequestVerifier(_requestProcessor);
 		}
 
 		public void Start() {
@@ -66,6 +68,10 @@ namespace HttpMock
 		public RequestHandler Stub(Func<RequestProcessor, RequestHandler> func)
 		{
 			return func.Invoke(_requestProcessor);
+		}
+
+		public RequestHandler AssertWasCalled(Func<RequestVerifier, RequestHandler> func) {
+			return func.Invoke(_requestVerifier);
 		}
 
 		public IHttpServer WithNewContext() {
