@@ -3,7 +3,6 @@ using System.Net;
 using System.Net.Sockets;
 using HttpMock;
 using NUnit.Framework;
-using log4net.Config;
 
 namespace SevenDigital.HttpMock.Integration.Tests
 {
@@ -136,13 +135,4 @@ namespace SevenDigital.HttpMock.Integration.Tests
 		}
 
 	}
-
-	[SetUpFixture]
-	public class AssemblySetup
-	{
-		public AssemblySetup() {
-			XmlConfigurator.Configure();
-		}
-	}
-
 }
