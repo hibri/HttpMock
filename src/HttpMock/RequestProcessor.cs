@@ -62,7 +62,7 @@ namespace HttpMock
 			return;
 		}
 
-		public RequestHandler FindHandler(string path, string method) {
+		public RequestHandler FindHandler(string method, string path) {
 			string cleanedPath = _applicationPath + path;
 			return _handlers.Where(x => x.Path == cleanedPath && x.Method == method).FirstOrDefault();
 		}

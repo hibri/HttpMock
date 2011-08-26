@@ -2,11 +2,11 @@ using NUnit.Framework;
 
 namespace HttpMock
 {
-	public class RequestVerifier
+	public class RequestWasNotCalled
 	{
 		private readonly IRequestProcessor _requestProcessor;
 
-		public RequestVerifier(IRequestProcessor requestProcessor) {
+		public RequestWasNotCalled(IRequestProcessor requestProcessor) {
 			_requestProcessor = requestProcessor;
 		}
 
@@ -15,9 +15,13 @@ namespace HttpMock
 			return AssertHandler(path, "GET");
 		}
 
-		private RequestHandler AssertHandler(string path, string method) {
+		private RequestHandler AssertHandler(string method, string path) {
 			var handler = _requestProcessor.FindHandler(path, method);
-			Assert.That(handler.RequestCount(), Is.GreaterThan(0));
+			if (handler != null) {
+				Assert.That(handler.RequestCount(), Is.EqualTo(0), "Expected not to find a request for {1}{0} but was found", method, path);
+			}else {
+				Assert.That(handler, Is.Null, "Expected not to find a request for {1}{0} but was found", method, path);
+			}
 			return handler;
 		}
 
@@ -37,7 +41,7 @@ namespace HttpMock
 
 		public RequestHandler Head(string path)
 		{
-			 return AssertHandler(path, "HEAD");
+			return AssertHandler(path, "HEAD");
 		}
 
 	}
