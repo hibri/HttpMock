@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Text;
 
 namespace HttpMock
@@ -10,12 +11,10 @@ namespace HttpMock
 		RequestProcessor RequestProcessor { get; set; }
 		IDictionary<string, string> QueryParams { get; set; }
 		ResponseBuilder ResponseBuilder { get; }
-		RequestHandler Return( string responseBody);
-		RequestHandler ReturnFile(string pathToFile);
-		RequestHandler WithParams(IDictionary<string,string> nameValueCollection);
+		
 	}
 
-	public class RequestHandler : IRequestHandler
+	public class RequestHandler : IRequestHandler, IRequestStub
 	{
 		private readonly ResponseBuilder _webResponseBuilder = new ResponseBuilder();
 		private int _requestCount;
@@ -35,20 +34,23 @@ namespace HttpMock
 			get { return _webResponseBuilder; }
 		}
 
-		public RequestHandler Return( string responseBody) {
+		public IRequestStub Return(string responseBody)
+		{
 
 			_webResponseBuilder.Return(responseBody);
 			return this;
 		}
 
-		public RequestHandler ReturnFile(string pathToFile) {
+		public IRequestStub ReturnFile(string pathToFile)
+		{
 			var fileName = System.IO.Path.GetFileName(pathToFile);
 			_webResponseBuilder.WithFile(pathToFile);
 			_webResponseBuilder.AddHeader("Content-Disposition", string.Format("attachment; filename=\"{0}\"", fileName));
 			return this;
 		}
 
-		public RequestHandler WithParams(IDictionary<string,string> nameValueCollection) {
+		public IRequestStub WithParams(IDictionary<string, string> nameValueCollection)
+		{
 			QueryParams = nameValueCollection;
 			return this;
 		}
@@ -69,5 +71,53 @@ namespace HttpMock
 		public void RecordRequest() {
 			_requestCount++;
 		}
+
+
+
+		public void OK()
+		{
+			WithStatus(HttpStatusCode.OK);
+		}
+
+		public void WithStatus( HttpStatusCode httpStatusCode)
+		{
+			ResponseBuilder.WithStatus(httpStatusCode);
+			RequestProcessor.Add(this);
+		}
+
+		public  void NotFound()
+		{
+			WithStatus(HttpStatusCode.NotFound);
+		}
+
+		public RequestHandler AsXmlContent()
+		{
+			return AsContentType("text/xml");
+		}
+
+		public  RequestHandler AsContentType( string contentType)
+		{
+			ResponseBuilder.WithContentType(contentType);
+			return this;
+		}
+
+		public RequestHandler AddHeader( string header, string headerValue)
+		{
+			ResponseBuilder.AddHeader(header, headerValue);
+			return this;
+		}
+	}
+
+	public interface IRequestStub
+	{
+		IRequestStub Return(string responseBody);
+		IRequestStub ReturnFile(string pathToFile);
+		IRequestStub WithParams(IDictionary<string, string> nameValueCollection);
+		void OK();
+		void WithStatus( HttpStatusCode httpStatusCode);
+		void NotFound();
+		RequestHandler AsXmlContent();
+		RequestHandler AsContentType( string contentType);
+		RequestHandler AddHeader( string header, string headerValue);
 	}
 }
