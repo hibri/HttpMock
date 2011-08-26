@@ -39,6 +39,9 @@
     <Reference Include="log4net">
       <HintPath>..\..\lib\log4net.dll</HintPath>
     </Reference>
+    <Reference Include="nunit.framework">
+      <HintPath>..\..\lib\nunit.framework.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Web" />
@@ -48,6 +51,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BufferedConsumer.cs" />
     <Compile Include="EndpointMatchingRule.cs" />
     <Compile Include="FileResponseBody.cs" />
     <Compile Include="HttpHeaderNames.cs" />
@@ -56,14 +60,16 @@
     <Compile Include="IHttpMockRepository.cs" />
     <Compile Include="IHttpServer.cs" />
     <Compile Include="IMatchingRule.cs" />
+    <Compile Include="IRequestHandler.cs" />
+    <Compile Include="IRequestStub.cs" />
     <Compile Include="IStubResponse.cs" />
-    <Compile Include="QueryParamMatch.cs" />
-    <Compile Include="RequestHandlerExtensions.cs" />
+    <Compile Include="RequestHandlerExpectExtensions.cs" />
     <Compile Include="BufferedBody.cs" />
     <Compile Include="HttpMockRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RequestHandler.cs" />
     <Compile Include="RequestProcessor.cs" />
+    <Compile Include="RequestVerifier.cs" />
     <Compile Include="SchedulerDelegate.cs" />
     <Compile Include="ResponseBuilder.cs" />
     <Compile Include="StubNotFoundResponse.cs" />
