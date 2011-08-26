@@ -27,7 +27,7 @@ namespace SevenDigital.HttpMock.Integration.Tests
 				.Return(stubbedReponse)
 				.OK();
 
-			Assert.That(wc.UploadString("Http://localhost:8080/firsttest/", ""), Is.EqualTo(stubbedReponse));
+			Assert.That(wc.UploadString("Http://localhost:8080/firsttest/", "x"), Is.EqualTo(stubbedReponse));
 		}
 
 		[Test]
@@ -40,7 +40,7 @@ namespace SevenDigital.HttpMock.Integration.Tests
 				.Return(stubbedReponse)
 				.OK();
 
-			Assert.That(wc.UploadString("Http://localhost:8080/secondtest/", ""), Is.EqualTo(stubbedReponse));
+			Assert.That(wc.UploadString("Http://localhost:8080/secondtest/", "x"), Is.EqualTo(stubbedReponse));
 		}
 
 		[Test]
@@ -59,8 +59,8 @@ namespace SevenDigital.HttpMock.Integration.Tests
 				.Return(stubbedReponseTwo)
 				.OK();
 
-			Assert.That(wc.UploadString("Http://localhost:8080/firsttest/", ""), Is.EqualTo(stubbedReponseOne));
-			Assert.That(wc.UploadString("Http://localhost:8080/secondtest/", ""), Is.EqualTo(stubbedReponseTwo));
+			Assert.That(wc.UploadString("Http://localhost:8080/firsttest/", "x"), Is.EqualTo(stubbedReponseOne));
+			Assert.That(wc.UploadString("Http://localhost:8080/secondtest/", "x"), Is.EqualTo(stubbedReponseTwo));
 		}
 	}
 }

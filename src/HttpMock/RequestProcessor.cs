@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -9,20 +8,20 @@ using log4net;
 
 namespace HttpMock
 {
-	public interface IRequestProcessor {
+	public interface IRequestProcessor
+	{
 		RequestHandler FindHandler(string path, string method);
 	}
 
 	public class RequestProcessor : IHttpRequestDelegate, IRequestProcessor
 	{
+		private static readonly ILog _log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+		private readonly IMatchingRule _matchingRule;
 		private string _applicationPath;
 		private List<RequestHandler> _handlers = new List<RequestHandler>();
-		private readonly IMatchingRule _matchingRule;
-		private static readonly ILog _log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
 		public RequestProcessor() {
 			_matchingRule = new EndpointMatchingRule();
-
 		}
 
 		public RequestProcessor(IMatchingRule matchingRule) {
@@ -30,7 +29,7 @@ namespace HttpMock
 		}
 
 		public void OnRequest(HttpRequestHead request, IDataProducer body, IHttpResponseDelegate response) {
-			_log.DebugFormat("Start Processing request for : {0}:{1}", request.Method , request.Uri);
+			_log.DebugFormat("Start Processing request for : {0}:{1}", request.Method, request.Uri);
 			if (_handlers.Count() < 1) {
 				ReturnHttpMockNotFound(response);
 				return;
@@ -43,21 +42,34 @@ namespace HttpMock
 				ReturnHttpMockNotFound(response);
 				return;
 			}
-			_log.DebugFormat("Matched a handler {0},{1}, {2}", handler.Method, handler.Path , DumpQueryParams(handler.QueryParams));
+			_log.DebugFormat("Matched a handler {0},{1}, {2}", handler.Method, handler.Path, DumpQueryParams(handler.QueryParams));
 			handler.RecordRequest();
-			body.Connect(new BufferedConsumer(handler.AddBody, null));
-
 			IDataProducer dataProducer = request.Method != "HEAD" ? handler.ResponseBuilder.BuildBody() : null;
-			response.OnResponse(handler.ResponseBuilder.BuildHeaders(), dataProducer);
+			if (request.HasBody()) {
+				body.Connect(new BufferedConsumer(bufferedBody =>{
+													handler.AddBody(bufferedBody);
+													response.OnResponse(handler.ResponseBuilder.BuildHeaders(), dataProducer);
+													},
+													error =>{
+														_log.DebugFormat("Error while reading body {0}", error.Message);
+														response.OnResponse(handler.ResponseBuilder.BuildHeaders(), dataProducer);
+													}));
+			} else {
+				
+				response.OnResponse(handler.ResponseBuilder.BuildHeaders(), dataProducer);
+			}
 			_log.DebugFormat("End Processing request for : {0}:{1}", request.Method, request.Uri);
 			return;
 		}
 
-		
+		public RequestHandler FindHandler(string path, string method) {
+			string cleanedPath = _applicationPath + path;
+			return _handlers.Where(x => x.Path == cleanedPath && x.Method == method).FirstOrDefault();
+		}
 
 		private static string DumpQueryParams(IDictionary<string, string> queryParams) {
-			StringBuilder sb = new StringBuilder();
-			foreach (KeyValuePair<string, string> param in queryParams) {
+			var sb = new StringBuilder();
+			foreach (var param in queryParams) {
 				sb.AppendFormat("{0}={1}&", param.Key, param.Value);
 			}
 			return sb.ToString();
@@ -66,8 +78,8 @@ namespace HttpMock
 		private static void ReturnHttpMockNotFound(IHttpResponseDelegate response) {
 			var dictionary = new Dictionary<string, string>
 			{
-				{ HttpHeaderNames.ContentLength, "0" }, 
-				{ "SevenDigital-HttpMockError", "No handler found to handle request" }
+				{HttpHeaderNames.ContentLength, "0"},
+				{"SevenDigital-HttpMockError", "No handler found to handle request"}
 			};
 
 			var notFoundResponse = new HttpResponseHead
@@ -83,13 +95,11 @@ namespace HttpMock
 			return AddHandler(path, "POST");
 		}
 
-		public RequestHandler Put(string path)
-		{
+		public RequestHandler Put(string path) {
 			return AddHandler(path, "PUT");
 		}
 
-		public RequestHandler Delete(string path)
-		{
+		public RequestHandler Delete(string path) {
 			return AddHandler(path, "DELETE");
 		}
 
@@ -108,12 +118,9 @@ namespace HttpMock
 		public void SetBaseUri(string baseUri) {
 			if (baseUri.EndsWith("/")) {
 				_applicationPath = baseUri.TrimEnd('/');
-			}
-
-			else if (!baseUri.StartsWith("/")) {
+			} else if (!baseUri.StartsWith("/")) {
 				_applicationPath = "/" + baseUri;
-			}
-			else {
+			} else {
 				_applicationPath = baseUri;
 			}
 		}
@@ -124,20 +131,13 @@ namespace HttpMock
 			return requestHandler;
 		}
 
-		public string WhatDoIHave()
-		{
+		public string WhatDoIHave() {
 			var stringBuilder = new StringBuilder();
 			stringBuilder.AppendLine("Handlers:");
-			foreach(var handler in _handlers)
-			{
+			foreach (RequestHandler handler in _handlers) {
 				stringBuilder.Append(handler.ToString());
 			}
 			return stringBuilder.ToString();
-		}
-
-		public RequestHandler FindHandler(string path, string method) {
-			string cleanedPath = _applicationPath + path;
-			return _handlers.Where(x => x.Path == cleanedPath && x.Method == method).FirstOrDefault();
 		}
 	}
 }

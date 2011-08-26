@@ -63,6 +63,7 @@
     <Compile Include="IRequestHandler.cs" />
     <Compile Include="IRequestStub.cs" />
     <Compile Include="IStubResponse.cs" />
+    <Compile Include="QueryParamMatch.cs" />
     <Compile Include="RequestHandlerExpectExtensions.cs" />
     <Compile Include="BufferedBody.cs" />
     <Compile Include="HttpMockRepository.cs" />
