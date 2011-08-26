@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Kayak;
 using Kayak.Http;
 using NUnit.Framework;
@@ -75,7 +76,7 @@ namespace HttpMock.Unit.Tests {
 
 			RequestHandler requestHandler = _processor.Get("test");
 			_processor.Add(requestHandler);
-			_processor.OnRequest(new HttpRequestHead(), _dataProducer, _httpResponseDelegate);
+			_processor.OnRequest(new HttpRequestHead{ Headers =  new Dictionary<string, string>()}, _dataProducer, _httpResponseDelegate);
 
 			_httpResponseDelegate.AssertWasCalled(x => x.OnResponse(requestHandler.ResponseBuilder.BuildHeaders(), requestHandler.ResponseBuilder.BuildBody()));
 		}
@@ -87,7 +88,7 @@ namespace HttpMock.Unit.Tests {
 
 			RequestHandler requestHandler = _processor.Head("test");
 			_processor.Add(requestHandler);
-			var httpRequestHead = new HttpRequestHead {Method = "HEAD"};
+			var httpRequestHead = new HttpRequestHead { Method = "HEAD", Headers = new Dictionary<string, string>() };
 			_processor.OnRequest(httpRequestHead, _dataProducer, _httpResponseDelegate);
 
 			_httpResponseDelegate.AssertWasCalled(x => x.OnResponse(requestHandler.ResponseBuilder.BuildHeaders(), null));
@@ -118,7 +119,7 @@ namespace HttpMock.Unit.Tests {
 			var requestProcessor = new RequestProcessor(_ruleThatReturnsFirstHandler);
 
 			requestProcessor.Add(requestProcessor.Get(expectedPath));
-			var httpRequestHead = new HttpRequestHead();
+			var httpRequestHead = new HttpRequestHead { Headers = new Dictionary<string, string>() };
 			httpRequestHead.Path = expectedPath;
 			httpRequestHead.Method = expectedPath;
 			requestProcessor.OnRequest(httpRequestHead, _dataProducer, _httpResponseDelegate);
