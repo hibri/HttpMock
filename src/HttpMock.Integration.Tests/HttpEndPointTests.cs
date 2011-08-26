@@ -160,7 +160,7 @@ namespace SevenDigital.HttpMock.Integration.Tests
 			string expectedData = "postdata";
 			new WebClient().UploadString("http://localhost:90/endpoint/handler", expectedData);
 
-			//stubHttp.AssertWasCalled(x => x.Post("/endpoint/handler")).WithBody(expectedData) ;
+			stubHttp.AssertWasCalled(x => x.Post("/endpoint/handler")).WithBody(expectedData) ;
 		}
 	}
 

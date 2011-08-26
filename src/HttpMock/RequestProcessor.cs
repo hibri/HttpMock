@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
@@ -46,12 +45,15 @@ namespace HttpMock
 			}
 			_log.DebugFormat("Matched a handler {0},{1}, {2}", handler.Method, handler.Path , DumpQueryParams(handler.QueryParams));
 			handler.RecordRequest();
+			body.Connect(new BufferedConsumer(handler.AddBody, null));
 
 			IDataProducer dataProducer = request.Method != "HEAD" ? handler.ResponseBuilder.BuildBody() : null;
 			response.OnResponse(handler.ResponseBuilder.BuildHeaders(), dataProducer);
 			_log.DebugFormat("End Processing request for : {0}:{1}", request.Method, request.Uri);
 			return;
 		}
+
+		
 
 		private static string DumpQueryParams(IDictionary<string, string> queryParams) {
 			StringBuilder sb = new StringBuilder();

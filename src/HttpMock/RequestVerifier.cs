@@ -12,36 +12,32 @@ namespace HttpMock
 
 		public RequestHandler Get(string path)
 		{
-			AssertHandler(path, "GET");
-			return null;
+			return AssertHandler(path, "GET");
 		}
 
-		private void AssertHandler(string path, string method) {
+		private RequestHandler AssertHandler(string path, string method) {
 			var handler = _requestProcessor.FindHandler(path, method);
 			Assert.That(handler.RequestCount(), Is.GreaterThan(0));
+			return handler;
 		}
 
 		public RequestHandler Post(string path) {
-			AssertHandler(path, "POST");
-			return null;
+			return AssertHandler(path, "POST");
 		}
 
 		public RequestHandler Put(string path)
 		{
-			AssertHandler(path, "PUT");
-			return null;
+			return AssertHandler(path, "PUT");
 		}
 
 		public RequestHandler Delete(string path)
 		{
-			AssertHandler(path, "DELETE");
-			return null;
+			return AssertHandler(path, "DELETE");
 		}
 
 		public RequestHandler Head(string path)
 		{
-			 AssertHandler(path, "HEAD");
-			 return null;
+			 return AssertHandler(path, "HEAD");
 		}
 
 	}
