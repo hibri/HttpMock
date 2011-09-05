@@ -17,7 +17,6 @@ namespace HttpMock
 	{
 		private static readonly ILog _log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 		private readonly IMatchingRule _matchingRule;
-		private string _applicationPath;
 		private List<RequestHandler> _handlers = new List<RequestHandler>();
 
 		public RequestProcessor() {
@@ -63,7 +62,7 @@ namespace HttpMock
 		}
 
 		public RequestHandler FindHandler(string method, string path) {
-			string cleanedPath = _applicationPath + path;
+			string cleanedPath = path;
 			return _handlers.Where(x => x.Path == cleanedPath && x.Method == method).FirstOrDefault();
 		}
 
@@ -115,18 +114,8 @@ namespace HttpMock
 			_handlers.Add(requestHandler);
 		}
 
-		public void SetBaseUri(string baseUri) {
-			if (baseUri.EndsWith("/")) {
-				_applicationPath = baseUri.TrimEnd('/');
-			} else if (!baseUri.StartsWith("/")) {
-				_applicationPath = "/" + baseUri;
-			} else {
-				_applicationPath = baseUri;
-			}
-		}
-
 		private RequestHandler CreateHandler(string path, string method) {
-			string cleanedPath = _applicationPath + path;
+			string cleanedPath = path;
 			var requestHandler = new RequestHandler(cleanedPath, this) {Method = method};
 			return requestHandler;
 		}
