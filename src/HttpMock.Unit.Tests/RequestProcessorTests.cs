@@ -19,7 +19,7 @@ namespace HttpMock.Unit.Tests {
 
 		[SetUp]
 		public void SetUp() {
-			_processor = new RequestProcessor();
+			_processor = new RequestProcessor(_ruleThatReturnsFirstHandler, new List<RequestHandler>());
 			_requestHandlerFactory = new RequestHandlerFactory(_processor);
 			_dataProducer = MockRepository.GenerateStub<IDataProducer>();
 			_httpResponseDelegate = MockRepository.GenerateStub<IHttpResponseDelegate>();
@@ -65,7 +65,7 @@ namespace HttpMock.Unit.Tests {
 
 		[Test]
 		public void If_no_handlers_found_should_fire_onresponse_with_a_404() {
-			_processor = new RequestProcessor(_ruleThatReturnsNoHandlers);
+			_processor = new RequestProcessor(_ruleThatReturnsNoHandlers, new List<RequestHandler>());
 
 			_processor.Add(_requestHandlerFactory.Get("test"));
 			_processor.OnRequest(new HttpRequestHead(), _dataProducer, _httpResponseDelegate);
@@ -74,7 +74,7 @@ namespace HttpMock.Unit.Tests {
 
 		[Test]
 		public void If_a_handler_found_should_fire_onresponse_with_that_repsonse() {
-			_processor = new RequestProcessor(_ruleThatReturnsFirstHandler);
+			_processor = new RequestProcessor(_ruleThatReturnsFirstHandler, new List<RequestHandler>());
 
 			RequestHandler requestHandler = _requestHandlerFactory.Get("test");
 			_processor.Add(requestHandler);
@@ -86,7 +86,7 @@ namespace HttpMock.Unit.Tests {
 		[Test]
 		public void Matching_HEAD_handler_should_output_handlers_expected_response_with_null_body() {
 
-			_processor = new RequestProcessor(_ruleThatReturnsFirstHandler);
+			_processor = new RequestProcessor(_ruleThatReturnsFirstHandler, new List<RequestHandler>());
 
 			RequestHandler requestHandler = _requestHandlerFactory.Head("test");
 			_processor.Add(requestHandler);
@@ -101,7 +101,7 @@ namespace HttpMock.Unit.Tests {
 			string expectedPath = "/blah/test";
 			string expectedMethod = "GET";
 
-			var requestProcessor = new RequestProcessor(null);
+			var requestProcessor = new RequestProcessor(null, new List<RequestHandler>());
 
 			requestProcessor.Add(_requestHandlerFactory.Get(expectedPath));
 
@@ -118,7 +118,7 @@ namespace HttpMock.Unit.Tests {
 			string expectedPath = "/blah/test";
 			string expectedMethod = "GET";
 
-			var requestProcessor = new RequestProcessor(_ruleThatReturnsFirstHandler);
+			var requestProcessor = new RequestProcessor(_ruleThatReturnsFirstHandler, new List<RequestHandler>());
 
 			requestProcessor.Add(_requestHandlerFactory.Get(expectedPath));
 			var httpRequestHead = new HttpRequestHead { Headers = new Dictionary<string, string>() };

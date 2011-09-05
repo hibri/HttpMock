@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -22,7 +23,7 @@ namespace HttpMock
 		public HttpServer(Uri uri) {
 			_uri = uri;
 			_scheduler = KayakScheduler.Factory.Create(new SchedulerDelegate());
-			_requestProcessor = new RequestProcessor();
+			_requestProcessor = new RequestProcessor(new EndpointMatchingRule(), new List<RequestHandler>());
 			_requestWasCalled = new RequestWasCalled(_requestProcessor);
 			_requestWasNotCalled = new RequestWasNotCalled(_requestProcessor);
 			_requestHandlerFactory = new RequestHandlerFactory(_requestProcessor);

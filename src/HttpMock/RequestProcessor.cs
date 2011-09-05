@@ -17,24 +17,21 @@ namespace HttpMock
 	{
 		private static readonly ILog _log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 		private readonly IMatchingRule _matchingRule;
-		private List<RequestHandler> _handlers = new List<RequestHandler>();
+		private List<RequestHandler> _handlers;
 
-		public RequestProcessor() {
-			_matchingRule = new EndpointMatchingRule();
-		}
-
-		public RequestProcessor(IMatchingRule matchingRule) {
+		public RequestProcessor(IMatchingRule matchingRule, List<RequestHandler> requestHandlers) {
 			_matchingRule = matchingRule;
+			_handlers = requestHandlers;
 		}
 
 		public void OnRequest(HttpRequestHead request, IDataProducer body, IHttpResponseDelegate response) {
 			_log.DebugFormat("Start Processing request for : {0}:{1}", request.Method, request.Uri);
-			if (_handlers.Count() < 1) {
+			if (GetHandlerCount() < 1) {
 				ReturnHttpMockNotFound(response);
 				return;
 			}
 
-			RequestHandler handler = _handlers.Where(x => _matchingRule.IsEndpointMatch(x, request)).FirstOrDefault();
+			RequestHandler handler = MatchHandler(request);
 
 			if (handler == null) {
 				_log.DebugFormat("No Handlers matched");
@@ -64,9 +61,16 @@ namespace HttpMock
 			return;
 		}
 
+		private int GetHandlerCount() {
+			return _handlers.Count();
+		}
+
+		private RequestHandler MatchHandler(HttpRequestHead request) {
+			return _handlers.Where(x => _matchingRule.IsEndpointMatch(x, request)).FirstOrDefault();
+		}
+
 		public RequestHandler FindHandler(string method, string path) {
-			string cleanedPath = path;
-			return _handlers.Where(x => x.Path == cleanedPath && x.Method == method).FirstOrDefault();
+			return _handlers.Where(x => x.Path == path && x.Method == method).FirstOrDefault();
 		}
 
 		private static string DumpQueryParams(IDictionary<string, string> queryParams) {
