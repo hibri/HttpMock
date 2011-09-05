@@ -45,14 +45,18 @@ namespace HttpMock
 			handler.RecordRequest();
 			IDataProducer dataProducer = request.Method != "HEAD" ? handler.ResponseBuilder.BuildBody() : null;
 			if (request.HasBody()) {
-				body.Connect(new BufferedConsumer(bufferedBody =>{
-				                                  	handler.AddBody(bufferedBody);
-				                                  	response.OnResponse(handler.ResponseBuilder.BuildHeaders(), dataProducer);
-				                                  },
-				                                  error =>{
-				                                  	_log.DebugFormat("Error while reading body {0}", error.Message);
-				                                  	response.OnResponse(handler.ResponseBuilder.BuildHeaders(), dataProducer);
-				                                  }));
+				body.Connect(new BufferedConsumer(
+					bufferedBody =>
+						{
+						handler.AddBody(bufferedBody);
+						response.OnResponse(handler.ResponseBuilder.BuildHeaders(), dataProducer);
+						},
+					error =>
+					{
+						_log.DebugFormat("Error while reading body {0}", error.Message);
+						response.OnResponse(handler.ResponseBuilder.BuildHeaders(), dataProducer);
+					}
+					));
 			} else {
 				response.OnResponse(handler.ResponseBuilder.BuildHeaders(), dataProducer);
 			}
