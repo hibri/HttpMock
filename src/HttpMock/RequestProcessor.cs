@@ -17,9 +17,9 @@ namespace HttpMock
 	{
 		private static readonly ILog _log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 		private readonly IMatchingRule _matchingRule;
-		private List<RequestHandler> _handlers;
+		private IList<RequestHandler> _handlers;
 
-		public RequestProcessor(IMatchingRule matchingRule, List<RequestHandler> requestHandlers) {
+		public RequestProcessor(IMatchingRule matchingRule, IList<RequestHandler> requestHandlers) {
 			_matchingRule = matchingRule;
 			_handlers = requestHandlers;
 		}
