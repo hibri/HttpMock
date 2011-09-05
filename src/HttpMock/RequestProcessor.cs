@@ -88,23 +88,23 @@ namespace HttpMock
 		}
 
 		public RequestHandler Get(string path) {
-			return AddHandler(path, "GET");
+			return CreateHandler(path, "GET");
 		}
 
 		public RequestHandler Post(string path) {
-			return AddHandler(path, "POST");
+			return CreateHandler(path, "POST");
 		}
 
 		public RequestHandler Put(string path) {
-			return AddHandler(path, "PUT");
+			return CreateHandler(path, "PUT");
 		}
 
 		public RequestHandler Delete(string path) {
-			return AddHandler(path, "DELETE");
+			return CreateHandler(path, "DELETE");
 		}
 
 		public RequestHandler Head(string path) {
-			return AddHandler(path, "HEAD");
+			return CreateHandler(path, "HEAD");
 		}
 
 		public void ClearHandlers() {
@@ -125,7 +125,7 @@ namespace HttpMock
 			}
 		}
 
-		private RequestHandler AddHandler(string path, string method) {
+		private RequestHandler CreateHandler(string path, string method) {
 			string cleanedPath = _applicationPath + path;
 			var requestHandler = new RequestHandler(cleanedPath, this) {Method = method};
 			return requestHandler;
