@@ -74,7 +74,6 @@ namespace HttpMock
 		}
 
 		public IHttpServer WithNewContext(string baseUri) {
-			_requestProcessor.SetBaseUri(baseUri);
 			WithNewContext();
 			return this;
 		}

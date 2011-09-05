@@ -11,7 +11,7 @@ namespace SevenDigital.HttpMock.Integration.Tests
 		public void Using8080() {
 			string expected = "expected response";
 			HttpMockRepository.At("http://localhost:8080/app")
-				.Stub( x => x.Get("/endpoint"))
+				.Stub( x => x.Get("/app/endpoint"))
 				.Return(expected)
 				.OK();
 
@@ -24,7 +24,7 @@ namespace SevenDigital.HttpMock.Integration.Tests
 		{
 			string expected = "expected response";
 			HttpMockRepository.At("http://localhost:8081/app")
-				.Stub(x => x.Get("/endpoint"))
+				.Stub(x => x.Get("/app/endpoint"))
 				.Return(expected)
 				.OK();
 
@@ -37,7 +37,7 @@ namespace SevenDigital.HttpMock.Integration.Tests
 		{
 			string expected = "expected response";
 			HttpMockRepository.At("http://localhost:9081/app")
-				.Stub(x => x.Get("/endpoint"))
+				.Stub(x => x.Get("/app/endpoint"))
 				.Return(expected)
 				.OK();
 

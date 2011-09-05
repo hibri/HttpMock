@@ -13,7 +13,7 @@ namespace SevenDigital.HttpMock.Integration.Tests
 		{
 			string expected = "expected response";
 			HttpMockRepository.At("http://localhost:8080/appone")
-				.Stub(x => x.Get("/endpoint"))
+				.Stub(x => x.Get("/appone/endpoint"))
 				.Return(expected)
 				.OK();
 
@@ -26,7 +26,7 @@ namespace SevenDigital.HttpMock.Integration.Tests
 		{
 			string expected = "expected response";
 			HttpMockRepository.At("http://localhost:8080/apptwo")
-				.Stub(x => x.Get("/endpoint"))
+				.Stub(x => x.Get("/apptwo/endpoint"))
 				.Return(expected)
 				.OK();
 
@@ -39,7 +39,7 @@ namespace SevenDigital.HttpMock.Integration.Tests
 		{
 			string expected = "expected response";
 			HttpMockRepository.At("http://localhost:8080/appthree")
-				.Stub(x => x.Get("/endpoint"))
+				.Stub(x => x.Get("/appthree/endpoint"))
 				.Return(expected)
 				.OK();
 
