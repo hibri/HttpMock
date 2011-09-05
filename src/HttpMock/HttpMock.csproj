@@ -51,6 +51,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="RequestHandlerFactory.cs" />
     <Compile Include="BufferedConsumer.cs" />
     <Compile Include="EndpointMatchingRule.cs" />
     <Compile Include="FileResponseBody.cs" />

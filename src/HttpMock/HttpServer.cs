@@ -17,6 +17,7 @@ namespace HttpMock
 		private IDisposable _disposableServer;
 
 		private Thread _thread;
+		private readonly RequestHandlerFactory _requestHandlerFactory;
 
 		public HttpServer(Uri uri) {
 			_uri = uri;
@@ -24,6 +25,7 @@ namespace HttpMock
 			_requestProcessor = new RequestProcessor();
 			_requestWasCalled = new RequestWasCalled(_requestProcessor);
 			_requestWasNotCalled = new RequestWasNotCalled(_requestProcessor);
+			_requestHandlerFactory = new RequestHandlerFactory(_requestProcessor);
 		}
 
 		public void Start() {
@@ -56,8 +58,8 @@ namespace HttpMock
 			_disposableServer.Dispose();
 		}
 
-		public RequestHandler Stub(Func<RequestProcessor, RequestHandler> func) {
-			return func.Invoke(_requestProcessor);
+		public RequestHandler Stub(Func<RequestHandlerFactory, RequestHandler> func) {
+			return func.Invoke(_requestHandlerFactory);
 		}
 
 		public RequestHandler AssertWasCalled(Func<RequestWasCalled, RequestHandler> func) {

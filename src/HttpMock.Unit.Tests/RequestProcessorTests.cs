@@ -15,10 +15,12 @@ namespace HttpMock.Unit.Tests {
 		private IMatchingRule _ruleThatReturnsFirstHandler;
 		private IMatchingRule _ruleThatReturnsNoHandlers;
 		private IStubResponse _defaultResponse;
+		private RequestHandlerFactory _requestHandlerFactory;
 
 		[SetUp]
 		public void SetUp() {
 			_processor = new RequestProcessor();
+			_requestHandlerFactory = new RequestHandlerFactory(_processor);
 			_dataProducer = MockRepository.GenerateStub<IDataProducer>();
 			_httpResponseDelegate = MockRepository.GenerateStub<IHttpResponseDelegate>();
 
@@ -33,31 +35,31 @@ namespace HttpMock.Unit.Tests {
 
 		[Test]
 		public void Get_should_return_handler_with_get_method_set() {
-			RequestHandler requestHandler = _processor.Get("nowhere");
+			RequestHandler requestHandler = _requestHandlerFactory.Get("nowhere");
 			Assert.That(requestHandler.Method, Is.EqualTo("GET"));
 		}
 
 		[Test]
 		public void Post_should_return_handler_with_post_method_set() {
-			RequestHandler requestHandler = _processor.Post("nowhere");
+			RequestHandler requestHandler = _requestHandlerFactory.Post("nowhere");
 			Assert.That(requestHandler.Method, Is.EqualTo("POST"));
 		}
 
 		[Test]
 		public void Put_should_return_handler_with_put_method_set() {
-			RequestHandler requestHandler = _processor.Put("nowhere");
+			RequestHandler requestHandler = _requestHandlerFactory.Put("nowhere");
 			Assert.That(requestHandler.Method, Is.EqualTo("PUT"));
 		}
 
 		[Test]
 		public void Delete_should_return_handler_with_delete_method_set() {
-			RequestHandler requestHandler = _processor.Delete("nowhere");
+			RequestHandler requestHandler = _requestHandlerFactory.Delete("nowhere");
 			Assert.That(requestHandler.Method, Is.EqualTo("DELETE"));
 		}
 
 		[Test]
 		public void Head_should_return_handler_with_head_method_set() {
-			RequestHandler requestHandler = _processor.Head("nowhere");
+			RequestHandler requestHandler = _requestHandlerFactory.Head("nowhere");
 			Assert.That(requestHandler.Method, Is.EqualTo("HEAD"));
 		}
 
@@ -65,7 +67,7 @@ namespace HttpMock.Unit.Tests {
 		public void If_no_handlers_found_should_fire_onresponse_with_a_404() {
 			_processor = new RequestProcessor(_ruleThatReturnsNoHandlers);
 
-			_processor.Add(_processor.Get("test"));
+			_processor.Add(_requestHandlerFactory.Get("test"));
 			_processor.OnRequest(new HttpRequestHead(), _dataProducer, _httpResponseDelegate);
 			_httpResponseDelegate.AssertWasCalled(x => x.OnResponse(Arg<HttpResponseHead>.Matches(y => y.Status == "404 NotFound"), Arg<IDataProducer>.Is.Null));
 		}
@@ -74,7 +76,7 @@ namespace HttpMock.Unit.Tests {
 		public void If_a_handler_found_should_fire_onresponse_with_that_repsonse() {
 			_processor = new RequestProcessor(_ruleThatReturnsFirstHandler);
 
-			RequestHandler requestHandler = _processor.Get("test");
+			RequestHandler requestHandler = _requestHandlerFactory.Get("test");
 			_processor.Add(requestHandler);
 			_processor.OnRequest(new HttpRequestHead{ Headers =  new Dictionary<string, string>()}, _dataProducer, _httpResponseDelegate);
 
@@ -86,7 +88,7 @@ namespace HttpMock.Unit.Tests {
 
 			_processor = new RequestProcessor(_ruleThatReturnsFirstHandler);
 
-			RequestHandler requestHandler = _processor.Head("test");
+			RequestHandler requestHandler = _requestHandlerFactory.Head("test");
 			_processor.Add(requestHandler);
 			var httpRequestHead = new HttpRequestHead { Method = "HEAD", Headers = new Dictionary<string, string>() };
 			_processor.OnRequest(httpRequestHead, _dataProducer, _httpResponseDelegate);
@@ -100,8 +102,8 @@ namespace HttpMock.Unit.Tests {
 			string expectedMethod = "GET";
 
 			var requestProcessor = new RequestProcessor(null);
-			
-			requestProcessor.Add(requestProcessor.Get(expectedPath));
+
+			requestProcessor.Add(_requestHandlerFactory.Get(expectedPath));
 
 			var handler = requestProcessor.FindHandler(expectedMethod, expectedPath);
 
@@ -118,7 +120,7 @@ namespace HttpMock.Unit.Tests {
 
 			var requestProcessor = new RequestProcessor(_ruleThatReturnsFirstHandler);
 
-			requestProcessor.Add(requestProcessor.Get(expectedPath));
+			requestProcessor.Add(_requestHandlerFactory.Get(expectedPath));
 			var httpRequestHead = new HttpRequestHead { Headers = new Dictionary<string, string>() };
 			httpRequestHead.Path = expectedPath;
 			httpRequestHead.Method = expectedPath;

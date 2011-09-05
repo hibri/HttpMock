@@ -46,15 +46,14 @@ namespace HttpMock
 			IDataProducer dataProducer = request.Method != "HEAD" ? handler.ResponseBuilder.BuildBody() : null;
 			if (request.HasBody()) {
 				body.Connect(new BufferedConsumer(bufferedBody =>{
-													handler.AddBody(bufferedBody);
-													response.OnResponse(handler.ResponseBuilder.BuildHeaders(), dataProducer);
-													},
-													error =>{
-														_log.DebugFormat("Error while reading body {0}", error.Message);
-														response.OnResponse(handler.ResponseBuilder.BuildHeaders(), dataProducer);
-													}));
+				                                  	handler.AddBody(bufferedBody);
+				                                  	response.OnResponse(handler.ResponseBuilder.BuildHeaders(), dataProducer);
+				                                  },
+				                                  error =>{
+				                                  	_log.DebugFormat("Error while reading body {0}", error.Message);
+				                                  	response.OnResponse(handler.ResponseBuilder.BuildHeaders(), dataProducer);
+				                                  }));
 			} else {
-				
 				response.OnResponse(handler.ResponseBuilder.BuildHeaders(), dataProducer);
 			}
 			_log.DebugFormat("End Processing request for : {0}:{1}", request.Method, request.Uri);
@@ -86,38 +85,12 @@ namespace HttpMock
 			response.OnResponse(notFoundResponse, null);
 		}
 
-		public RequestHandler Get(string path) {
-			return CreateHandler(path, "GET");
-		}
-
-		public RequestHandler Post(string path) {
-			return CreateHandler(path, "POST");
-		}
-
-		public RequestHandler Put(string path) {
-			return CreateHandler(path, "PUT");
-		}
-
-		public RequestHandler Delete(string path) {
-			return CreateHandler(path, "DELETE");
-		}
-
-		public RequestHandler Head(string path) {
-			return CreateHandler(path, "HEAD");
-		}
-
 		public void ClearHandlers() {
 			_handlers = new List<RequestHandler>();
 		}
 
 		public void Add(RequestHandler requestHandler) {
 			_handlers.Add(requestHandler);
-		}
-
-		private RequestHandler CreateHandler(string path, string method) {
-			string cleanedPath = path;
-			var requestHandler = new RequestHandler(cleanedPath, this) {Method = method};
-			return requestHandler;
 		}
 
 		public string WhatDoIHave() {

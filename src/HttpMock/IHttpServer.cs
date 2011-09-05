@@ -4,7 +4,7 @@ namespace HttpMock
 {
 	public interface IHttpServer : IDisposable
 	{
-		RequestHandler Stub(Func<RequestProcessor, RequestHandler> func);
+		RequestHandler Stub(Func<RequestHandlerFactory, RequestHandler> func);
 		RequestHandler AssertWasCalled(Func<RequestWasCalled, RequestHandler> func);
 		IHttpServer WithNewContext();
 		IHttpServer WithNewContext(string baseUri);
