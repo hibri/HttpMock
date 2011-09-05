@@ -70,6 +70,7 @@
     <Compile Include="HttpMockRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RequestHandler.cs" />
+    <Compile Include="RequestHandlerList.cs" />
     <Compile Include="RequestProcessor.cs" />
     <Compile Include="RequestWasCalled.cs" />
     <Compile Include="RequestWasNotCalled.cs" />

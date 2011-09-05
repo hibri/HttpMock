@@ -17,9 +17,9 @@ namespace HttpMock
 	{
 		private static readonly ILog _log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 		private readonly IMatchingRule _matchingRule;
-		private IList<RequestHandler> _handlers;
+		private RequestHandlerList _handlers;
 
-		public RequestProcessor(IMatchingRule matchingRule, IList<RequestHandler> requestHandlers) {
+		public RequestProcessor(IMatchingRule matchingRule, RequestHandlerList requestHandlers) {
 			_matchingRule = matchingRule;
 			_handlers = requestHandlers;
 		}
@@ -66,6 +66,7 @@ namespace HttpMock
 		}
 
 		private RequestHandler MatchHandler(HttpRequestHead request) {
+			
 			return _handlers.Where(x => _matchingRule.IsEndpointMatch(x, request)).FirstOrDefault();
 		}
 
@@ -94,7 +95,7 @@ namespace HttpMock
 		}
 
 		public void ClearHandlers() {
-			_handlers = new List<RequestHandler>();
+			_handlers = new RequestHandlerList();
 		}
 
 		public void Add(RequestHandler requestHandler) {
