@@ -64,7 +64,7 @@ namespace HttpMock
 			if (File.Exists(pathToFile))
 			{
 				var fileInfo = new FileInfo(pathToFile);
-				_contentLength = to - from;
+				_contentLength = (to - from) +1;
 				_responseBodyBuilder = new FileResponseBody(pathToFile);
 				AddHeader(HttpResponseHeader.ContentRange.ToString(), string.Format("bytes={0}-{1}/{2}",  from, to, fileInfo.Length));
 			}

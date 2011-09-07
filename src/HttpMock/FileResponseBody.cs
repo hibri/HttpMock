@@ -32,14 +32,15 @@ namespace HttpMock
 					Regex rangeEx = new Regex(@"bytes=([\d]*)-([\d]*)");
 					if(rangeEx.IsMatch(range)) {
 						int from = Convert.ToInt32(rangeEx.Match(range).Groups[1].Value);
-						int to = Convert.ToInt32(rangeEx.Match(range).Groups[2].Value);
+						int to = Convert.ToInt32(rangeEx.Match(range).Groups[2].Value) +1;
 						offset = from;
 						length = to - from;
 					}
 				}
-				channel.OnData(new ArraySegment<byte>(buffer, offset, length), null);
+				ArraySegment<byte> data = new ArraySegment<byte>(buffer, offset, length);
+				channel.OnData(data, null);
 				
-				_log.DebugFormat("Wrote {0} bytes to buffer", fileInfo.Length);
+				_log.DebugFormat("Wrote {0} bytes to buffer", data.Count);
 				channel.OnEnd();
 				return null;
 			}
