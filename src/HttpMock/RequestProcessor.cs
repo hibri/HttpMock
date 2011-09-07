@@ -40,7 +40,7 @@ namespace HttpMock
 			}
 			_log.DebugFormat("Matched a handler {0},{1}, {2}", handler.Method, handler.Path, DumpQueryParams(handler.QueryParams));
 			handler.RecordRequest();
-			IDataProducer dataProducer = request.Method != "HEAD" ? handler.ResponseBuilder.BuildBody() : null;
+			IDataProducer dataProducer = GetDataProducer(request, handler);
 			if (request.HasBody()) {
 				body.Connect(new BufferedConsumer(
 					bufferedBody =>
@@ -59,6 +59,10 @@ namespace HttpMock
 			}
 			_log.DebugFormat("End Processing request for : {0}:{1}", request.Method, request.Uri);
 			return;
+		}
+
+		private static IDataProducer GetDataProducer(HttpRequestHead request, RequestHandler handler) {
+			return request.Method != "HEAD" ? handler.ResponseBuilder.BuildBody(request.Headers) : null;
 		}
 
 		private int GetHandlerCount() {

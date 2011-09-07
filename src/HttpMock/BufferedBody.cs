@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text;
 using Kayak;
 
 namespace HttpMock
 {
-	class BufferedBody : IDataProducer
+	class BufferedBody : IResponse
 	{
 		ArraySegment<byte> data;
 
@@ -23,12 +24,20 @@ namespace HttpMock
 			channel.OnEnd();
 			return null;
 		}
+
+		public void SetRequestHeaders(IDictionary<string, string> requestHeaders) {
+			
+		}
 	}
 
-	class NoBody : IDataProducer
+	class NoBody : IResponse
 	{
 		public IDisposable Connect(IDataConsumer channel) {
 			return null;
+		}
+
+		public void SetRequestHeaders(IDictionary<string, string> requestHeaders) {
+			
 		}
 	}
 }

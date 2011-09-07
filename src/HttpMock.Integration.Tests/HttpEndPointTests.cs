@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -123,6 +124,43 @@ namespace SevenDigital.HttpMock.Integration.Tests
 			
 		}
 
+		[Test]
+		public void Should_support_range_requests() {
+			string host = "http://localhost:9191";
+			_stubHttp = HttpMockRepository.At(host);
+			string query = "/path/file";
+			int fileSize = 2048;
+			string pathToFile = CreateFile(fileSize);
+			_stubHttp.Stub( x => x.Get(query))
+				.ReturnFileRange(pathToFile, 0, 1024)
+				.WithStatus(HttpStatusCode.PartialContent);
+
+			Console.WriteLine(_stubHttp.WhatDoIHave());
+
+			HttpWebRequest request = (HttpWebRequest) HttpWebRequest.Create(host + query);
+			request.Method = "GET";
+			request.AddRange(0, 1024);
+			HttpWebResponse response = (HttpWebResponse) request.GetResponse();
+			byte[] downloadData = new byte[response.ContentLength];
+			using (response) {
+				
+				response.GetResponseStream().Read(downloadData, 0, downloadData.Length);
+			}
+			Assert.That(downloadData.Length, Is.EqualTo(1024));
+
+			File.Delete(pathToFile);
+		}
+
+		private string CreateFile(int fileSize) {
+			string fileName = Path.GetTempFileName();
+			using (FileStream fileStream = File.OpenWrite(fileName)) {
+				for (int count = 0; count < fileSize; count++) {
+					fileStream.WriteByte((byte) count);
+				}
+				fileStream.Close();
+			}
+			return fileName;
+		}
 
 		private static void RequestEcho(string endpoint) {
 			var wc = new WebClient();

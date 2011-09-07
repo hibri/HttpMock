@@ -78,9 +78,12 @@ namespace HttpMock.Unit.Tests {
 
 			RequestHandler requestHandler = _requestHandlerFactory.Get("test");
 			_processor.Add(requestHandler);
-			_processor.OnRequest(new HttpRequestHead{ Headers =  new Dictionary<string, string>()}, _dataProducer, _httpResponseDelegate);
+			Dictionary<string, string> headers = new Dictionary<string, string>();
+			_processor.OnRequest(new HttpRequestHead{ Headers =  headers}, _dataProducer, _httpResponseDelegate);
 
-			_httpResponseDelegate.AssertWasCalled(x => x.OnResponse(requestHandler.ResponseBuilder.BuildHeaders(), requestHandler.ResponseBuilder.BuildBody()));
+			_httpResponseDelegate.AssertWasCalled(
+				x => x.OnResponse(requestHandler.ResponseBuilder.BuildHeaders(), 
+				requestHandler.ResponseBuilder.BuildBody(headers)));
 		}
 		
 		[Test]

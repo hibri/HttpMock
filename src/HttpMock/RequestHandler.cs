@@ -35,6 +35,16 @@ namespace HttpMock
 			string fileName = System.IO.Path.GetFileName(pathToFile);
 			_webResponseBuilder.WithFile(pathToFile);
 			_webResponseBuilder.AddHeader("Content-Disposition", string.Format("attachment; filename=\"{0}\"", fileName));
+			
+			return this;
+		}
+
+		public IRequestStub ReturnFileRange(string pathToFile, int from, int to)
+		{
+			string fileName = System.IO.Path.GetFileName(pathToFile);
+			_webResponseBuilder.WithFileRange(pathToFile, from, to);
+			_webResponseBuilder.AddHeader("Content-Disposition", string.Format("attachment; filename=\"{0}\"", fileName));
+			
 			return this;
 		}
 
