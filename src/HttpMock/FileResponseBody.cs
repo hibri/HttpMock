@@ -34,12 +34,13 @@ namespace HttpMock
 						int from = Convert.ToInt32(rangeEx.Match(range).Groups[1].Value);
 						int to = Convert.ToInt32(rangeEx.Match(range).Groups[2].Value);
 						offset = from;
-						length = to - from;
+						length = (to - from) +1;
 					}
 				}
-				channel.OnData(new ArraySegment<byte>(buffer, offset, length), null);
+				ArraySegment<byte> data = new ArraySegment<byte>(buffer, offset, length);
+				channel.OnData(data, null);
 				
-				_log.DebugFormat("Wrote {0} bytes to buffer", fileInfo.Length);
+				_log.DebugFormat("Wrote {0} bytes to buffer", data.Array.Length);
 				channel.OnEnd();
 				return null;
 			}

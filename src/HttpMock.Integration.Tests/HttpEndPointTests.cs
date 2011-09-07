@@ -132,14 +132,14 @@ namespace SevenDigital.HttpMock.Integration.Tests
 			int fileSize = 2048;
 			string pathToFile = CreateFile(fileSize);
 			_stubHttp.Stub( x => x.Get(query))
-				.ReturnFileRange(pathToFile, 0, 1024)
+				.ReturnFileRange(pathToFile, 0, 1023)
 				.WithStatus(HttpStatusCode.PartialContent);
 
 			Console.WriteLine(_stubHttp.WhatDoIHave());
 
 			HttpWebRequest request = (HttpWebRequest) HttpWebRequest.Create(host + query);
 			request.Method = "GET";
-			request.AddRange(0, 1024);
+			request.AddRange(0, 1023);
 			HttpWebResponse response = (HttpWebResponse) request.GetResponse();
 			byte[] downloadData = new byte[response.ContentLength];
 			using (response) {
