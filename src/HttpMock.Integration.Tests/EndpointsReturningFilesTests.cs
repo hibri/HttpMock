@@ -35,39 +35,5 @@ namespace SevenDigital.HttpMock.Integration.Tests
 			}
 		}
 
-		[Test]
-		public void C_Setting_return_file_should_add_correct_content_disposition_header() {
-			var stubHttp = HttpMockRepository.At("http://localhost.:9191/");
-			stubHttp.Stub(x => x.Get("/afile1"))
-				.ReturnFile(RES_TRANSCODE_INPUT_MP3)
-				.OK();
-
-			Console.WriteLine(stubHttp.WhatDoIHave());
-
-			var webRequest = (HttpWebRequest)WebRequest.Create("http://localhost.:9191/afile1");
-			using (var response = webRequest.GetResponse())
-			using (response.GetResponseStream()) {
-				Assert.That(response.Headers["Content-Disposition"], Is.Not.Null);
-				Assert.That(response.Headers["Content-Disposition"], Is.EqualTo(string.Format("attachment; filename=\"{0}\"", FILE_NAME)));
-			}
-
-		}
-
-		[Test]
-		public void B_Can_access_a_differnet_stub_pointing_to_the_same_physical_file() {
-			var stubHttp = HttpMockRepository.At("http://localhost.:9191/");
-			stubHttp.Stub(x => x.Get("/afile2"))
-				.ReturnFile(RES_TRANSCODE_INPUT_MP3)
-				.OK();
-
-			Console.WriteLine(stubHttp.WhatDoIHave());
-
-			var webRequest = (HttpWebRequest)WebRequest.Create("http://localhost.:9191/afile2");
-			using(var response = webRequest.GetResponse())
-			using(response.GetResponseStream()) {
-				Assert.That(response.Headers["Content-Disposition"], Is.Not.Null);
-				Assert.That(response.Headers["Content-Disposition"], Is.EqualTo(string.Format("attachment; filename=\"{0}\"", FILE_NAME)));
-			}
-		}
 	}
 }
