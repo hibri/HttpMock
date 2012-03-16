@@ -45,6 +45,7 @@ namespace HttpMock
 				body.Connect(new BufferedConsumer(
 					bufferedBody =>
 						{
+						_log.DebugFormat("Body: {0}", bufferedBody);
 						handler.AddBody(bufferedBody);
 						response.OnResponse(handler.ResponseBuilder.BuildHeaders(), dataProducer);
 						},
