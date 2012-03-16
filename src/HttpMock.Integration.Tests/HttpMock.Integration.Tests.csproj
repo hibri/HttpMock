@@ -32,9 +32,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="HttpMachine">
-      <HintPath>..\..\lib\HttpMachine.dll</HintPath>
-    </Reference>
     <Reference Include="Kayak">
       <HintPath>..\..\lib\Kayak.dll</HintPath>
     </Reference>
