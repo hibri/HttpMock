@@ -26,10 +26,16 @@ namespace SevenDigital.HttpMock.Integration.Tests
 			stubHttp.Stub(x => x.Get("/api/echo")).Return("OK").OK();
 
 			new WebClient().DownloadString("http://localhost:90/api/status");
-			
 
 			stubHttp.AssertWasNotCalled(x => x.Get("/api/echo"));
+		}
 
+		[Test]
+		public void Should_assert_when_stub_is_missing()
+		{
+			var stubHttp = HttpMockRepository.At("http://localhost:90");
+
+			Assert.Throws<AssertionException>(() => stubHttp.AssertWasCalled(x => x.Get("/api/echo")));
 		}
 
 		[Test]
