@@ -45,6 +45,7 @@ namespace HttpMock
 				body.Connect(new BufferedConsumer(
 					bufferedBody =>
 						{
+						_log.DebugFormat("Body: {0}", bufferedBody);
 						handler.AddBody(bufferedBody);
 						response.OnResponse(handler.ResponseBuilder.BuildHeaders(), dataProducer);
 						},
@@ -58,7 +59,6 @@ namespace HttpMock
 				response.OnResponse(handler.ResponseBuilder.BuildHeaders(), dataProducer);
 			}
 			_log.DebugFormat("End Processing request for : {0}:{1}", request.Method, request.Uri);
-			return;
 		}
 
 		private static IDataProducer GetDataProducer(HttpRequestHead request, RequestHandler handler) {
