@@ -76,6 +76,11 @@ namespace HttpMock
 			return this;
 		}
 
+        public RequestHandler WithConstraint(Func<string, bool> constraint)
+        {
+            return this;
+        }
+
 		public override string ToString() {
 			var sb = new StringBuilder();
 			sb.AppendFormat("{0}:{1}{2}", Path, Method, Environment.NewLine);
@@ -100,5 +105,7 @@ namespace HttpMock
 		public string GetBody() {
 			return _requestBody;
 		}
+
+	  
 	}
 }
