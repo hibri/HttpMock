@@ -15,7 +15,7 @@ namespace SevenDigital.HttpMock.Integration.Tests
         }
 
         [Test]
-        public void FirstTest()
+        public void Constraints_can_be_applied_to_urls()
         {
             var wc = new WebClient();
             string stubbedReponse = "<Xml>ShouldntBeReturned</Xml>";
