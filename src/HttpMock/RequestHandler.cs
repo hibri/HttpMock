@@ -11,7 +11,7 @@ namespace HttpMock
 		private readonly ResponseBuilder _webResponseBuilder = new ResponseBuilder();
 		private int _requestCount;
 		private string _requestBody;
-	    private readonly IList<Func<Uri, bool>> _constraints = new List<Func<Uri, bool>>();
+	    private readonly IList<Func<string, bool>> _constraints = new List<Func<string, bool>>();
 
 	    public RequestHandler(string path, RequestProcessor requestProcessor) {
 			Path = path;
@@ -78,7 +78,7 @@ namespace HttpMock
 			return this;
 		}
 
-        public RequestHandler WithUrlConstraint(Func<Uri, bool> constraint)
+        public RequestHandler WithUrlConstraint(Func<string, bool> constraint)
         {
             _constraints.Add(constraint);
             return this;
@@ -110,9 +110,9 @@ namespace HttpMock
 		}
 
 
-	    public bool CanVerifyConstraintsFor(Uri uriWithBlah)
+	    public bool CanVerifyConstraintsFor(string url)
 	    {
-	        return _constraints.All(c => c(uriWithBlah));
+	        return _constraints.All(c => c(url));
 	    }
 	}
 }

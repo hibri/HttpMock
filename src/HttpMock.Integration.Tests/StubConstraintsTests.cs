@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using HttpMock;
 using NUnit.Framework;
 
@@ -7,29 +8,36 @@ namespace SevenDigital.HttpMock.Integration.Tests
     public class StubConstraintsTests
     {
         private IHttpServer _httpMockRepository;
+        private WebClient _wc;
+        private IHttpServer _stubHttp;
 
         [SetUp]
         public void SetUp()
         {
             _httpMockRepository = HttpMockRepository.At("http://localhost:8080/");
+            _wc = new WebClient();
+            _stubHttp = _httpMockRepository.WithNewContext();
         }
 
         [Test]
         public void Constraints_can_be_applied_to_urls()
         {
-            var wc = new WebClient();
-            string stubbedReponse = "<Xml>ShouldntBeReturned</Xml>";
-           
-            var stubHttp = _httpMockRepository
-                .WithNewContext();
-
-            stubHttp
+            _stubHttp
                 .Stub(x => x.Post("/firsttest"))
-                .WithUrlConstraint(url => url.AbsoluteUri.Contains("/blah/blah") == false)
-                .Return(stubbedReponse)
+                .WithUrlConstraint(url => url.Contains("/blah/blah") == false)
+                .Return("<Xml>ShouldntBeReturned</Xml>")
                 .OK();
 
-            Assert.That(wc.UploadString("Http://localhost:8080/firsttest/blah/blah", "x"), Is.Not.EqualTo(stubbedReponse));
+            try
+            {
+                _wc.UploadString("Http://localhost:8080/firsttest/blah/blah", "x");
+
+                Assert.Fail("Should have 404d");
+            }
+            catch (WebException ex)
+            {
+                Assert.That(ex.Message, Is.EqualTo("The remote server returned an error: (404) Not Found."));
+            } 
         }
     }
 }
