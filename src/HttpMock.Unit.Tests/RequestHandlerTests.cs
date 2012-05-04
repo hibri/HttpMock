@@ -9,13 +9,13 @@ namespace HttpMock.Unit.Tests
         [Test]
         public void Applies_One_Constraint()
         {
-            var doesNotContainBlahConstraint = new Func<Uri, bool>(uri => uri.AbsoluteUri.Contains("blah") == false);
+            var doesNotContainBlahConstraint = new Func<string, bool>(uri => uri.Contains("blah") == false);
 
             var h = new RequestHandler("", null);
 
             h.WithUrlConstraint(doesNotContainBlahConstraint);
 
-            var uriWithBlah = new Uri("http://www.blah.com");
+            var uriWithBlah = "http://www.blah.com";
 
             Assert.That(h.CanVerifyConstraintsFor(uriWithBlah), Is.EqualTo(false));
         }
@@ -23,9 +23,9 @@ namespace HttpMock.Unit.Tests
         [Test]
         public void Applies_multiple_constraints()
         {
-            var doesNotContainBlahConstraint = new Func<Uri, bool>(uri => uri.AbsoluteUri.Contains("blah") == false);
-            var doesNotContainHibriConstraint = new Func<Uri, bool>(uri => uri.AbsoluteUri.Contains("hibri") == false);
-            var doesNotContainGoncaloConstraint = new Func<Uri, bool>(uri => uri.AbsoluteUri.Contains("goncalo") == false);
+            var doesNotContainBlahConstraint = new Func<string, bool>(uri => uri.Contains("blah") == false);
+            var doesNotContainHibriConstraint = new Func<string, bool>(uri => uri.Contains("hibri") == false);
+            var doesNotContainGoncaloConstraint = new Func<string, bool>(uri => uri.Contains("goncalo") == false);
 
             var h = new RequestHandler("", null);
 
@@ -33,7 +33,7 @@ namespace HttpMock.Unit.Tests
             h.WithUrlConstraint(doesNotContainHibriConstraint);
             h.WithUrlConstraint(doesNotContainGoncaloConstraint);
 
-            var uriWithBlah = new Uri("http://www.xyz.com/moomins/goncalo");
+            var uriWithBlah = "http://www.xyz.com/moomins/goncalo";
 
             Assert.That(h.CanVerifyConstraintsFor(uriWithBlah), Is.EqualTo(false));
         }
