@@ -112,10 +112,7 @@ namespace HttpMock
 
 	    public bool CanVerifyConstraintsFor(Uri uriWithBlah)
 	    {
-	        var c = _constraints.FirstOrDefault();
-            if (c == null) return true;
-
-	        return c(uriWithBlah);
+	        return _constraints.All(c => c(uriWithBlah));
 	    }
 	}
 }
