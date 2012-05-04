@@ -25,7 +25,7 @@ namespace SevenDigital.HttpMock.Integration.Tests
 
             stubHttp
                 .Stub(x => x.Post("/firsttest"))
-                .WithConstraint(url => url.Contains("/blah/blah") == false)
+                .WithUrlConstraint(url => url.AbsoluteUri.Contains("/blah/blah") == false)
                 .Return(stubbedReponse)
                 .OK();
 

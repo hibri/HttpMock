@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Text;
 
@@ -10,8 +11,9 @@ namespace HttpMock
 		private readonly ResponseBuilder _webResponseBuilder = new ResponseBuilder();
 		private int _requestCount;
 		private string _requestBody;
+	    private readonly IList<Func<Uri, bool>> _constraints = new List<Func<Uri, bool>>();
 
-		public RequestHandler(string path, RequestProcessor requestProcessor) {
+	    public RequestHandler(string path, RequestProcessor requestProcessor) {
 			Path = path;
 			RequestProcessor = requestProcessor;
 			QueryParams = new Dictionary<string, string>();
@@ -76,8 +78,9 @@ namespace HttpMock
 			return this;
 		}
 
-        public RequestHandler WithConstraint(Func<string, bool> constraint)
+        public RequestHandler WithUrlConstraint(Func<Uri, bool> constraint)
         {
+            _constraints.Add(constraint);
             return this;
         }
 
@@ -106,6 +109,13 @@ namespace HttpMock
 			return _requestBody;
 		}
 
-	  
+
+	    public bool CanVerifyConstraintsFor(Uri uriWithBlah)
+	    {
+	        var c = _constraints.FirstOrDefault();
+            if (c == null) return true;
+
+	        return c(uriWithBlah);
+	    }
 	}
 }
