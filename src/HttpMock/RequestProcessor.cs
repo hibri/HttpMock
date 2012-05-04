@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -69,9 +70,13 @@ namespace HttpMock
 			return _handlers.Count();
 		}
 
-		private RequestHandler MatchHandler(HttpRequestHead request) {
-			
-			return _handlers.Where(x => _matchingRule.IsEndpointMatch(x, request)).FirstOrDefault();
+		private RequestHandler MatchHandler(HttpRequestHead request)
+		{
+		    var matches = _handlers
+                .Where(handler => _matchingRule.IsEndpointMatch(handler, request))
+                .Where(handler => handler.CanVerifyConstraintsFor(request.Uri));
+
+		    return matches.FirstOrDefault();
 		}
 
 		public RequestHandler FindHandler(string method, string path) {

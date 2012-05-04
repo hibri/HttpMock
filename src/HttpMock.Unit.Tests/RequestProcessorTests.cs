@@ -132,5 +132,27 @@ namespace HttpMock.Unit.Tests {
 			var handler = requestProcessor.FindHandler(expectedMethod, expectedPath);
 			Assert.That(handler.RequestCount(), Is.EqualTo(1));
 		}
+
+        [Test]
+        public void Returns_mock_not_found_when_handler_constraints_cannot_be_verified()
+        {
+            var excludePhrase = "OhMyDaysssss";
+
+            var handlerWithConstraints = new RequestHandler("", null);
+            handlerWithConstraints.WithUrlConstraint(uri => uri.Contains(excludePhrase) == false);
+
+            var matchingRule = MockRepository.GenerateMock<IMatchingRule>();
+            matchingRule.Stub(m => m.IsEndpointMatch(Arg<IRequestHandler>.Is.Anything, Arg<HttpRequestHead>.Is.Anything)).Return(true);
+            
+            var p = new RequestProcessor(matchingRule, new RequestHandlerList { handlerWithConstraints });
+
+            var response = MockRepository.GenerateMock<IHttpResponseDelegate>();
+            p.OnRequest(new HttpRequestHead{Uri = "http://blah.com/cheese/" + excludePhrase}, null, response);
+
+            var notFoundResponse = (HttpResponseHead)response.GetArgumentsForCallsMadeOn(
+                r => r.OnResponse(Arg<HttpResponseHead>.Is.Anything, Arg<IDataProducer>.Is.Anything))[0][0];
+
+            Assert.That(notFoundResponse.Status  == "404 NotFound");
+        }
 	}
 }
