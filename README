@@ -2,20 +2,22 @@ A .Net library to create HTTP servers, which return canned responses at run time
 
 Similar to a mocking/stubbing library but used to mock/stub actual HTTP responses
 
-Eample usage
-[Test]
-  	public void SUT_should_return_stubbed_response() {
-			_stubHttp = HttpMockRepository.At("http://localhost:9191/");
+Eample usage:
 
-			const string expected = "<xml><>response>Hello World</response></xml>";
-			_stubHttp.Stub(x => x.Get("/endpoint"))
+	[Test]
+ 	public void SUT_should_return_stubbed_response() {
+		_stubHttp = HttpMockRepository.At("http://localhost:9191/");
+
+		const string expected = "<xml><>response>Hello World</response></xml>";
+		_stubHttp.Stub(x => x.Get("/endpoint"))
 				.Return(expected)
 				.OK();
 
-			Console.WriteLine(_stubHttp.WhatDoIHave());
+		
 
-			string result = 	new WebClient().DownloadString("http://localhost:9191/endpoint");
+		string result = new WebClient().DownloadString("http://localhost:9191/endpoint");
 
-			Console.WriteLine("RESPONSE: {0}", result);
-			Assert.That(result, Is.EqualTo(expected));
-		}
+		Console.WriteLine("RESPONSE: {0}", result);
+
+		Assert.That(result, Is.EqualTo(expected));
+	}
