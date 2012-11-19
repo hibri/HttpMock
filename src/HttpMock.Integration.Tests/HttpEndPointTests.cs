@@ -53,7 +53,7 @@ namespace SevenDigital.HttpMock.Integration.Tests
 
 		[Test]
 		public void Should_return_expected_ok_response() {
-			string endpoint = "Http://localhost:9191/";
+			string endpoint = "Http://localhost:9191";
 			_stubHttp = HttpMockRepository.At(endpoint);
 
 			_stubHttp
@@ -100,7 +100,7 @@ namespace SevenDigital.HttpMock.Integration.Tests
 		[Test]
 		public void Should_hit_the_same_url_multiple_times()
 		{
-			string endpoint = "Http://localhost:9191/";
+			string endpoint = "Http://localhost:9191";
 			_stubHttp = HttpMockRepository.At(endpoint);
 
 			
