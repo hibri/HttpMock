@@ -14,7 +14,7 @@ namespace SevenDigital.HttpMock.Integration.Tests
         [SetUp]
         public void SetUp()
         {
-            _httpMockRepository = HttpMockRepository.At("http://localhost:8080/");
+            _httpMockRepository = HttpMockRepository.At("http://localhost:8080");
             _wc = new WebClient();
             _stubHttp = _httpMockRepository.WithNewContext();
         }
