@@ -14,7 +14,7 @@ namespace SevenDigital.HttpMock.Integration.Tests
 
 		[Test]
 		public void SUT_should_return_stubbed_response() {
-			_stubHttp = HttpMockRepository.At("http://localhost:9191/");
+			_stubHttp = HttpMockRepository.At("http://localhost:9191");
 
 			const string expected = "<xml><>response>Hello World</response></xml>";
 			_stubHttp.Stub(x => x.Get("/endpoint"))
@@ -31,7 +31,7 @@ namespace SevenDigital.HttpMock.Integration.Tests
 
 		[Test]
 		public void Should_start_listening_before_stubs_have_been_set() {
-			_stubHttp = HttpMockRepository.At("http://localhost:9191/");
+			_stubHttp = HttpMockRepository.At("http://localhost:9191");
 
 			_stubHttp.Stub(x => x.Get("/endpoint"))
 				.Return("listening")

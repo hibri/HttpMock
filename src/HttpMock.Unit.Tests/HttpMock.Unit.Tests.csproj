@@ -58,6 +58,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RequestHandlerTests.cs" />
     <Compile Include="RequestProcessorTests.cs" />
+    <Compile Include="HttpMockRepositoryTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\HttpMock\HttpMock.csproj">

@@ -14,7 +14,7 @@ namespace SevenDigital.HttpMock.Integration.Tests
 
 		[Test]
 		public void A_Setting_return_file_return_the_correct_content_length() {
-			var stubHttp = HttpMockRepository.At("http://localhost.:9191/");
+			var stubHttp = HttpMockRepository.At("http://localhost.:9191");
 			stubHttp.Stub(x => x.Get("/afile"))
 				.ReturnFile(RES_TRANSCODE_INPUT_MP3)
 				.OK();
