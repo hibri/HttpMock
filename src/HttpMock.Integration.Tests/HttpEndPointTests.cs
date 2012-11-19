@@ -75,10 +75,10 @@ namespace SevenDigital.HttpMock.Integration.Tests
 
 			var wc = new WebClient();
 
-			Assert.That(wc.DownloadString(string.Format("{0}api2/status", endpoint)), Is.EqualTo("Hello"));
+			Assert.That(wc.DownloadString(string.Format("{0}/api2/status", endpoint)), Is.EqualTo("Hello"));
 
 			try {
-				Console.WriteLine(wc.DownloadString(endpoint + "api2/echo"));
+				Console.WriteLine(wc.DownloadString(endpoint + "/api2/echo"));
 			}
 			catch (Exception ex) {
 				Assert.That(ex, Is.InstanceOf(typeof (WebException)));
@@ -87,7 +87,7 @@ namespace SevenDigital.HttpMock.Integration.Tests
 
 			try
 			{
-				Console.WriteLine(wc.DownloadString(endpoint + "api2/echo2"));
+				Console.WriteLine(wc.DownloadString(endpoint + "/api2/echo2"));
 			}
 			catch (Exception ex)
 			{
@@ -165,7 +165,7 @@ namespace SevenDigital.HttpMock.Integration.Tests
 			var wc = new WebClient();
 
 			try {
-				Console.WriteLine(wc.DownloadString(endpoint + "api2/echo"));
+				Console.WriteLine(wc.DownloadString(endpoint + "/api2/echo"));
 			} catch (Exception ex) {
 				Assert.That(ex, Is.InstanceOf(typeof (WebException)));
 				Assert.That(((WebException) ex).Status, Is.EqualTo(WebExceptionStatus.ProtocolError));
