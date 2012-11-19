@@ -6,7 +6,7 @@ Eample usage:
 
 	[Test]
  	public void SUT_should_return_stubbed_response() {
-		_stubHttp = HttpMockRepository.At("http://localhost:9191/");
+		_stubHttp = HttpMockRepository.At("http://localhost:9191");
 
 		const string expected = "<xml><>response>Hello World</response></xml>";
 		_stubHttp.Stub(x => x.Get("/endpoint"))
