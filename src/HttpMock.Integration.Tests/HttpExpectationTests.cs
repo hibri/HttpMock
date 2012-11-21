@@ -78,6 +78,32 @@ namespace SevenDigital.HttpMock.Integration.Tests
 					.WithBody(Is.StringStarting("postdata")));
 		}
 
+		[Test]
+		public void Should_match_many_POST_requests_which_were_made_with_expected_body()
+		{
+			var stubHttp = HttpMockRepository.At("http://localhost:90");
+			stubHttp.Stub(x => x.Post("/endpoint/handler")).Return("OK").OK();
+
+			const string expectedData = "postdata";
+			new WebClient().UploadString("http://localhost:90/endpoint/handler", expectedData);
+			new WebClient().UploadString("http://localhost:90/endpoint/handler", expectedData);
+
+			stubHttp.AssertWasCalled(x => x.Post("/endpoint/handler")).Times(2);
+		}
+
+		[Test]
+		public void Should_not_match_if_times_value_doesnt_match_requestCount()
+		{
+			var stubHttp = HttpMockRepository.At("http://localhost:90");
+			stubHttp.Stub(x => x.Post("/endpoint/handler")).Return("OK").OK();
+
+			const string expectedData = "postdata";
+			new WebClient().UploadString("http://localhost:90/endpoint/handler", expectedData);
+			new WebClient().UploadString("http://localhost:90/endpoint/handler", expectedData);
+
+			Assert.Throws<AssertionException>(() => stubHttp.AssertWasCalled(x => x.Post("/endpoint/handler")).Times(3));
+		}
+
 
 	}
 }
