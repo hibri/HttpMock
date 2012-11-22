@@ -41,10 +41,11 @@ namespace HttpMock
 			int attempts = 0;
 			using (var tcpClient = new TcpClient()) {
 				while (attempts < timesToWait) {
-					tcpClient.Connect(_uri.Host, _uri.Port);
-					if (tcpClient.Connected) {
-						return true;
-					}
+					try {
+						tcpClient.Connect(_uri.Host, _uri.Port);
+						return tcpClient.Connected;
+					} catch (SocketException) {}
+
 					Thread.Sleep(100);
 					attempts++;
 				}
