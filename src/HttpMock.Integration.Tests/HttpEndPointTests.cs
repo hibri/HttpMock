@@ -130,24 +130,36 @@ namespace SevenDigital.HttpMock.Integration.Tests
 			string query = "/path/file";
 			int fileSize = 2048;
 			string pathToFile = CreateFile(fileSize);
-			_stubHttp.Stub( x => x.Get(query))
-				.ReturnFileRange(pathToFile, 0, 1023)
-				.WithStatus(HttpStatusCode.PartialContent);
 
-			Console.WriteLine(_stubHttp.WhatDoIHave());
+			try
+			{
+				_stubHttp.Stub(x => x.Get(query))
+					.ReturnFileRange(pathToFile, 0, 1023)
+					.WithStatus(HttpStatusCode.PartialContent);
 
-			HttpWebRequest request = (HttpWebRequest) HttpWebRequest.Create(host + query);
-			request.Method = "GET";
-			request.AddRange(0, 1023);
-			HttpWebResponse response = (HttpWebResponse) request.GetResponse();
-			byte[] downloadData = new byte[response.ContentLength];
-			using (response) {
-				
-				response.GetResponseStream().Read(downloadData, 0, downloadData.Length);
+				Console.WriteLine(_stubHttp.WhatDoIHave());
+
+				HttpWebRequest request = (HttpWebRequest) HttpWebRequest.Create(host + query);
+				request.Method = "GET";
+				request.AddRange(0, 1023);
+				HttpWebResponse response = (HttpWebResponse) request.GetResponse();
+				byte[] downloadData = new byte[response.ContentLength];
+				using (response)
+				{
+
+					response.GetResponseStream().Read(downloadData, 0, downloadData.Length);
+				}
+				Assert.That(downloadData.Length, Is.EqualTo(1024));
+
+			} finally {
+				try
+				{
+					File.Delete(pathToFile);
+				} catch (Exception ex) //IOException (or other) can happen
+				{
+					Console.WriteLine("WARNING: TearDown of test couldn't be complete: " + ex);
+				}
 			}
-			Assert.That(downloadData.Length, Is.EqualTo(1024));
-
-			File.Delete(pathToFile);
 		}
 
 		private string CreateFile(int fileSize) {
