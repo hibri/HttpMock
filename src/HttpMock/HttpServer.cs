@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Net;
 using System.Net.Sockets;
+using System.Reflection;
 using System.Threading;
 using Kayak;
 using Kayak.Http;
+using log4net;
 
 namespace HttpMock
 {
@@ -15,6 +17,7 @@ namespace HttpMock
 		private readonly IScheduler _scheduler;
 		private readonly Uri _uri;
 		private IDisposable _disposableServer;
+		private static readonly ILog _log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
 		private Thread _thread;
 		private readonly RequestHandlerFactory _requestHandlerFactory;
@@ -86,14 +89,28 @@ namespace HttpMock
 		}
 
 		private void StartListening() {
-			var ipEndPoint = new IPEndPoint(IPAddress.Any, _uri.Port);
-			_scheduler.Post(() =>{
-			                	_disposableServer = KayakServer.Factory
-			                		.CreateHttp(_requestProcessor, _scheduler)
-			                		.Listen(ipEndPoint);
-			                });
+			try
+			{
+				var ipEndPoint = new IPEndPoint(IPAddress.Any, _uri.Port);
+				_scheduler.Post(() =>
+				{
+					try {
+					_disposableServer = KayakServer.Factory
+						.CreateHttp(_requestProcessor, _scheduler)
+						.Listen(ipEndPoint);
 
-			_scheduler.Start();
+					} catch(Exception ex)
+					{
+						_log.Error("Error when trying to post actions to the scheduler in StartListening", ex);
+					}
+				});
+
+				_scheduler.Start();
+
+			} catch(Exception ex)
+			{
+				_log.Error("Error when trying to StartListening", ex);
+			}
 		}
 	}
 }
