@@ -15,5 +15,10 @@ namespace HttpMock
 		{
 			Assert.That(handler.GetBody(), constraint.Resolve());
 		}
+
+		public static void Times(this RequestHandler handler, int times)
+		{
+			Assert.That(handler.RequestCount(), Is.EqualTo(times));
+		}
 	}
 }
