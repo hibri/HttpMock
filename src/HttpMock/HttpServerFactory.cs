@@ -22,7 +22,7 @@ namespace HttpMock
 		public IHttpServer Create(Uri uri) {
 			IHttpServer httpServer = BuildServer(uri);
 			_httpServers[uri.Port] = httpServer;
-			return _httpServers[uri.Port];
+			return httpServer;
 		}
 
 		private IHttpServer BuildServer(Uri uri) {
