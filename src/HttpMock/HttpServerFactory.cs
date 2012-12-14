@@ -12,8 +12,8 @@ namespace HttpMock
 			if (_httpServers.ContainsKey(uri.Port))
 			{
 				IHttpServer httpServer = _httpServers[uri.Port];
-				if (!httpServer.IsAvailable()) throw new InvalidOperationException("Socket has not been released!");
-				return httpServer;
+				if (httpServer.IsAvailable())
+					return httpServer;
 			}
 
 			return Create(uri);
@@ -21,8 +21,7 @@ namespace HttpMock
 
 		public IHttpServer Create(Uri uri) {
 			IHttpServer httpServer = BuildServer(uri);
-			_httpServers.Add(uri.Port, httpServer);
-
+			_httpServers[uri.Port] = httpServer;
 			return _httpServers[uri.Port];
 		}
 
