@@ -55,6 +55,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EndpointMatchingRuleTests.cs" />
+    <Compile Include="HttpFactoryTests.cs" />
     <Compile Include="HttpServerTests.cs" />
     <Compile Include="PortHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
