@@ -57,9 +57,15 @@ namespace HttpMock
 		}
 
 		public void Dispose() {
-			_scheduler.Stop();
-			_scheduler.Dispose();
-			_disposableServer.Dispose();
+			if (_scheduler != null)
+			{
+				_scheduler.Stop();
+				_scheduler.Dispose();
+			}
+			if (_disposableServer != null)
+			{
+				_disposableServer.Dispose();
+			}
 		}
 
 		public RequestHandler Stub(Func<RequestHandlerFactory, RequestHandler> func) {
