@@ -40,7 +40,7 @@ namespace HttpMock
 		}
 
 		public bool IsAvailable() {
-			const int timesToWait = 10;
+			const int timesToWait = 5;
 			int attempts = 0;
 			using (var tcpClient = new TcpClient()) {
 				while (attempts < timesToWait) {
