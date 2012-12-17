@@ -1,6 +1,5 @@
 using System;
 using NUnit.Framework;
-using HttpMock;
 
 namespace HttpMock.Unit.Tests
 {

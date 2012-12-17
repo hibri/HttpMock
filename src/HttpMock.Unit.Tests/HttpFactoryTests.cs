@@ -1,10 +1,8 @@
 ﻿
 using System;
-using HttpMock;
-using HttpMock.Unit.Tests;
 using NUnit.Framework;
 
-namespace SevenDigital.HttpMock.Unit.Tests
+namespace HttpMock.Unit.Tests
 {
 	[TestFixture]
 	public class HttpFactoryTests
