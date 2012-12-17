@@ -95,9 +95,9 @@ namespace HttpMock
 				_scheduler.Post(() =>
 				{
 					try {
-					_disposableServer = KayakServer.Factory
-						.CreateHttp(_requestProcessor, _scheduler)
-						.Listen(ipEndPoint);
+						_disposableServer = KayakServer.Factory
+							.CreateHttp(_requestProcessor, _scheduler)
+							.Listen(ipEndPoint);
 
 					} catch(Exception ex)
 					{
