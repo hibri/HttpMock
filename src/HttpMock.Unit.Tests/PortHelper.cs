@@ -24,7 +24,10 @@ namespace HttpMock.Unit.Tests
 					catch (SocketException) { }
 
 					if (!connected)
+					{
+						Console.WriteLine("PortHelper found {0} as available", i);
 						return i;
+					}
 				}
 			}
 			throw new HostProtectionException("localhost seems to have ALL ports open, are you mad?");
