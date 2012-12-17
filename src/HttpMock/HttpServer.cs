@@ -98,6 +98,7 @@ namespace HttpMock
 			try
 			{
 				var ipEndPoint = new IPEndPoint(IPAddress.Any, _uri.Port);
+				Exception e = null;
 				_scheduler.Post(() =>
 				{
 					try {
@@ -107,11 +108,15 @@ namespace HttpMock
 
 					} catch(Exception ex)
 					{
+						e = ex;
 						_log.Error("Error when trying to post actions to the scheduler in StartListening", ex);
 					}
 				});
 
 				_scheduler.Start();
+				Thread.Sleep(100);
+				if (e != null)
+					throw e;
 
 			} catch(Exception ex)
 			{
