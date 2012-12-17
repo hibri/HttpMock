@@ -8,7 +8,7 @@ namespace HttpMock.Unit.Tests
 	public class HttpFactoryTests
 	{
 		[Test]
-		[Ignore ("Makes the test suite flaky (???)")]
+		//[Ignore ("Makes the test suite flaky (???)")]
 		public void ShouldBeAbleToHostAtSameAddressIfPreviousWasDisposed()
 		{
 			var serverFactory = new HttpServerFactory();
