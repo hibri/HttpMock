@@ -57,9 +57,15 @@ namespace HttpMock
 		}
 
 		public void Dispose() {
-			_scheduler.Stop();
-			_scheduler.Dispose();
-			_disposableServer.Dispose();
+			if (_scheduler != null)
+			{
+				_scheduler.Stop();
+				_scheduler.Dispose();
+			}
+			if (_disposableServer != null)
+			{
+				_disposableServer.Dispose();
+			}
 		}
 
 		public RequestHandler Stub(Func<RequestHandlerFactory, RequestHandler> func) {
@@ -92,20 +98,25 @@ namespace HttpMock
 			try
 			{
 				var ipEndPoint = new IPEndPoint(IPAddress.Any, _uri.Port);
+				Exception e = null;
 				_scheduler.Post(() =>
 				{
 					try {
-					_disposableServer = KayakServer.Factory
-						.CreateHttp(_requestProcessor, _scheduler)
-						.Listen(ipEndPoint);
+						_disposableServer = KayakServer.Factory
+							.CreateHttp(_requestProcessor, _scheduler)
+							.Listen(ipEndPoint);
 
 					} catch(Exception ex)
 					{
+						e = ex;
 						_log.Error("Error when trying to post actions to the scheduler in StartListening", ex);
 					}
 				});
 
 				_scheduler.Start();
+				Thread.Sleep(100);
+				if (e != null)
+					throw e;
 
 			} catch(Exception ex)
 			{
