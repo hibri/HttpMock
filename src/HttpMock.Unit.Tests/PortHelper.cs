@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Security;
 
@@ -13,30 +14,47 @@ namespace HttpMock.Unit.Tests
 		{
 			for (var i = 1025; i <= 65000; i++)
 			{
-				using (var tcpClient = new TcpClient())
-				{
-					bool connected = false;
-					try
-					{
-						tcpClient.Connect(IPAddress.Loopback, i);
-						connected = tcpClient.Connected;
-					}
-					catch (SocketException) { }
-					finally
-					{
-						try {
-							tcpClient.Close();
-						} catch {}
-					}
-
-					if (!connected)
-					{
-						Console.WriteLine("PortHelper found {0} as available", i);
-						return i;
-					}
-				}
+				if (!ConnectToPort(i))
+					return i;
 			}
 			throw new HostProtectionException("localhost seems to have ALL ports open, are you mad?");
+		}
+
+		private static bool ConnectToPort(int i)
+		{
+			var allIpAddresses = (from adapter in NetworkInterface.GetAllNetworkInterfaces()
+			                      from unicastAddress in adapter.GetIPProperties().UnicastAddresses
+			                      select unicastAddress.Address)
+				.ToList();
+
+			bool connected = false;
+			foreach (var ipAddress in allIpAddresses)
+			{
+				using (var tcpClient = new TcpClient())
+				{
+					try
+					{
+						tcpClient.Connect(ipAddress, i);
+						connected = tcpClient.Connected;
+					}
+					catch (SocketException)
+					{
+					}
+					finally
+					{
+						try
+						{
+							tcpClient.Close();
+						}
+						catch
+						{
+						}
+					}
+				}
+				if (connected)
+					return true;
+			}
+			return false;
 		}
 	}
 }
