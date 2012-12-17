@@ -22,6 +22,12 @@ namespace HttpMock.Unit.Tests
 						connected = tcpClient.Connected;
 					}
 					catch (SocketException) { }
+					finally
+					{
+						try {
+							tcpClient.Close();
+						} catch {}
+					}
 
 					if (!connected)
 					{
