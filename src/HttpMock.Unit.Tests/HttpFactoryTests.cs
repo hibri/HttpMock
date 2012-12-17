@@ -8,18 +8,33 @@ namespace HttpMock.Unit.Tests
 	public class HttpFactoryTests
 	{
 		[Test]
-		[Ignore ("Checking if failure in TeamCity is related to the inclusion of this test")]
 		public void ShouldBeAbleToHostAtSameAddressIfPreviousWasDisposed()
 		{
 			var serverFactory = new HttpServerFactory();
 
 			var uri = new Uri(String.Format("http://localhost:{0}", PortHelper.FindLocalAvailablePortForTesting()));
-			var server = serverFactory.Get(uri).WithNewContext(uri.AbsoluteUri);
-			server.Start();
-			server.Dispose();
+			IHttpServer server1, server2 = null;
+			server1 = serverFactory.Get(uri).WithNewContext(uri.AbsoluteUri);
+			try
+			{
+				server1.Start();
+				server1.Dispose();
+				server1 = null;
 
-			var httpServer2 = serverFactory.Get(uri).WithNewContext(uri.AbsoluteUri);
-			Assert.DoesNotThrow(httpServer2.Start);
+				server2 = serverFactory.Get(uri).WithNewContext(uri.AbsoluteUri);
+				Assert.DoesNotThrow(server2.Start);
+			}
+			finally
+			{
+				if (server1 != null)
+				{
+					server1.Dispose();
+				}
+				if (server2 != null)
+				{
+					server2.Dispose();
+				}
+			}
 		}
 	}
 }
