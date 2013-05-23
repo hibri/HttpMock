@@ -64,6 +64,12 @@ namespace HttpMock.Unit.Tests {
 		}
 
 		[Test]
+		public void Custom_verb_should_return_handler_with_custom_method_set() {
+			RequestHandler requestHandler = _requestHandlerFactory.CustomVerb("nowhere", "PURGE");
+			Assert.That(requestHandler.Method, Is.EqualTo("PURGE"));
+		}
+
+		[Test]
 		public void If_no_handlers_found_should_fire_onresponse_with_a_404() {
 			_processor = new RequestProcessor(_ruleThatReturnsNoHandlers, new RequestHandlerList());
 

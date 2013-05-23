@@ -23,23 +23,27 @@ namespace HttpMock
 		}
 
 		public RequestHandler Post(string path) {
-			return AssertHandler(path, "POST");
+			return CustomVerb(path, "POST");
 		}
 
 		public RequestHandler Put(string path)
 		{
-			return AssertHandler(path, "PUT");
+			return CustomVerb(path, "PUT");
 		}
 
 		public RequestHandler Delete(string path)
 		{
-			return AssertHandler(path, "DELETE");
+			return CustomVerb(path, "DELETE");
 		}
 
 		public RequestHandler Head(string path)
 		{
-			 return AssertHandler(path, "HEAD");
+			return CustomVerb(path, "HEAD");
 		}
 
+		public RequestHandler CustomVerb(string path, string verb)
+		{
+			return AssertHandler(path, verb);
+		}
 	}
 }

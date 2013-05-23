@@ -30,6 +30,10 @@ namespace HttpMock
 			return CreateHandler(path, "HEAD");
 		}
 
+		public RequestHandler CustomVerb(string path, string verb) {
+			return CreateHandler(path, verb);
+		}
+
 		public void ClearHandlers() {
 			new List<RequestHandler>();
 		}

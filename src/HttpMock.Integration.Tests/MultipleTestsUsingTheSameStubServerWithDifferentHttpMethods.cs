@@ -57,6 +57,13 @@ namespace SevenDigital.HttpMock.Integration.Tests
 		}
 
 		[Test]
+		public void Should_use_custom_verbs()
+		{
+			_httpMockRepository.Stub(x => x.CustomVerb("/endpoint", "PURGE")).Return("I am a PURGE").OK();
+			AssertResponse("PURGE", "I am a PURGE");
+		}
+
+		[Test]
 		public void Should_head() {
 			_httpMockRepository
 				.Stub(x => x.Head("/endpoint"))

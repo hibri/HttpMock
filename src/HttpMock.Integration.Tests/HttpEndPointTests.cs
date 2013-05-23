@@ -2,6 +2,7 @@
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Web;
 using HttpMock;
 using NUnit.Framework;
 
@@ -159,6 +160,30 @@ namespace SevenDigital.HttpMock.Integration.Tests
 				{
 					Console.WriteLine("WARNING: TearDown of test couldn't be complete: " + ex);
 				}
+			}
+		}
+
+		[Test]
+		public void SUT_should_return_stubbed_response_for_custom_verbs()
+		{
+			_stubHttp = HttpMockRepository.At("http://localhost:9191");
+
+			const string expected = "<xml><>response>Hello World</response></xml>";
+			_stubHttp.Stub(x => x.CustomVerb("/endpoint", "PURGE"))
+				.Return(expected)
+				.OK();
+
+			Console.WriteLine(_stubHttp.WhatDoIHave());
+
+			var request = (HttpWebRequest)WebRequest.Create("http://localhost:9191/endpoint");
+			request.Method = "PURGE";
+			request.Host = "nonstandard.host";
+			request.Headers.Add("X-Go-Faster", "11");
+			using (var response = request.GetResponse())
+			using (var stream = response.GetResponseStream())
+			{
+				var responseBody = new StreamReader(stream).ReadToEnd();
+				Assert.That(responseBody, Is.EqualTo(expected));
 			}
 		}
 
