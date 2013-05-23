@@ -18,7 +18,7 @@ namespace HttpMock
 		private RequestHandler AssertHandler(string method, string path) {
 			var handler = _requestProcessor.FindHandler(path, method);
 			Assert.That(handler, Is.Not.Null, string.Format("Handler for path {0} and method {1} was not stubbed", path, method));
-			Assert.That(handler.RequestCount(), Is.GreaterThan(0));
+			Assert.That(handler.RequestCount(), Is.GreaterThan(0), string.Format("Handler for path {0} and method {1} was never called", path, method));
 			return handler;
 		}
 
