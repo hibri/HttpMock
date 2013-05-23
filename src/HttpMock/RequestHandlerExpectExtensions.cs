@@ -20,5 +20,13 @@ namespace HttpMock
 		{
 			Assert.That(handler.RequestCount(), Is.EqualTo(times));
 		}
+
+		public static void WithHeader(this RequestHandler handler, string header, IResolveConstraint match)
+		{
+			string headerValue;
+			handler.LastRequest().RequestHead.Headers.TryGetValue(header, out headerValue);
+			Assert.That(headerValue, Is.Not.Null, "Request did not contain a header '{0}'", header);
+			Assert.That(headerValue, match);
+		}
 	}
 }

@@ -40,24 +40,26 @@ namespace HttpMock
 				return;
 			}
 			_log.DebugFormat("Matched a handler {0},{1}, {2}", handler.Method, handler.Path, DumpQueryParams(handler.QueryParams));
-			handler.RecordRequest();
 			IDataProducer dataProducer = GetDataProducer(request, handler);
-			if (request.HasBody()) {
+			string requestBody = null;
+			if (request.HasBody())
+			{
 				body.Connect(new BufferedConsumer(
-					bufferedBody =>
-						{
-						_log.DebugFormat("Body: {0}", bufferedBody);
-						handler.AddBody(bufferedBody);
-						response.OnResponse(handler.ResponseBuilder.BuildHeaders(), dataProducer);
-						},
-					error =>
-					{
-						_log.DebugFormat("Error while reading body {0}", error.Message);
-						response.OnResponse(handler.ResponseBuilder.BuildHeaders(), dataProducer);
-					}
-					));
+					             bufferedBody =>
+						             {
+							             handler.RecordRequest(request, bufferedBody);
+							             _log.DebugFormat("Body: {0}", bufferedBody);
+							             response.OnResponse(handler.ResponseBuilder.BuildHeaders(), dataProducer);
+						             },
+					             error =>
+						             {
+							             _log.DebugFormat("Error while reading body {0}", error.Message);
+							             response.OnResponse(handler.ResponseBuilder.BuildHeaders(), dataProducer);
+						             }
+					             ));
 			} else {
 				response.OnResponse(handler.ResponseBuilder.BuildHeaders(), dataProducer);
+				handler.RecordRequest(request, null);
 			}
 			_log.DebugFormat("End Processing request for : {0}:{1}", request.Method, request.Uri);
 		}

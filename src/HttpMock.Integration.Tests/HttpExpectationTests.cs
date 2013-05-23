@@ -1,5 +1,6 @@
 using System;
 using System.Net;
+using System.Web;
 using HttpMock;
 using NUnit.Framework;
 
@@ -76,6 +77,62 @@ namespace SevenDigital.HttpMock.Integration.Tests
 			Assert.Throws<AssertionException>(() => 
 				stubHttp.AssertWasCalled(x => x.Post("/endpoint/handler"))
 					.WithBody(Is.StringStarting("postdata")));
+		}
+
+		[Test]
+		public void Should_fail_assertion_if_request_header_is_missing()
+		{
+			const string endPoint = "/put/no/header";
+			var stubHttp = HttpMockRepository.At("http://localhost:90");
+			stubHttp.Stub(x => x.Put(endPoint)).Return("OK").OK();
+
+			var request = (HttpWebRequest) WebRequest.Create("http://localhost:90" + endPoint);
+			request.Method = "PUT";
+
+			using (request.GetResponse())
+			{
+				Assert.Throws<AssertionException>(() =>
+				                                  stubHttp.AssertWasCalled(x => x.Put(endPoint))
+				                                          .WithHeader("X-Wibble", Is.EqualTo("Wobble")));
+			}
+		}
+
+		[Test]
+		public void Should_fail_assertion_if_request_header_differs_from_expectation()
+		{
+			const string endPoint = "/put/no/header";
+			var stubHttp = HttpMockRepository.At("http://localhost:90");
+			stubHttp.Stub(x => x.Put(endPoint)).Return("OK").OK();
+
+			var request = (HttpWebRequest)WebRequest.Create("http://localhost:90" + endPoint);
+			request.Method = "PUT";
+			request.Headers.Add("Waffle", "Pancake");
+
+			using (request.GetResponse())
+			{
+				Assert.Throws<AssertionException>(() =>
+												  stubHttp.AssertWasCalled(x => x.Put(endPoint))
+														  .WithHeader("Waffle", Is.EqualTo("Wobble")));
+			}
+		}
+
+		[Test]
+		public void Should_pass_assertion_if_request_header_satisfies_expectation()
+		{
+			const string endPoint = "/put/no/header";
+			var stubHttp = HttpMockRepository.At("http://localhost:90");
+			stubHttp.Stub(x => x.Put(endPoint)).Return("OK").OK();
+
+			var request = (HttpWebRequest)WebRequest.Create("http://localhost:90" + endPoint);
+			request.Method = "PUT";
+			const string pancake = "Pancake";
+			request.Headers.Add("Waffle", pancake);
+
+			using (request.GetResponse())
+			{
+				stubHttp.AssertWasCalled(x => x.Put(endPoint))
+				        .WithHeader("Waffle", Is.EqualTo(pancake));
+			}
 		}
 
 		[Test]

@@ -1,19 +1,32 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
+using Kayak.Http;
 
 namespace HttpMock
 {
+	public class Request
+	{
+		public HttpRequestHead RequestHead { get; private set; }
+		public string Body { get; private set; }
+
+		internal Request(HttpRequestHead head, string body)
+		{
+			RequestHead = head;
+			Body = body;
+		}
+	}
+
 	public class RequestHandler : IRequestHandler, IRequestStub
 	{
 		private readonly ResponseBuilder _webResponseBuilder = new ResponseBuilder();
-		private int _requestCount;
-		private string _requestBody;
 	    private readonly IList<Func<string, bool>> _constraints = new List<Func<string, bool>>();
+		private Queue<Request> _observedRequests = new Queue<Request>();
 
-	    public RequestHandler(string path, RequestProcessor requestProcessor) {
+		public RequestHandler(string path, RequestProcessor requestProcessor) {
 			Path = path;
 			RequestProcessor = requestProcessor;
 			QueryParams = new Dictionary<string, string>();
@@ -94,25 +107,26 @@ namespace HttpMock
 		}
 
 		public int RequestCount() {
-			return _requestCount;
+			return _observedRequests.Count;
 		}
 
-		public void RecordRequest() {
-			_requestCount++;
-		}
-
-		public void AddBody(string body) {
-			_requestBody = body;
+		public void RecordRequest(HttpRequestHead request, string body)
+		{
+			_observedRequests.Enqueue(new Request(request, body));
 		}
 
 		public string GetBody() {
-			return _requestBody;
+			return _observedRequests.Peek().Body;
 		}
-
 
 	    public bool CanVerifyConstraintsFor(string url)
 	    {
 	        return _constraints.All(c => c(url));
 	    }
+
+		public Request LastRequest()
+		{
+			return _observedRequests.Peek();
+		}
 	}
 }
