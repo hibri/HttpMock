@@ -129,10 +129,7 @@ namespace SevenDigital.HttpMock.Integration.Tests
 			request.Headers.Add("Waffle", pancake);
 
 			using (request.GetResponse())
-			{
-				stubHttp.AssertWasCalled(x => x.Put(endPoint))
-				        .WithHeader("Waffle", Is.EqualTo(pancake));
-			}
+				stubHttp.AssertWasCalled(x => x.Put(endPoint)).WithHeader("Waffle", Is.EqualTo(pancake));
 		}
 
 		[Test]

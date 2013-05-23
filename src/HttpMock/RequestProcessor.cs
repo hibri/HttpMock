@@ -41,7 +41,6 @@ namespace HttpMock
 			}
 			_log.DebugFormat("Matched a handler {0},{1}, {2}", handler.Method, handler.Path, DumpQueryParams(handler.QueryParams));
 			IDataProducer dataProducer = GetDataProducer(request, handler);
-			string requestBody = null;
 			if (request.HasBody())
 			{
 				body.Connect(new BufferedConsumer(
