@@ -16,7 +16,7 @@ namespace HttpMock
 		}
 
 		private RequestHandler AssertHandler(string method, string path) {
-			var handler = _requestProcessor.FindHandler(path, method);
+			var handler = _requestProcessor.FindHandler(method, path);
 			if (handler != null) {
 				Assert.That(handler.RequestCount(), Is.EqualTo(0), "Expected not to find a request for {1}{0} but was found", method, path);
 			}else {
@@ -44,7 +44,7 @@ namespace HttpMock
 			return CustomVerb(path, "HEAD");
 		}
 
-		private RequestHandler CustomVerb(string path, string verb)
+		public RequestHandler CustomVerb(string path, string verb)
 		{
 			return AssertHandler(path, verb);
 		}

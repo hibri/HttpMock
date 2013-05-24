@@ -24,7 +24,7 @@ namespace HttpMock
 	{
 		private readonly ResponseBuilder _webResponseBuilder = new ResponseBuilder();
 	    private readonly IList<Func<string, bool>> _constraints = new List<Func<string, bool>>();
-		private Queue<Request> _observedRequests = new Queue<Request>();
+		private readonly Queue<Request> _observedRequests = new Queue<Request>();
 
 		public RequestHandler(string path, RequestProcessor requestProcessor) {
 			Path = path;

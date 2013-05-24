@@ -12,38 +12,38 @@ namespace HttpMock
 
 		public RequestHandler Get(string path)
 		{
-			return AssertHandler(path, "GET");
+			return AssertHandler("GET", path);
 		}
 
 		private RequestHandler AssertHandler(string method, string path) {
-			var handler = _requestProcessor.FindHandler(path, method);
+			var handler = _requestProcessor.FindHandler(method, path);
 			Assert.That(handler, Is.Not.Null, string.Format("Handler for path {0} and method {1} was not stubbed", path, method));
 			Assert.That(handler.RequestCount(), Is.GreaterThan(0), string.Format("Handler for path {0} and method {1} was never called", path, method));
 			return handler;
 		}
 
 		public RequestHandler Post(string path) {
-			return CustomVerb(path, "POST");
+			return CustomVerb("POST", path);
 		}
 
 		public RequestHandler Put(string path)
 		{
-			return CustomVerb(path, "PUT");
+			return CustomVerb("PUT", path);
 		}
 
 		public RequestHandler Delete(string path)
 		{
-			return CustomVerb(path, "DELETE");
+			return CustomVerb("DELETE", path);
 		}
 
 		public RequestHandler Head(string path)
 		{
-			return CustomVerb(path, "HEAD");
+			return CustomVerb("HEAD", path);
 		}
 
-		public RequestHandler CustomVerb(string path, string verb)
+		public RequestHandler CustomVerb(string verb, string path)
 		{
-			return AssertHandler(path, verb);
+			return AssertHandler(verb, path);
 		}
 	}
 }
