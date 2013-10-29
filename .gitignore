@@ -9,3 +9,5 @@ bin
 log-file.txt
 Bin
 *.cache
+packages
+*.nupkg

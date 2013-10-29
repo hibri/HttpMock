@@ -1,11 +1,18 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpMock", "src\HttpMock\HttpMock.csproj", "{7D7A1C68-6D1C-4AD5-BD2E-CA2D7B76AE1C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpMock.Integration.Tests", "src\HttpMock.Integration.Tests\HttpMock.Integration.Tests.csproj", "{3E61549A-1FAC-416B-BA50-7265E6FC1D03}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpMock.Unit.Tests", "src\HttpMock.Unit.Tests\HttpMock.Unit.Tests.csproj", "{92735A21-16E8-46BC-859D-AB96F137C457}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{BF7536BA-5DEE-48E0-BD16-45E3C36B1979}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\NuGet.Config = .nuget\NuGet.Config
+		.nuget\NuGet.exe = .nuget\NuGet.exe
+		.nuget\NuGet.targets = .nuget\NuGet.targets
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
