@@ -15,9 +15,12 @@ namespace HttpMock
 		public BufferedBody(ArraySegment<byte> data)
 		{
 			this.data = data;
+		    Length = data.Count;
 		}
 
-		public IDisposable Connect(IDataConsumer channel)
+	    public int Length { get; private set; }
+
+	    public IDisposable Connect(IDataConsumer channel)
 		{
 			// null continuation, consumer must swallow the data immediately.
 			channel.OnData(data, null);

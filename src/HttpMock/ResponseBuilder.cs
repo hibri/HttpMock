@@ -12,19 +12,21 @@ namespace HttpMock
 	{
 		private  HttpStatusCode _httpStatusCode = HttpStatusCode.OK;
 		private string _contentType = "text/plain";
-		private IResponse _responseBodyBuilder = new BufferedBody("");
+		private IResponse _response = new BufferedBody("");
 		private int _contentLength = 0;
 		private Dictionary<string, string> _headers = new Dictionary<string, string>();
 
 		public ResponseBuilder Return(string body) {
-			_responseBodyBuilder = new BufferedBody(body);
-			_contentLength = body.Length;
+		    var bufferedBody = new BufferedBody(body);
+		    _contentLength = bufferedBody.Length;
+		    _response = bufferedBody;
+			
 			return this;
 		}
 
 		public IDataProducer BuildBody(IDictionary<string, string> headers) {
-			_responseBodyBuilder.SetRequestHeaders(headers);
-			return _responseBodyBuilder;
+			_response.SetRequestHeaders(headers);
+			return _response;
 		}
 
 		public HttpResponseHead BuildHeaders() {
@@ -53,7 +55,7 @@ namespace HttpMock
 			if(File.Exists(pathToFile)) {
 				var fileInfo = new FileInfo(pathToFile);
 				_contentLength = (int)fileInfo.Length;
-				_responseBodyBuilder = new FileResponseBody(pathToFile);
+				_response = new FileResponseBody(pathToFile);
 			} else {
 				throw new InvalidOperationException("File does not exist/accessible at :" + pathToFile);
 			}
@@ -65,7 +67,7 @@ namespace HttpMock
 			{
 				var fileInfo = new FileInfo(pathToFile);
 				_contentLength = (to - from) +1;
-				_responseBodyBuilder = new FileResponseBody(pathToFile);
+				_response = new FileResponseBody(pathToFile);
 				AddHeader(HttpResponseHeader.ContentRange.ToString(), string.Format("bytes={0}-{1}/{2}",  from, to, fileInfo.Length));
 			}
 			else
