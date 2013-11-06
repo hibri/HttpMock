@@ -1,7 +1,7 @@
-using NUnit.Framework;
 using log4net.Config;
+using NUnit.Framework;
 
-namespace SevenDigital.HttpMock.Integration.Tests
+namespace HttpMock.Integration.Tests
 {
 	[SetUpFixture]
 	public class AssemblySetup

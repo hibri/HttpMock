@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace SevenDigital.HttpMock.Integration.Tests
+namespace HttpMock.Integration.Tests
 {
 	public class SystemUnderTest
 	{

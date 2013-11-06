@@ -2,11 +2,9 @@
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using System.Web;
-using HttpMock;
 using NUnit.Framework;
 
-namespace SevenDigital.HttpMock.Integration.Tests
+namespace HttpMock.Integration.Tests
 {
 	[TestFixture]
 	public class HttpEndPointTests

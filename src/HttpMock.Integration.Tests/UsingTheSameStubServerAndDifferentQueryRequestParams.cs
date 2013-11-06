@@ -2,10 +2,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using HttpMock;
 using NUnit.Framework;
 
-namespace SevenDigital.HttpMock.Integration.Tests
+namespace HttpMock.Integration.Tests
 {
 	[TestFixture]
 	public class UsingTheSameStubServerAndDifferentQueryRequestParams

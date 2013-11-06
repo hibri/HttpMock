@@ -1,10 +1,8 @@
 using System;
 using System.Net;
-using System.Web;
-using HttpMock;
 using NUnit.Framework;
 
-namespace SevenDigital.HttpMock.Integration.Tests
+namespace HttpMock.Integration.Tests
 {
 	[TestFixture]
 	public class HttpExpectationTests
