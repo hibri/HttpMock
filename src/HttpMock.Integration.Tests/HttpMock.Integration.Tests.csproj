@@ -61,8 +61,10 @@
     <Compile Include="EndpointsReturningFilesTests.cs" />
     <Compile Include="HttpEndPointTests.cs" />
     <Compile Include="HttpExpectationTests.cs" />
+    <Compile Include="HttpFactoryTests.cs" />
     <Compile Include="MultipleTestsUsingTheSameStubServerAndDifferentUris.cs" />
     <Compile Include="MultipleTestsUsingTheSameStubServerWithDifferentHttpMethods.cs" />
+    <Compile Include="PortHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SameServerUsingDifferentBaseUrlsTests.cs" />
     <Compile Include="StubConstraintsTests.cs" />

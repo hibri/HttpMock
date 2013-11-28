@@ -1,8 +1,7 @@
-﻿
-using System;
+﻿using System;
 using NUnit.Framework;
 
-namespace HttpMock.Unit.Tests
+namespace HttpMock.Integration.Tests
 {
 	[TestFixture]
 	public class HttpFactoryTests

@@ -1,0 +1,8 @@
+# For debug
+nuget pack
+
+# For release
+nuget pack -Prop Configuration=release
+
+# see below link to make release default
+http://docs.nuget.org/docs/creating-packages/creating-and-publishing-a-package
