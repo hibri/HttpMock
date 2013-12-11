@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace HttpMock
 {
 	public class QueryParamMatch {
-		public bool MatchQueryParams(IRequestHandler requestHandler, Dictionary<string, string> requestQueryParams) {
+	    internal bool MatchQueryParams(IRequestHandler requestHandler, Dictionary<string, string> requestQueryParams) {
 			foreach (var queryParam in requestHandler.QueryParams) {
 				if (!requestQueryParams.ContainsKey(queryParam.Key)) {
 					return false;

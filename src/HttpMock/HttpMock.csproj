@@ -53,6 +53,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ReceivedRequest.cs" />
     <Compile Include="RequestHandlerFactory.cs" />
     <Compile Include="BufferedConsumer.cs" />
     <Compile Include="EndpointMatchingRule.cs" />

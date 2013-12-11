@@ -2,7 +2,7 @@ using Kayak.Http;
 
 namespace HttpMock
 {
-	public interface IMatchingRule
+    public interface IMatchingRule
 	{
 		bool IsEndpointMatch(IRequestHandler requestHandler, HttpRequestHead request);
 	}

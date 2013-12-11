@@ -8,23 +8,11 @@ using Kayak.Http;
 
 namespace HttpMock
 {
-	public class Request
-	{
-		public HttpRequestHead RequestHead { get; private set; }
-		public string Body { get; private set; }
-
-		internal Request(HttpRequestHead head, string body)
-		{
-			RequestHead = head;
-			Body = body;
-		}
-	}
-
-	public class RequestHandler : IRequestHandler, IRequestStub
+    public class RequestHandler : IRequestHandler, IRequestStub
 	{
 		private readonly ResponseBuilder _webResponseBuilder = new ResponseBuilder();
 	    private readonly IList<Func<string, bool>> _constraints = new List<Func<string, bool>>();
-		private readonly Queue<Request> _observedRequests = new Queue<Request>();
+		private readonly Queue<ReceivedRequest> _observedRequests = new Queue<ReceivedRequest>();
 
 		public RequestHandler(string path, RequestProcessor requestProcessor) {
 			Path = path;
@@ -112,7 +100,7 @@ namespace HttpMock
 
 		public void RecordRequest(HttpRequestHead request, string body)
 		{
-			_observedRequests.Enqueue(new Request(request, body));
+			_observedRequests.Enqueue(new ReceivedRequest(request, body));
 		}
 
 		public string GetBody() {
@@ -124,7 +112,7 @@ namespace HttpMock
 	        return _constraints.All(c => c(url));
 	    }
 
-		public Request LastRequest()
+		public ReceivedRequest LastRequest()
 		{
 			return _observedRequests.Peek();
 		}

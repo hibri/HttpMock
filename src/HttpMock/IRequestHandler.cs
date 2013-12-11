@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace HttpMock
 {
-	public interface IRequestHandler {
+    public interface IRequestHandler {
 		string Path { get; set; }
 		string Method { get; set; }
 		RequestProcessor RequestProcessor { get; set; }
