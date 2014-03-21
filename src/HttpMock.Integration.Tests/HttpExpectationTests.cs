@@ -157,5 +157,20 @@ namespace HttpMock.Integration.Tests
 		}
 
 
+        [Test]
+        public void Should_assert_a_request_was_not_made_when_multiple_requests_are_made()
+        {
+            var stubHttp = HttpMockRepository.At("http://localhost:11235");
+            stubHttp.Stub(x => x.Get("/api/status")).Return("OK").OK();
+            stubHttp.Stub(x => x.Get("/api/echo")).Return("OK").OK();
+
+            new WebClient().DownloadString("http://localhost:11235/api/status");
+
+            stubHttp.AssertWasNotCalled(x => x.Get("/api/echo"));
+
+           Assert.Throws<AssertionException>(() =>  stubHttp.AssertWasNotCalled(x => x.Get("/api/status")));
+        }
+
+
 	}
 }

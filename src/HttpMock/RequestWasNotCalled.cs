@@ -16,7 +16,7 @@ namespace HttpMock
 		}
 
 		private RequestHandler AssertHandler(string method, string path) {
-			var handler = _requestProcessor.FindHandler(method, path);
+			var handler = _requestProcessor.FindHandler(path, method);
 			if (handler != null) {
 				Assert.That(handler.RequestCount(), Is.EqualTo(0), "Expected not to find a request for {1}{0} but was found", method, path);
 			}else {
