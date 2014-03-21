@@ -11,7 +11,7 @@ namespace HttpMock
 {
 	public interface IRequestProcessor
 	{
-		RequestHandler FindHandler(string path, string method);
+		RequestHandler FindHandler(string method, string path);
 	}
 
 	public class RequestProcessor : IHttpRequestDelegate, IRequestProcessor
