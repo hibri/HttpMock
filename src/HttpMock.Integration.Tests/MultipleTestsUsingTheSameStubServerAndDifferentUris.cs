@@ -7,13 +7,13 @@ namespace HttpMock.Integration.Tests
 	public class MultipleTestsUsingTheSameStubServerAndDifferentUris
 	{
 		private IHttpServer _httpMockRepository;
-	    private string _host;
+	    private string _hostUrl;
 
 	    [SetUp]
 		public void SetUp()
 	    {
-	        _host = string.Format("http://localhost:{0}", PortHelper.FindLocalAvailablePortForTesting());
-	        _httpMockRepository = HttpMockRepository.At(_host);
+	        _hostUrl = HostHelper.GenerateAHostUrlForAStubServer();
+	        _httpMockRepository = HttpMockRepository.At(_hostUrl);
 	    }
 
 	    [Test]
@@ -28,7 +28,7 @@ namespace HttpMock.Integration.Tests
 				.Return(stubbedReponse)
 				.OK();
 
-			Assert.That(wc.UploadString(string.Format("{0}/firsttest/", _host), "x"), Is.EqualTo(stubbedReponse));
+			Assert.That(wc.UploadString(string.Format("{0}/firsttest/", _hostUrl), "x"), Is.EqualTo(stubbedReponse));
 		}
 
 		[Test]
@@ -41,7 +41,7 @@ namespace HttpMock.Integration.Tests
 				.Return(stubbedReponse)
 				.OK();
 
-			Assert.That(wc.UploadString(string.Format("{0}/secondtest/", _host), "x"), Is.EqualTo(stubbedReponse));
+			Assert.That(wc.UploadString(string.Format("{0}/secondtest/", _hostUrl), "x"), Is.EqualTo(stubbedReponse));
 		}
 
 		[Test]
@@ -60,8 +60,8 @@ namespace HttpMock.Integration.Tests
 				.Return(stubbedReponseTwo)
 				.OK();
 
-			Assert.That(wc.UploadString(string.Format("{0}/firsttest/", _host), "x"), Is.EqualTo(stubbedReponseOne));
-			Assert.That(wc.UploadString(string.Format("{0}/secondtest/", _host), "x"), Is.EqualTo(stubbedReponseTwo));
+			Assert.That(wc.UploadString(string.Format("{0}/firsttest/", _hostUrl), "x"), Is.EqualTo(stubbedReponseOne));
+			Assert.That(wc.UploadString(string.Format("{0}/secondtest/", _hostUrl), "x"), Is.EqualTo(stubbedReponseTwo));
 		}
 	}
 }

@@ -58,6 +58,7 @@
   <ItemGroup>
     <Compile Include="AssemblySetup.cs" />
     <Compile Include="EndpointsReturningFilesTests.cs" />
+    <Compile Include="HostHelper.cs" />
     <Compile Include="HttpEndPointTests.cs" />
     <Compile Include="HttpExpectationTests.cs" />
     <Compile Include="HttpFactoryTests.cs" />
