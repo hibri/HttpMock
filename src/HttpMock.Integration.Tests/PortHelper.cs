@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Net.NetworkInformation;
-using System.Security;
 
 namespace HttpMock.Integration.Tests
 {
@@ -11,15 +10,16 @@ namespace HttpMock.Integration.Tests
 		{
 			IPGlobalProperties properties = IPGlobalProperties.GetIPGlobalProperties();
 		    var activeTcpConnections = properties.GetActiveTcpConnections();
-		    var minPort = activeTcpConnections.Select(a => a.LocalEndPoint.Port).Max();
+		    const int minPort = 1024;
             
 		    var random = new Random();
-		    var randomPort = random.Next(minPort, 65000);
+		    var maxPort = 64000;
+		    var randomPort = random.Next(minPort, maxPort);
 
 
             while (activeTcpConnections.Any(a => a.LocalEndPoint.Port == randomPort))
 		    {
-                randomPort = random.Next(minPort, 65000);
+                randomPort = random.Next(minPort, maxPort);
 		    }
 		    return randomPort;
 		}
