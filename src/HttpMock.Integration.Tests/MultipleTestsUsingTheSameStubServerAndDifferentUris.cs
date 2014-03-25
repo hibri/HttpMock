@@ -7,17 +7,18 @@ namespace HttpMock.Integration.Tests
 	public class MultipleTestsUsingTheSameStubServerAndDifferentUris
 	{
 		private IHttpServer _httpMockRepository;
-	    private string _hostUrl;
+		private string _hostUrl;
 
-	    [SetUp]
+		[SetUp]
 		public void SetUp()
-	    {
-	        _hostUrl = HostHelper.GenerateAHostUrlForAStubServer();
-	        _httpMockRepository = HttpMockRepository.At(_hostUrl);
-	    }
+		{
+			_hostUrl = HostHelper.GenerateAHostUrlForAStubServer();
+			_httpMockRepository = HttpMockRepository.At(_hostUrl);
+		}
 
-	    [Test]
-		public void FirstTest() {
+		[Test]
+		public void FirstTest()
+		{
 			var wc = new WebClient();
 			string stubbedReponse = "Response for first test";
 			var stubHttp = _httpMockRepository
@@ -32,7 +33,8 @@ namespace HttpMock.Integration.Tests
 		}
 
 		[Test]
-		public void SecondTest() {
+		public void SecondTest()
+		{
 			var wc = new WebClient();
 			string stubbedReponse = "Response for second test";
 			_httpMockRepository
@@ -45,7 +47,8 @@ namespace HttpMock.Integration.Tests
 		}
 
 		[Test]
-		public void Stubs_should_be_unique_within_context() {
+		public void Stubs_should_be_unique_within_context()
+		{
 			var wc = new WebClient();
 			string stubbedReponseOne = "Response for first test in context";
 			string stubbedReponseTwo = "Response for second test in context";

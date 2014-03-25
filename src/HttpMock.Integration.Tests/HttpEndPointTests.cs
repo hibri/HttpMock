@@ -6,225 +6,224 @@ using NUnit.Framework;
 
 namespace HttpMock.Integration.Tests
 {
-    [TestFixture]
-    public class HttpEndPointTests
-    {
-        private IHttpServer _stubHttp;
-        private string _hostUrl;
+	[TestFixture]
+	public class HttpEndPointTests
+	{
+		private IHttpServer _stubHttp;
+		private string _hostUrl;
 
-        [SetUp]
-        public void SetUp()
-        {
-            _hostUrl = HostHelper.GenerateAHostUrlForAStubServer();
-        }
+		[SetUp]
+		public void SetUp()
+		{
+			_hostUrl = HostHelper.GenerateAHostUrlForAStubServer();
+		}
 
-        [Test]
-        public void SUT_should_return_stubbed_response()
-        {
-            _stubHttp = HttpMockRepository.At(_hostUrl);
+		[Test]
+		public void SUT_should_return_stubbed_response()
+		{
+			_stubHttp = HttpMockRepository.At(_hostUrl);
 
-            const string expected = "<xml><>response>Hello World</response></xml>";
-            _stubHttp.Stub(x => x.Get("/endpoint"))
-                .Return(expected)
-                .OK();
+			const string expected = "<xml><>response>Hello World</response></xml>";
+			_stubHttp.Stub(x => x.Get("/endpoint"))
+				.Return(expected)
+				.OK();
 
-            Console.WriteLine(_stubHttp.WhatDoIHave());
+			Console.WriteLine(_stubHttp.WhatDoIHave());
 
-            string result = new WebClient().DownloadString(string.Format("{0}/endpoint", _hostUrl));
+			string result = new WebClient().DownloadString(string.Format("{0}/endpoint", _hostUrl));
 
-            Assert.That(result, Is.EqualTo(expected));
-        }
-
-
-        [Test]
-        public void Should_start_listening_before_stubs_have_been_set()
-        {
-            _stubHttp = HttpMockRepository.At(_hostUrl);
-
-            _stubHttp.Stub(x => x.Get("/endpoint"))
-                .Return("listening")
-                .OK();
-
-            using (var tcpClient = new TcpClient())
-            {
-                var uri = new Uri(_hostUrl);
-
-                tcpClient.Connect(uri.Host, uri.Port);
-
-                Assert.That(tcpClient.Connected, Is.True);
-
-                tcpClient.Close();
-            }
-
-            string result = new WebClient().DownloadString(string.Format("{0}/endpoint", _hostUrl));
-
-            Assert.That(result, Is.EqualTo("listening"));
-        }
-
-        [Test]
-        public void Should_return_expected_ok_response()
-        {
-            _stubHttp = HttpMockRepository.At(_hostUrl);
-
-            _stubHttp
-                .Stub(x => x.Get("/api2/status"))
-                .Return("Hello")
-                .OK();
-
-            _stubHttp
-                .Stub(x => x.Get("/api2/echo"))
-                .Return("Echo")
-                .NotFound();
-
-            _stubHttp
-                .Stub(x => x.Get("/api2/echo2"))
-                .Return("Nothing")
-                .WithStatus(HttpStatusCode.Unauthorized);
-
-            Console.WriteLine(_stubHttp.WhatDoIHave());
-
-            var wc = new WebClient();
-
-            Assert.That(wc.DownloadString(string.Format("{0}/api2/status", _hostUrl)), Is.EqualTo("Hello"));
-
-            try
-            {
-                Console.WriteLine(wc.DownloadString(_hostUrl + "/api2/echo"));
-            }
-            catch (Exception ex)
-            {
-                Assert.That(ex, Is.InstanceOf(typeof (WebException)));
-                Assert.That(((WebException) ex).Status, Is.EqualTo(WebExceptionStatus.ProtocolError));
-            }
-
-            try
-            {
-                wc.DownloadString(_hostUrl + "/api2/echo2");
-            }
-            catch (Exception ex)
-            {
-                Assert.That(ex, Is.InstanceOf(typeof (WebException)));
-                Assert.That(((WebException) ex).Status, Is.EqualTo(WebExceptionStatus.ProtocolError));
-            }
-        }
+			Assert.That(result, Is.EqualTo(expected));
+		}
 
 
-        [Test]
-        public void Should_hit_the_same_url_multiple_times()
-        {
-            string endpoint = _hostUrl;
-            _stubHttp = HttpMockRepository.At(endpoint);
+		[Test]
+		public void Should_start_listening_before_stubs_have_been_set()
+		{
+			_stubHttp = HttpMockRepository.At(_hostUrl);
+
+			_stubHttp.Stub(x => x.Get("/endpoint"))
+				.Return("listening")
+				.OK();
+
+			using (var tcpClient = new TcpClient())
+			{
+				var uri = new Uri(_hostUrl);
+
+				tcpClient.Connect(uri.Host, uri.Port);
+
+				Assert.That(tcpClient.Connected, Is.True);
+
+				tcpClient.Close();
+			}
+
+			string result = new WebClient().DownloadString(string.Format("{0}/endpoint", _hostUrl));
+
+			Assert.That(result, Is.EqualTo("listening"));
+		}
+
+		[Test]
+		public void Should_return_expected_ok_response()
+		{
+			_stubHttp = HttpMockRepository.At(_hostUrl);
+
+			_stubHttp
+				.Stub(x => x.Get("/api2/status"))
+				.Return("Hello")
+				.OK();
+
+			_stubHttp
+				.Stub(x => x.Get("/api2/echo"))
+				.Return("Echo")
+				.NotFound();
+
+			_stubHttp
+				.Stub(x => x.Get("/api2/echo2"))
+				.Return("Nothing")
+				.WithStatus(HttpStatusCode.Unauthorized);
+
+			Console.WriteLine(_stubHttp.WhatDoIHave());
+
+			var wc = new WebClient();
+
+			Assert.That(wc.DownloadString(string.Format("{0}/api2/status", _hostUrl)), Is.EqualTo("Hello"));
+
+			try
+			{
+				Console.WriteLine(wc.DownloadString(_hostUrl + "/api2/echo"));
+			}
+			catch (Exception ex)
+			{
+				Assert.That(ex, Is.InstanceOf(typeof (WebException)));
+				Assert.That(((WebException) ex).Status, Is.EqualTo(WebExceptionStatus.ProtocolError));
+			}
+
+			try
+			{
+				wc.DownloadString(_hostUrl + "/api2/echo2");
+			}
+			catch (Exception ex)
+			{
+				Assert.That(ex, Is.InstanceOf(typeof (WebException)));
+				Assert.That(((WebException) ex).Status, Is.EqualTo(WebExceptionStatus.ProtocolError));
+			}
+		}
 
 
-            _stubHttp
-                .Stub(x => x.Get("/api2/echo"))
-                .Return("Echo")
-                .NotFound();
+		[Test]
+		public void Should_hit_the_same_url_multiple_times()
+		{
+			string endpoint = _hostUrl;
+			_stubHttp = HttpMockRepository.At(endpoint);
 
-            _stubHttp
-                .Stub(x => x.Get("/api2/echo2"))
-                .Return("Nothing")
-                .WithStatus(HttpStatusCode.Unauthorized);
 
-            Console.WriteLine(_stubHttp.WhatDoIHave());
+			_stubHttp
+				.Stub(x => x.Get("/api2/echo"))
+				.Return("Echo")
+				.NotFound();
 
-            for (int count = 0; count < 6; count++)
-            {
-                RequestEcho(endpoint);
-            }
-        }
+			_stubHttp
+				.Stub(x => x.Get("/api2/echo2"))
+				.Return("Nothing")
+				.WithStatus(HttpStatusCode.Unauthorized);
 
-        [Test]
-        public void Should_support_range_requests()
-        {
-            _stubHttp = HttpMockRepository.At(_hostUrl);
-            string query = "/path/file";
-            int fileSize = 2048;
-            string pathToFile = CreateFile(fileSize);
+			Console.WriteLine(_stubHttp.WhatDoIHave());
 
-            try
-            {
-                _stubHttp.Stub(x => x.Get(query))
-                    .ReturnFileRange(pathToFile, 0, 1023)
-                    .WithStatus(HttpStatusCode.PartialContent);
+			for (int count = 0; count < 6; count++)
+			{
+				RequestEcho(endpoint);
+			}
+		}
 
-                Console.WriteLine(_stubHttp.WhatDoIHave());
+		[Test]
+		public void Should_support_range_requests()
+		{
+			_stubHttp = HttpMockRepository.At(_hostUrl);
+			string query = "/path/file";
+			int fileSize = 2048;
+			string pathToFile = CreateFile(fileSize);
 
-                HttpWebRequest request = (HttpWebRequest) HttpWebRequest.Create(_hostUrl + query);
-                request.Method = "GET";
-                request.AddRange(0, 1023);
-                HttpWebResponse response = (HttpWebResponse) request.GetResponse();
-                byte[] downloadData = new byte[response.ContentLength];
-                using (response)
-                {
-                    response.GetResponseStream().Read(downloadData, 0, downloadData.Length);
-                }
-                Assert.That(downloadData.Length, Is.EqualTo(1024));
-            }
-            finally
-            {
-                try
-                {
-                    File.Delete(pathToFile);
-                }
-                catch
-                {
-                    
-                }
-            }
-        }
+			try
+			{
+				_stubHttp.Stub(x => x.Get(query))
+					.ReturnFileRange(pathToFile, 0, 1023)
+					.WithStatus(HttpStatusCode.PartialContent);
 
-        [Test]
-        public void SUT_should_return_stubbed_response_for_custom_verbs()
-        {
-            _stubHttp = HttpMockRepository.At(_hostUrl);
+				Console.WriteLine(_stubHttp.WhatDoIHave());
 
-            const string expected = "<xml><>response>Hello World</response></xml>";
-            _stubHttp.Stub(x => x.CustomVerb("/endpoint", "PURGE"))
-                .Return(expected)
-                .OK();
+				HttpWebRequest request = (HttpWebRequest) HttpWebRequest.Create(_hostUrl + query);
+				request.Method = "GET";
+				request.AddRange(0, 1023);
+				HttpWebResponse response = (HttpWebResponse) request.GetResponse();
+				byte[] downloadData = new byte[response.ContentLength];
+				using (response)
+				{
+					response.GetResponseStream().Read(downloadData, 0, downloadData.Length);
+				}
+				Assert.That(downloadData.Length, Is.EqualTo(1024));
+			}
+			finally
+			{
+				try
+				{
+					File.Delete(pathToFile);
+				}
+				catch
+				{
+				}
+			}
+		}
 
-            Console.WriteLine(_stubHttp.WhatDoIHave());
+		[Test]
+		public void SUT_should_return_stubbed_response_for_custom_verbs()
+		{
+			_stubHttp = HttpMockRepository.At(_hostUrl);
 
-            var request = (HttpWebRequest) WebRequest.Create(string.Format("{0}/endpoint", _hostUrl));
-            request.Method = "PURGE";
-            request.Host = "nonstandard.host";
-            request.Headers.Add("X-Go-Faster", "11");
-            using (var response = request.GetResponse())
-            using (var stream = response.GetResponseStream())
-            {
-                var responseBody = new StreamReader(stream).ReadToEnd();
-                Assert.That(responseBody, Is.EqualTo(expected));
-            }
-        }
+			const string expected = "<xml><>response>Hello World</response></xml>";
+			_stubHttp.Stub(x => x.CustomVerb("/endpoint", "PURGE"))
+				.Return(expected)
+				.OK();
 
-        private string CreateFile(int fileSize)
-        {
-            string fileName = Path.GetTempFileName();
-            using (FileStream fileStream = File.OpenWrite(fileName))
-            {
-                for (int count = 0; count < fileSize; count++)
-                {
-                    fileStream.WriteByte((byte) count);
-                }
-                fileStream.Close();
-            }
-            return fileName;
-        }
+			Console.WriteLine(_stubHttp.WhatDoIHave());
 
-        private static void RequestEcho(string endpoint)
-        {
-            var wc = new WebClient();
+			var request = (HttpWebRequest) WebRequest.Create(string.Format("{0}/endpoint", _hostUrl));
+			request.Method = "PURGE";
+			request.Host = "nonstandard.host";
+			request.Headers.Add("X-Go-Faster", "11");
+			using (var response = request.GetResponse())
+			using (var stream = response.GetResponseStream())
+			{
+				var responseBody = new StreamReader(stream).ReadToEnd();
+				Assert.That(responseBody, Is.EqualTo(expected));
+			}
+		}
 
-            try
-            {
-                Console.WriteLine(wc.DownloadString(endpoint + "/api2/echo"));
-            }
-            catch (Exception ex)
-            {
-                Assert.That(ex, Is.InstanceOf(typeof (WebException)));
-                Assert.That(((WebException) ex).Status, Is.EqualTo(WebExceptionStatus.ProtocolError));
-            }
-        }
-    }
+		private string CreateFile(int fileSize)
+		{
+			string fileName = Path.GetTempFileName();
+			using (FileStream fileStream = File.OpenWrite(fileName))
+			{
+				for (int count = 0; count < fileSize; count++)
+				{
+					fileStream.WriteByte((byte) count);
+				}
+				fileStream.Close();
+			}
+			return fileName;
+		}
+
+		private static void RequestEcho(string endpoint)
+		{
+			var wc = new WebClient();
+
+			try
+			{
+				Console.WriteLine(wc.DownloadString(endpoint + "/api2/echo"));
+			}
+			catch (Exception ex)
+			{
+				Assert.That(ex, Is.InstanceOf(typeof (WebException)));
+				Assert.That(((WebException) ex).Status, Is.EqualTo(WebExceptionStatus.ProtocolError));
+			}
+		}
+	}
 }
