@@ -7,15 +7,17 @@ namespace HttpMock.Integration.Tests
 	[TestFixture]
 	public class MultipleTestsUsingTheSameStubServerWithDifferentHttpMethods
 	{
-		private const string ENDPOINT_TO_HIT = "http://localhost:11111/endpoint";
+		private  string _endpointToHit;
 		private IHttpServer _httpMockRepository;
 
 		[SetUp]
-		public void SetUp() {
-			_httpMockRepository = HttpMockRepository.At("http://localhost:11111");
+		public void SetUp()
+		{
+            _endpointToHit = HostHelper.GenerateAHostUrlForAStubServerWith("endpoint");
+            _httpMockRepository = HttpMockRepository.At(_endpointToHit);
 		}
 
-		[Test]
+	    [Test]
 		public void Should_get() {
 			_httpMockRepository
 				.Stub(x => x.Get("/endpoint"))
@@ -69,7 +71,7 @@ namespace HttpMock.Integration.Tests
 				.Return("I am a HEAD")
 				.OK();
 
-			var webRequest = (HttpWebRequest)WebRequest.Create(ENDPOINT_TO_HIT);
+			var webRequest = (HttpWebRequest)WebRequest.Create(_endpointToHit);
 			webRequest.Method = "HEAD";
 			using (var response = webRequest.GetResponse()) {
 				Assert.That(response.Headers.Count, Is.GreaterThan(0));
@@ -79,7 +81,7 @@ namespace HttpMock.Integration.Tests
 
 		[Test]
 		public void If_no_Mocked_Endpoints_matched_then_should_return_404_with_HttpMockError_status() {
-			var webRequest = (HttpWebRequest)WebRequest.Create("http://localhost:11111/zendpoint");
+			var webRequest = (HttpWebRequest)WebRequest.Create(_endpointToHit + "wibbles");
 			try {
 				using(webRequest.GetResponse()) {
 				}
@@ -91,7 +93,7 @@ namespace HttpMock.Integration.Tests
 
 		private void AssertResponse(string method, string expected) {
 
-			var webRequest = (HttpWebRequest)WebRequest.Create(ENDPOINT_TO_HIT);
+			var webRequest = (HttpWebRequest)WebRequest.Create(_endpointToHit);
 			webRequest.Method = method;
 			using(var response = webRequest.GetResponse()) {
 				using(var sr = new StreamReader(response.GetResponseStream()))

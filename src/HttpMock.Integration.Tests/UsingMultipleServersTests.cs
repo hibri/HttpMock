@@ -6,42 +6,21 @@ namespace HttpMock.Integration.Tests
 	[TestFixture]
 	public class UsingMultipleServersTests
 	{
-		[Test]
-		public void Using8080() {
+		[Test, Repeat(3)]
+		public void Should_stubs_on_different_ports_each_time() {
 			string expected = "expected response";
-			HttpMockRepository.At("http://localhost:8080/app")
+		    var hostUrl = HostHelper.GenerateAHostUrlForAStubServerWith("app");
+		    
+            HttpMockRepository.At(hostUrl)
 				.Stub( x => x.Get("/app/endpoint"))
 				.Return(expected)
 				.OK();
 
 			WebClient wc = new WebClient();
-			Assert.That(wc.DownloadString("http://localhost:8080/app/endpoint"), Is.EqualTo(expected));
+
+		    Assert.That(wc.DownloadString(string.Format("{0}/endpoint", hostUrl)), Is.EqualTo(expected));
 		}
 
-		[Test]
-		public void Using8081()
-		{
-			string expected = "expected response";
-			HttpMockRepository.At("http://localhost:8081/app")
-				.Stub(x => x.Get("/app/endpoint"))
-				.Return(expected)
-				.OK();
-
-			WebClient wc = new WebClient();
-			Assert.That(wc.DownloadString("http://localhost:8081/app/endpoint"), Is.EqualTo(expected));
-		}
-
-		[Test]
-		public void Using9081()
-		{
-			string expected = "expected response";
-			HttpMockRepository.At("http://localhost:9081/app")
-				.Stub(x => x.Get("/app/endpoint"))
-				.Return(expected)
-				.OK();
-
-			WebClient wc = new WebClient();
-			Assert.That(wc.DownloadString("http://localhost:9081/app/endpoint"), Is.EqualTo(expected));
-		}
+		
 	}
 }

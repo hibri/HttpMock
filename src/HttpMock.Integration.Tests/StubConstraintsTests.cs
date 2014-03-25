@@ -8,11 +8,13 @@ namespace HttpMock.Integration.Tests
         private IHttpServer _httpMockRepository;
         private WebClient _wc;
         private IHttpServer _stubHttp;
+        private string _hostUrl;
 
         [SetUp]
         public void SetUp()
         {
-            _httpMockRepository = HttpMockRepository.At("http://localhost:8080");
+            _hostUrl = HostHelper.GenerateAHostUrlForAStubServer();
+            _httpMockRepository = HttpMockRepository.At(_hostUrl);
             _wc = new WebClient();
             _stubHttp = _httpMockRepository.WithNewContext();
         }
@@ -28,7 +30,7 @@ namespace HttpMock.Integration.Tests
 
             try
             {
-                _wc.UploadString("Http://localhost:8080/firsttest/blah/blah", "x");
+                _wc.UploadString(string.Format("{0}/firsttest/blah/blah", _hostUrl), "x");
 
                 Assert.Fail("Should have 404d");
             }

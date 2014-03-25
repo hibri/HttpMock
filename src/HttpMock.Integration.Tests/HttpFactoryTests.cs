@@ -11,7 +11,7 @@ namespace HttpMock.Integration.Tests
 		{
 			var serverFactory = new HttpServerFactory();
 
-			var uri = new Uri(String.Format("http://localhost:{0}", PortHelper.FindLocalAvailablePortForTesting()));
+			var uri = new Uri(HostHelper.GenerateAHostUrlForAStubServer());
 			IHttpServer server1, server2 = null;
 			server1 = serverFactory.Get(uri).WithNewContext(uri.AbsoluteUri);
 			try

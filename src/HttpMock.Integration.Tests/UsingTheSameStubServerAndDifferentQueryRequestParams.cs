@@ -9,15 +9,18 @@ namespace HttpMock.Integration.Tests
 	[TestFixture]
 	public class UsingTheSameStubServerAndDifferentQueryRequestParams
 	{
-		private const string ENDPOINT_TO_HIT = "http://localhost:1125/endpoint";
+		private string _endpointToHit;
 		private IHttpServer _httpMockRepository;
 		private readonly IDictionary<string,string> _firstSetOfParams = new Dictionary<string, string>{ {"trackId","1"}, {"formatId", "1"} };
 		private readonly IDictionary<string, string> _secondSetOfParams = new Dictionary<string, string> { { "trackId", "2" }, { "formatId", "2" } };
 		private readonly IDictionary<string, string> _thirdSetOfParams = new Dictionary<string, string> { { "trackId", "3" }, { "formatId", "3" } };
 
 		[SetUp]
-		public void SetUp() {
-			_httpMockRepository = HttpMockRepository.At("http://localhost:1125");
+		public void SetUp()
+		{
+		    var hostUrl = HostHelper.GenerateAHostUrlForAStubServer();
+		    _endpointToHit = hostUrl + "/endpoint";
+			_httpMockRepository = HttpMockRepository.At(hostUrl);
 		}
 
 		[Test]
@@ -53,7 +56,7 @@ namespace HttpMock.Integration.Tests
 		private void AssertResponse(string expected, IEnumerable<KeyValuePair<string, string>> queryString) {
 			string aggregate = queryString.Select(x => x.Key + "=" + x.Value + "&").Aggregate((a, b) => a + b).Trim('&');
 
-			var webRequest = (HttpWebRequest)WebRequest.Create(string.Format("{0}?{1}&abirdinthehand=twointhebush", ENDPOINT_TO_HIT, aggregate));
+			var webRequest = (HttpWebRequest)WebRequest.Create(string.Format("{0}?{1}&abirdinthehand=twointhebush", _endpointToHit, aggregate));
 			using (var response = webRequest.GetResponse()) {
 				using (var sr = new StreamReader(response.GetResponseStream())) {
 					string readToEnd = sr.ReadToEnd();

@@ -39,31 +39,38 @@ namespace HttpMock
 				ReturnHttpMockNotFound(response);
 				return;
 			}
-			_log.DebugFormat("Matched a handler {0},{1}, {2}", handler.Method, handler.Path, DumpQueryParams(handler.QueryParams));
-			IDataProducer dataProducer = GetDataProducer(request, handler);
-			if (request.HasBody())
-			{
-				body.Connect(new BufferedConsumer(
-					             bufferedBody =>
-						             {
-							             handler.RecordRequest(request, bufferedBody);
-							             _log.DebugFormat("Body: {0}", bufferedBody);
-							             response.OnResponse(handler.ResponseBuilder.BuildHeaders(), dataProducer);
-						             },
-					             error =>
-						             {
-							             _log.DebugFormat("Error while reading body {0}", error.Message);
-							             response.OnResponse(handler.ResponseBuilder.BuildHeaders(), dataProducer);
-						             }
-					             ));
-			} else {
-				response.OnResponse(handler.ResponseBuilder.BuildHeaders(), dataProducer);
-				handler.RecordRequest(request, null);
-			}
-			_log.DebugFormat("End Processing request for : {0}:{1}", request.Method, request.Uri);
+			HandleRequest(request, body, response, handler);
 		}
 
-		private static IDataProducer GetDataProducer(HttpRequestHead request, RequestHandler handler) {
+	    private static void HandleRequest(HttpRequestHead request, IDataProducer body, IHttpResponseDelegate response, RequestHandler handler)
+	    {
+	        _log.DebugFormat("Matched a handler {0},{1}, {2}", handler.Method, handler.Path, DumpQueryParams(handler.QueryParams));
+	        IDataProducer dataProducer = GetDataProducer(request, handler);
+	        if (request.HasBody())
+	        {
+	            body.Connect(new BufferedConsumer(
+	                bufferedBody =>
+	                {
+	                    handler.RecordRequest(request, bufferedBody);
+	                    _log.DebugFormat("Body: {0}", bufferedBody);
+	                    response.OnResponse(handler.ResponseBuilder.BuildHeaders(), dataProducer);
+	                },
+	                error =>
+	                {
+	                    _log.DebugFormat("Error while reading body {0}", error.Message);
+	                    response.OnResponse(handler.ResponseBuilder.BuildHeaders(), dataProducer);
+	                }
+	                ));
+	        }
+	        else
+	        {
+	            response.OnResponse(handler.ResponseBuilder.BuildHeaders(), dataProducer);
+	            handler.RecordRequest(request, null);
+	        }
+	        _log.DebugFormat("End Processing request for : {0}:{1}", request.Method, request.Uri);
+	    }
+
+	    private static IDataProducer GetDataProducer(HttpRequestHead request, RequestHandler handler) {
 			return request.Method != "HEAD" ? handler.ResponseBuilder.BuildBody(request.Headers) : null;
 		}
 
