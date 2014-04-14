@@ -36,7 +36,9 @@ namespace HttpMock
 
 			string queryString = request.Uri.Substring(positionOfQueryStart);
 			NameValueCollection valueCollection = HttpUtility.ParseQueryString(queryString);
-			var requestQueryParams = valueCollection.AllKeys.ToDictionary(k => k, k => valueCollection[k]);
+			var requestQueryParams = valueCollection.AllKeys
+				.Where(k => !string.IsNullOrEmpty(k))
+				.ToDictionary(k => k, k => valueCollection[k]);
 			return requestQueryParams;
 		}
 	}

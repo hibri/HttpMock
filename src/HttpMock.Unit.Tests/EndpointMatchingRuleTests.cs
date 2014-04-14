@@ -130,5 +130,21 @@ namespace HttpMock.Unit.Tests
 			var endpointMatchingRule = new EndpointMatchingRule();
 			Assert.That(endpointMatchingRule.IsEndpointMatch(requestHandler, httpRequestHead));
 		}
+
+		[Test]
+		public void should_match_when_the_query_string_has_a_trailing_ampersand()
+		{
+
+			var requestHandler = MockRepository.GenerateStub<IRequestHandler>();
+			requestHandler.Path = "test";
+			requestHandler.Method = "GET";
+			requestHandler.QueryParams = new Dictionary<string, string> { { "a", "b" } ,{"c","d"}};
+
+			var httpRequestHead = new HttpRequestHead { Uri = "test?a=b&c=d&", Method = "GET" };
+
+			var endpointMatchingRule = new EndpointMatchingRule();
+			Assert.That(endpointMatchingRule.IsEndpointMatch(requestHandler, httpRequestHead));
+			
+		}
 	}
 }
