@@ -196,5 +196,24 @@ namespace HttpMock.Integration.Tests
 
 			Assert.Throws<AssertionException>(() => stubHttp.AssertWasCalled(x => x.Get("/api/echo")));
 		}
+
+	    [Test]
+	    public void Should_not_depend_on_the_order_the_stubs_were_created()
+	    {
+	        var expectedResponse = "PATH/ONE";
+
+	        var stubHttp = HttpMockRepository.At(_hostUrl);
+
+	        stubHttp.Stub(x => x.Get("/api/path")).Return("PATH").OK();
+	        stubHttp.Stub(x => x.Get("/api/path/one")).Return(expectedResponse).OK();
+
+
+	        var result = new WebClient().DownloadString(string.Format("{0}/api/path/one", _hostUrl));
+
+            Assert.That(result, Is.EqualTo(expectedResponse));
+
+	        
+	        
+	    }
 	}
 }
