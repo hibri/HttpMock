@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Web;
 using Kayak.Http;
 
@@ -15,7 +16,8 @@ namespace HttpMock
 
 			var requestQueryParams = GetQueryParams(request);
 
-			bool uriStartsWith = request.Uri.StartsWith(requestHandler.Path);
+            bool uriStartsWith = MatchPath(requestHandler, request);
+            
 
 			bool httpMethodsMatch = requestHandler.Method == request.Method;
 			
@@ -29,8 +31,25 @@ namespace HttpMock
 			return uriStartsWith && httpMethodsMatch && queryParamMatch;
 		}
 
-		private static Dictionary<string, string> GetQueryParams(HttpRequestHead request) {
-			int positionOfQueryStart = request.Uri.LastIndexOf('?');
+	    private static bool MatchPath(IRequestHandler requestHandler, HttpRequestHead request)
+	    {
+	        var pathToMatch = request.Uri;
+            int positionOfQueryStart = GetStartOfQueryString(request.Uri);
+	        if (positionOfQueryStart > -1)
+	        {
+	            pathToMatch = request.Uri.Substring(0, positionOfQueryStart);
+	        }
+            var pathMatch = new Regex(string.Format(@"^{0}\/*$", requestHandler.Path));
+	        return pathMatch.IsMatch(pathToMatch);
+	    }
+
+	    private static int GetStartOfQueryString(string uri)
+	    {
+	        return uri.LastIndexOf('?');
+	    }
+
+	    private static Dictionary<string, string> GetQueryParams(HttpRequestHead request) {
+            int positionOfQueryStart = GetStartOfQueryString(request.Uri);
 			if(positionOfQueryStart < 1)
 				return new Dictionary<string, string>();
 
