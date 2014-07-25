@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Net;
 
@@ -14,5 +15,6 @@ namespace HttpMock
 		RequestHandler AsXmlContent();
 		RequestHandler AsContentType( string contentType);
 		RequestHandler AddHeader( string header, string headerValue);
+	    RequestHandler WithUrlConstraint(Func<string, bool> constraint);
 	}
 }

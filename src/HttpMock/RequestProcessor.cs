@@ -17,12 +17,12 @@ namespace HttpMock
 	public class RequestProcessor : IHttpRequestDelegate, IRequestProcessor
 	{
 		private static readonly ILog _log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
-		private readonly IMatchingRule _matchingRule;
-		private RequestHandlerList _handlers;
+	    private RequestHandlerList _handlers;
+	    private readonly RequestMatcher _requestMatcher;
 
-		public RequestProcessor(IMatchingRule matchingRule, RequestHandlerList requestHandlers) {
-			_matchingRule = matchingRule;
-			_handlers = requestHandlers;
+	    public RequestProcessor(IMatchingRule matchingRule, RequestHandlerList requestHandlers) {
+	        _handlers = requestHandlers;
+		    _requestMatcher = new RequestMatcher(matchingRule);
 		}
 
 		public void OnRequest(HttpRequestHead request, IDataProducer body, IHttpResponseDelegate response) {
@@ -32,7 +32,7 @@ namespace HttpMock
 				return;
 			}
 
-			RequestHandler handler = MatchHandler(request);
+			IRequestHandler handler = _requestMatcher.Match(request, _handlers);
 
 			if (handler == null) {
 				_log.DebugFormat("No Handlers matched");
@@ -42,7 +42,7 @@ namespace HttpMock
 			HandleRequest(request, body, response, handler);
 		}
 
-	    private static void HandleRequest(HttpRequestHead request, IDataProducer body, IHttpResponseDelegate response, RequestHandler handler)
+	    private static void HandleRequest(HttpRequestHead request, IDataProducer body, IHttpResponseDelegate response, IRequestHandler handler)
 	    {
 	        _log.DebugFormat("Matched a handler {0},{1}, {2}", handler.Method, handler.Path, DumpQueryParams(handler.QueryParams));
 	        IDataProducer dataProducer = GetDataProducer(request, handler);
@@ -70,7 +70,7 @@ namespace HttpMock
 	        _log.DebugFormat("End Processing request for : {0}:{1}", request.Method, request.Uri);
 	    }
 
-	    private static IDataProducer GetDataProducer(HttpRequestHead request, RequestHandler handler) {
+	    private static IDataProducer GetDataProducer(HttpRequestHead request, IRequestHandler handler) {
 			return request.Method != "HEAD" ? handler.ResponseBuilder.BuildBody(request.Headers) : null;
 		}
 
@@ -78,16 +78,7 @@ namespace HttpMock
 			return _handlers.Count();
 		}
 
-		private RequestHandler MatchHandler(HttpRequestHead request)
-		{
-		    var matches = _handlers
-                .Where(handler => _matchingRule.IsEndpointMatch(handler, request))
-                .Where(handler => handler.CanVerifyConstraintsFor(request.Uri));
-
-		    return matches.FirstOrDefault();
-		}
-
-		public RequestHandler FindHandler(string method, string path) {
+	    public RequestHandler FindHandler(string method, string path) {
 			return _handlers.Where(x => x.Path == path && x.Method == method).FirstOrDefault();
 		}
 
