@@ -12,5 +12,6 @@ namespace HttpMock
 
         bool CanVerifyConstraintsFor(string url);
         void RecordRequest(HttpRequestHead request, string body);
+        int RequestCount();
     }
 }

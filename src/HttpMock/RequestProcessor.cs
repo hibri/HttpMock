@@ -17,7 +17,7 @@ namespace HttpMock
 	public class RequestProcessor : IHttpRequestDelegate, IRequestProcessor
 	{
 		private static readonly ILog _log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
-	    private RequestHandlerList _handlers;
+	    private IRequestHandlerList _handlers;
 	    private readonly RequestMatcher _requestMatcher;
 
 	    public RequestProcessor(IMatchingRule matchingRule, RequestHandlerList requestHandlers) {
@@ -44,7 +44,7 @@ namespace HttpMock
 
 	    private static void HandleRequest(HttpRequestHead request, IDataProducer body, IHttpResponseDelegate response, IRequestHandler handler)
 	    {
-	        _log.DebugFormat("Matched a handler {0},{1}, {2}", handler.Method, handler.Path, DumpQueryParams(handler.QueryParams));
+	        _log.DebugFormat("Matched a handler {0}:{1} {2}", handler.Method, handler.Path, DumpQueryParams(handler.QueryParams));
 	        IDataProducer dataProducer = GetDataProducer(request, handler);
 	        if (request.HasBody())
 	        {
@@ -79,7 +79,7 @@ namespace HttpMock
 		}
 
 	    public RequestHandler FindHandler(string method, string path) {
-			return _handlers.Where(x => x.Path == path && x.Method == method).FirstOrDefault();
+			return (RequestHandler) _handlers.Where(x => x.Path == path && x.Method == method).FirstOrDefault();
 		}
 
 		private static string DumpQueryParams(IDictionary<string, string> queryParams) {

@@ -2,8 +2,13 @@ using System.Collections.Generic;
 
 namespace HttpMock
 {
-	public class RequestHandlerList : List<RequestHandler>
-	{
+    public interface IRequestHandlerList : IList<IRequestHandler>
+    {
+        
+    }
+
+    public class RequestHandlerList : List<IRequestHandler>, IRequestHandlerList
+    {
 		
 	}
 }
