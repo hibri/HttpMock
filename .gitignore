@@ -11,3 +11,4 @@ Bin
 *.cache
 packages
 *.nupkg
+HttpMock.userprefs
