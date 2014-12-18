@@ -14,7 +14,6 @@ namespace HttpMock.Unit.Tests {
 		private IHttpResponseDelegate _httpResponseDelegate;
 		private IMatchingRule _ruleThatReturnsFirstHandler;
 		private IMatchingRule _ruleThatReturnsNoHandlers;
-		private IStubResponse _defaultResponse;
 		private RequestHandlerFactory _requestHandlerFactory;
 
 		[SetUp]
@@ -23,8 +22,6 @@ namespace HttpMock.Unit.Tests {
 			_requestHandlerFactory = new RequestHandlerFactory(_processor);
 			_dataProducer = MockRepository.GenerateStub<IDataProducer>();
 			_httpResponseDelegate = MockRepository.GenerateStub<IHttpResponseDelegate>();
-
-			_defaultResponse = MockRepository.GenerateStub<IStubResponse>();
 
 			_ruleThatReturnsFirstHandler = MockRepository.GenerateStub<IMatchingRule>();
 			_ruleThatReturnsFirstHandler.Stub(x => x.IsEndpointMatch(null, new HttpRequestHead())).IgnoreArguments().Return(true).Repeat.Once();
