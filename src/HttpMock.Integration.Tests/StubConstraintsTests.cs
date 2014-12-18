@@ -36,7 +36,7 @@ namespace HttpMock.Integration.Tests
 			}
 			catch (WebException ex)
 			{
-				Assert.That(ex.Message, Is.EqualTo("The remote server returned an error: (404) Not Found."));
+				Assert.That(ex.Message, Is.StringContaining(System.Net.HttpStatusCode.NotFound.ToString()));
 			}
 		}
 	}

@@ -81,7 +81,7 @@ namespace HttpMock.Integration.Tests
 			using (var response = webRequest.GetResponse())
 			{
 				Assert.That(response.Headers.Count, Is.GreaterThan(0));
-				Assert.That(response.GetResponseStream().CanSeek, Is.False);
+
 			}
 		}
 
