@@ -1,4 +1,4 @@
-[![Build status](https://ci.appveyor.com/api/projects/status/pqjfme8k5kl7r7av/branch/master?svg=true)](https://ci.appveyor.com/project/hibri/httpmock/branch/master
+[![Build status](https://ci.appveyor.com/api/projects/status/pqjfme8k5kl7r7av?svg=true)](https://ci.appveyor.com/project/hibri/httpmock)
 
 A .Net library to create HTTP servers, which returns canned responses at run time.
 
