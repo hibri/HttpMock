@@ -36,7 +36,7 @@ namespace HttpMock.Integration.Tests
 			}
 			catch (WebException ex)
 			{
-				Assert.That(ex.Message, Is.StringContaining(System.Net.HttpStatusCode.NotFound.ToString()));
+				Assert.That(((HttpWebResponse)ex.Response).StatusCode, Is.EqualTo(System.Net.HttpStatusCode.NotFound));
 			}
 		}
 	}
