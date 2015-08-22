@@ -1,7 +1,9 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 using NUnit.Framework;
 
 namespace HttpMock.Integration.Tests
@@ -34,6 +36,30 @@ namespace HttpMock.Integration.Tests
 
 			Assert.That(result, Is.EqualTo(expected));
 		}
+
+        [TestCase(1)]
+        [TestCase(100)]
+        [TestCase(5000)]
+        public void SUT_should_get_back_exact_content_in_the_last_request_body(int count)
+        {
+            _stubHttp = HttpMockRepository.At(_hostUrl);
+
+            string expected = string.Format("<xml><>response>{0}</response></xml>", string.Join(" ", Enumerable.Range(0, count)));
+            var requestHandler = _stubHttp.Stub(x => x.Post("/endpoint"));
+
+            requestHandler.Return(expected).OK();
+
+            Console.WriteLine(_stubHttp.WhatDoIHave());
+
+            using (var wc = new WebClient())
+            {
+                wc.Headers[HttpRequestHeader.ContentType] = "application/xml";
+                var htmlResult = wc.UploadString(string.Format("{0}/endpoint", _hostUrl), expected);
+            }
+            var requestBody = requestHandler.LastRequest().Body;
+
+            Assert.That(requestBody, Is.EqualTo(expected));
+        }      
 
 
 		[Test]

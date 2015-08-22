@@ -98,7 +98,7 @@ namespace HttpMock.Integration.Tests
 			catch (WebException ex)
 			{
 				Assert.That(((HttpWebResponse) ex.Response).StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
-				Assert.That(((HttpWebResponse) ex.Response).Headers["SevenDigital-HttpMockError"], Is.Not.Null, "Header not set");
+				Assert.That(((HttpWebResponse) ex.Response).Headers["X-HttpMockError"], Is.Not.Null, "Header not set");
 			}
 		}
 
