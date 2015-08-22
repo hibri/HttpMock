@@ -94,7 +94,7 @@ namespace HttpMock
 			var dictionary = new Dictionary<string, string>
 			{
 				{HttpHeaderNames.ContentLength, "0"},
-				{"SevenDigital-HttpMockError", "No handler found to handle request"}
+				{"X-HttpMockError", "No handler found to handle request"}
 			};
 
 			var notFoundResponse = new HttpResponseHead
