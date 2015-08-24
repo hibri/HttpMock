@@ -1,4 +1,4 @@
-using NUnit.Framework;
+//using NUnit.Framework;
 
 namespace HttpMock
 {
@@ -18,9 +18,9 @@ namespace HttpMock
 		private RequestHandler AssertHandler(string method, string path) {
 			var handler = _requestProcessor.FindHandler(method, path);
 			if (handler != null) {
-				Assert.That(handler.RequestCount(), Is.EqualTo(0), "Expected not to find a request for {1}{0} but was found", method, path);
+				HttpMockAssert.IsEqual( handler.RequestCount(), 0, string.Format( "Expected not to find a request for {1}{0} but was found", method, path ) );
 			}else {
-				Assert.That(handler, Is.Null, "Expected not to find a request for {1}{0} but was found", method, path);
+				HttpMockAssert.IsNull( handler, string.Format( "Expected not to find a request for {1}{0} but was found", method, path ) );
 			}
 			return handler;
 		}

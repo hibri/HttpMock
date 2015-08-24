@@ -3,7 +3,6 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Threading;
 using NUnit.Framework;
 
 namespace HttpMock.Integration.Tests
@@ -25,7 +24,7 @@ namespace HttpMock.Integration.Tests
 		{
 			_stubHttp = HttpMockRepository.At(_hostUrl);
 
-			const string expected = "<xml><>response>Hello World</response></xml>";
+			const string expected = "<xml><response>Hello World</response></xml>";
 			_stubHttp.Stub(x => x.Get("/endpoint"))
 				.Return(expected)
 				.OK();
@@ -44,7 +43,7 @@ namespace HttpMock.Integration.Tests
         {
             _stubHttp = HttpMockRepository.At(_hostUrl);
 
-            string expected = string.Format("<xml><>response>{0}</response></xml>", string.Join(" ", Enumerable.Range(0, count)));
+            string expected = string.Format("<xml><response>{0}</response></xml>", string.Join(" ", Enumerable.Range(0, count)));
             var requestHandler = _stubHttp.Stub(x => x.Post("/endpoint"));
 
             requestHandler.Return(expected).OK();
