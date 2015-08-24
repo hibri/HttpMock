@@ -45,11 +45,10 @@
     <Reference Include="Kayak, Version=0.7.2.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\..\packages\Kayak.0.7.2\lib\Kayak.dll</HintPath>
     </Reference>
-    <Reference Include="nunit.framework">
-      <HintPath>..\..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="HttpMockAssert.cs" />
+    <Compile Include="IHttpMockAssert.cs" />
     <Compile Include="RequestMatcher.cs" />
     <Compile Include="ReceivedRequest.cs" />
     <Compile Include="RequestHandlerFactory.cs" />
