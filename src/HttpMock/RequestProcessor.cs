@@ -11,7 +11,7 @@ namespace HttpMock
 {
 	public interface IRequestProcessor
 	{
-		RequestHandler FindHandler(string method, string path);
+		IRequestVerify FindHandler(string method, string path);
 	}
 
 	public class RequestProcessor : IHttpRequestDelegate, IRequestProcessor
@@ -78,8 +78,8 @@ namespace HttpMock
 			return _handlers.Count();
 		}
 
-	    public RequestHandler FindHandler(string method, string path) {
-			return (RequestHandler) _handlers.Where(x => x.Path == path && x.Method == method).FirstOrDefault();
+	    public IRequestVerify FindHandler(string method, string path) {
+			return (IRequestVerify) _handlers.Where(x => x.Path == path && x.Method == method).FirstOrDefault();
 		}
 
 		private static string DumpQueryParams(IDictionary<string, string> queryParams) {

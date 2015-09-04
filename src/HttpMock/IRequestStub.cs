@@ -16,5 +16,6 @@ namespace HttpMock
 		IRequestStub AsContentType( string contentType);
 		IRequestStub AddHeader( string header, string headerValue);
 		IRequestStub WithUrlConstraint(Func<string, bool> constraint);
+	    IRequestStub ReturnFileRange(string pathToFile, int from, int to);
 	}
 }

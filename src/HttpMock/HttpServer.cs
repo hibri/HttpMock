@@ -68,15 +68,15 @@ namespace HttpMock
 			}
 		}
 
-		public RequestHandler Stub(Func<RequestHandlerFactory, RequestHandler> func) {
+		public IRequestStub Stub(Func<RequestHandlerFactory, IRequestStub> func) {
 			return func.Invoke(_requestHandlerFactory);
 		}
 
-		public RequestHandler AssertWasCalled(Func<RequestWasCalled, RequestHandler> func) {
+		public IRequestVerify AssertWasCalled(Func<RequestWasCalled, IRequestVerify> func) {
 			return func.Invoke(_requestWasCalled);
 		}
 
-		public RequestHandler AssertWasNotCalled(Func<RequestWasNotCalled, RequestHandler> func) {
+		public IRequestVerify AssertWasNotCalled(Func<RequestWasNotCalled, IRequestVerify> func) {
 			return func.Invoke(_requestWasNotCalled);
 		}
 

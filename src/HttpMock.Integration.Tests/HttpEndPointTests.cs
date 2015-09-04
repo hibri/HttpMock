@@ -56,7 +56,7 @@ namespace HttpMock.Integration.Tests
                 wc.Headers[HttpRequestHeader.ContentType] = "application/xml";
                 wc.UploadString(string.Format("{0}/endpoint", _hostUrl), expected);
             }
-            var requestBody = requestHandler.LastRequest().Body;
+            var requestBody = ((RequestHandler)requestHandler).LastRequest().Body;
 
             Assert.That(requestBody, Is.EqualTo(expected));
         }      

@@ -8,8 +8,8 @@ using Kayak.Http;
 
 namespace HttpMock
 {
-    public class RequestHandler : IRequestHandler, IRequestStub
-	{
+    public class RequestHandler : IRequestHandler, IRequestStub, IRequestVerify
+    {
 		private readonly ResponseBuilder _webResponseBuilder = new ResponseBuilder();
 	    private readonly IList<Func<string, bool>> _constraints = new List<Func<string, bool>>();
 		private readonly Queue<ReceivedRequest> _observedRequests = new Queue<ReceivedRequest>();

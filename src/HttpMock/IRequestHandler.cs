@@ -9,9 +9,7 @@ namespace HttpMock
 		RequestProcessor RequestProcessor { get; set; }
 		IDictionary<string, string> QueryParams { get; set; }
 		ResponseBuilder ResponseBuilder { get; }
-
         bool CanVerifyConstraintsFor(string url);
         void RecordRequest(HttpRequestHead request, string body);
-        int RequestCount();
     }
 }

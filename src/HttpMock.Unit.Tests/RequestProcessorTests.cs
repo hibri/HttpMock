@@ -111,7 +111,7 @@ namespace HttpMock.Unit.Tests {
 
 			requestProcessor.Add(_requestHandlerFactory.Get(expectedPath));
 
-			var handler = requestProcessor.FindHandler(expectedMethod, expectedPath);
+			var handler = (RequestHandler) requestProcessor.FindHandler(expectedMethod, expectedPath);
 
 			Assert.That(handler.Path, Is.EqualTo(expectedPath));
 			Assert.That(handler.Method, Is.EqualTo(expectedMethod));

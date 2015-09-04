@@ -10,12 +10,12 @@ namespace HttpMock
 			_requestProcessor = requestProcessor;
 		}
 
-		public RequestHandler Get(string path)
+		public IRequestVerify Get(string path)
 		{
 			return AssertHandler( "GET", path);
 		}
 
-		private RequestHandler AssertHandler(string method, string path) {
+		private IRequestVerify AssertHandler(string method, string path) {
 			var handler = _requestProcessor.FindHandler(method, path);
 			if (handler != null) {
 				Assert.That(handler.RequestCount(), Is.EqualTo(0), "Expected not to find a request for {1}{0} but was found", method, path);
@@ -25,26 +25,26 @@ namespace HttpMock
 			return handler;
 		}
 
-		public RequestHandler Post(string path) {
+		public IRequestVerify Post(string path) {
 			return CustomVerb("POST", path);
 		}
 
-		public RequestHandler Put(string path)
+		public IRequestVerify Put(string path)
 		{
 			return CustomVerb("PUT", path);
 		}
 
-		public RequestHandler Delete(string path)
+		public IRequestVerify Delete(string path)
 		{
 			return CustomVerb( "DELETE", path);
 		}
 
-		public RequestHandler Head(string path)
+		public IRequestVerify Head(string path)
 		{
 			return CustomVerb( "HEAD", path);
 		}
 
-		public RequestHandler CustomVerb(string verb, string path)
+		public IRequestVerify CustomVerb(string verb, string path)
 		{
 			return AssertHandler(verb, path);
 		}

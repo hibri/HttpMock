@@ -4,13 +4,13 @@ namespace HttpMock
 {
 	public interface IHttpServer : IDisposable
 	{
-		RequestHandler Stub(Func<RequestHandlerFactory, RequestHandler> func);
-		RequestHandler AssertWasCalled(Func<RequestWasCalled, RequestHandler> func);
+		IRequestStub Stub(Func<RequestHandlerFactory, IRequestStub> func);
+		IRequestVerify AssertWasCalled(Func<RequestWasCalled, IRequestVerify> func);
 		IHttpServer WithNewContext();
 		IHttpServer WithNewContext(string baseUri);
 		void Start();
 		string WhatDoIHave();
 		bool IsAvailable();
-		RequestHandler AssertWasNotCalled(Func<RequestWasNotCalled, RequestHandler> func);
+		IRequestVerify AssertWasNotCalled(Func<RequestWasNotCalled, IRequestVerify> func);
 	}
 }
