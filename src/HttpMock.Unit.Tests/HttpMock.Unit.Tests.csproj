@@ -31,9 +31,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Castle.Core">
-      <HintPath>..\..\lib\Castle.Core.dll</HintPath>
-    </Reference>
     <Reference Include="Kayak">
       <HintPath>..\..\packages\Kayak.0.7.2\lib\Kayak.dll</HintPath>
     </Reference>
