@@ -12,9 +12,9 @@ namespace HttpMock
 		void OK();
 		void WithStatus( HttpStatusCode httpStatusCode);
 		void NotFound();
-		RequestHandler AsXmlContent();
-		RequestHandler AsContentType( string contentType);
-		RequestHandler AddHeader( string header, string headerValue);
-	    RequestHandler WithUrlConstraint(Func<string, bool> constraint);
+		IRequestStub AsXmlContent();
+		IRequestStub AsContentType( string contentType);
+		IRequestStub AddHeader( string header, string headerValue);
+		IRequestStub WithUrlConstraint(Func<string, bool> constraint);
 	}
 }

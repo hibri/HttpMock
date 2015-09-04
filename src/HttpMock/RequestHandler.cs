@@ -65,21 +65,21 @@ namespace HttpMock
 			WithStatus(HttpStatusCode.NotFound);
 		}
 
-		public RequestHandler AsXmlContent() {
+		public IRequestStub AsXmlContent() {
 			return AsContentType("text/xml");
 		}
 
-		public RequestHandler AsContentType(string contentType) {
+		public IRequestStub AsContentType(string contentType) {
 			ResponseBuilder.WithContentType(contentType);
 			return this;
 		}
 
-		public RequestHandler AddHeader(string header, string headerValue) {
+		public IRequestStub AddHeader(string header, string headerValue) {
 			ResponseBuilder.AddHeader(header, headerValue);
 			return this;
 		}
 
-        public RequestHandler WithUrlConstraint(Func<string, bool> constraint)
+		public IRequestStub WithUrlConstraint(Func<string, bool> constraint)
         {
             _constraints.Add(constraint);
             return this;
