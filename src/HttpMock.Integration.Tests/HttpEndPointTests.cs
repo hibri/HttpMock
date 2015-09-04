@@ -30,7 +30,7 @@ namespace HttpMock.Integration.Tests
 				.Return(expected)
 				.OK();
 
-			Console.WriteLine(_stubHttp.WhatDoIHave());
+
 
 			string result = new WebClient().DownloadString(string.Format("{0}/endpoint", _hostUrl));
 
@@ -49,7 +49,7 @@ namespace HttpMock.Integration.Tests
 
             requestHandler.Return(expected).OK();
 
-            Console.WriteLine(_stubHttp.WhatDoIHave());
+            
 
             using (var wc = new WebClient())
             {
@@ -107,7 +107,7 @@ namespace HttpMock.Integration.Tests
 				.Return("Nothing")
 				.WithStatus(HttpStatusCode.Unauthorized);
 
-			Console.WriteLine(_stubHttp.WhatDoIHave());
+
 
 			var wc = new WebClient();
 
@@ -152,7 +152,7 @@ namespace HttpMock.Integration.Tests
 				.Return("Nothing")
 				.WithStatus(HttpStatusCode.Unauthorized);
 
-			Console.WriteLine(_stubHttp.WhatDoIHave());
+
 
 			for (int count = 0; count < 6; count++)
 			{
@@ -174,7 +174,7 @@ namespace HttpMock.Integration.Tests
 					.ReturnFileRange(pathToFile, 0, 1023)
 					.WithStatus(HttpStatusCode.PartialContent);
 
-				Console.WriteLine(_stubHttp.WhatDoIHave());
+
 
 				HttpWebRequest request = (HttpWebRequest) HttpWebRequest.Create(_hostUrl + query);
 				request.Method = "GET";
@@ -209,7 +209,7 @@ namespace HttpMock.Integration.Tests
 				.Return(expected)
 				.OK();
 
-			Console.WriteLine(_stubHttp.WhatDoIHave());
+
 
 			var request = (HttpWebRequest) WebRequest.Create(string.Format("{0}/endpoint", _hostUrl));
 			request.Method = "PURGE";
@@ -243,7 +243,7 @@ namespace HttpMock.Integration.Tests
 
 			try
 			{
-				Console.WriteLine(wc.DownloadString(endpoint + "/api2/echo"));
+				wc.DownloadString(endpoint + "/api2/echo");
 			}
 			catch (Exception ex)
 			{
