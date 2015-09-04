@@ -54,7 +54,7 @@ namespace HttpMock.Integration.Tests
             using (var wc = new WebClient())
             {
                 wc.Headers[HttpRequestHeader.ContentType] = "application/xml";
-                var htmlResult = wc.UploadString(string.Format("{0}/endpoint", _hostUrl), expected);
+                wc.UploadString(string.Format("{0}/endpoint", _hostUrl), expected);
             }
             var requestBody = requestHandler.LastRequest().Body;
 
