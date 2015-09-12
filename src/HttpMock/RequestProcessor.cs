@@ -23,7 +23,7 @@ namespace HttpMock
 	    private IRequestHandlerList _handlers;
 	    private readonly RequestMatcher _requestMatcher;
 
-	    public RequestProcessor(IMatchingRule matchingRule, RequestHandlerList requestHandlers) {
+	    public RequestProcessor(IMatchingRule matchingRule, IRequestHandlerList requestHandlers) {
 	        _handlers = requestHandlers;
 		    _requestMatcher = new RequestMatcher(matchingRule);
 		}
