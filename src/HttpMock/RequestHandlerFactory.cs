@@ -4,9 +4,9 @@ namespace HttpMock
 {
 	public class RequestHandlerFactory
 	{
-		private readonly RequestProcessor _requestProcessor;
+		private readonly IRequestProcessor _requestProcessor;
 
-		public RequestHandlerFactory(RequestProcessor requestProcessor) {
+		public RequestHandlerFactory(IRequestProcessor requestProcessor) {
 			_requestProcessor = requestProcessor;
 		}
 

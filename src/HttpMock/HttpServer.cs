@@ -13,7 +13,7 @@ namespace HttpMock
     {
         private static readonly ILog _log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         private readonly RequestHandlerFactory _requestHandlerFactory;
-        private readonly RequestProcessor _requestProcessor;
+        private readonly IRequestProcessor _requestProcessor;
         private readonly RequestWasCalled _requestWasCalled;
         private readonly RequestWasNotCalled _requestWasNotCalled;
         private readonly IScheduler _scheduler;

@@ -9,12 +9,15 @@ using log4net;
 
 namespace HttpMock
 {
-	public interface IRequestProcessor
+	public interface IRequestProcessor : IHttpRequestDelegate
 	{
 		IRequestVerify FindHandler(string method, string path);
+	    void Add(RequestHandler requestHandler);
+	    void ClearHandlers();
+	    string WhatDoIHave();
 	}
 
-	public class RequestProcessor : IHttpRequestDelegate, IRequestProcessor
+	public class RequestProcessor :  IRequestProcessor
 	{
 		private static readonly ILog _log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 	    private IRequestHandlerList _handlers;
@@ -32,7 +35,7 @@ namespace HttpMock
 				return;
 			}
 
-			IRequestHandler handler = _requestMatcher.Match(request, _handlers);
+			var handler = _requestMatcher.Match(request, _handlers);
 
 			if (handler == null) {
 				_log.DebugFormat("No Handlers matched");

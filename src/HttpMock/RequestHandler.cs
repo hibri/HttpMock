@@ -14,7 +14,7 @@ namespace HttpMock
 	    private readonly IList<Func<string, bool>> _constraints = new List<Func<string, bool>>();
 		private readonly Queue<ReceivedRequest> _observedRequests = new Queue<ReceivedRequest>();
 
-		public RequestHandler(string path, RequestProcessor requestProcessor) {
+		public RequestHandler(string path, IRequestProcessor requestProcessor) {
 			Path = path;
 			RequestProcessor = requestProcessor;
 			QueryParams = new Dictionary<string, string>();
@@ -22,7 +22,7 @@ namespace HttpMock
 
 		public string Path { get; set; }
 		public string Method { get; set; }
-		public RequestProcessor RequestProcessor { get; set; }
+		public IRequestProcessor RequestProcessor { get; set; }
 		public IDictionary<string, string> QueryParams { get; set; }
 
 		public ResponseBuilder ResponseBuilder {
