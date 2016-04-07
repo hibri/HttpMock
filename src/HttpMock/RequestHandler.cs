@@ -8,10 +8,10 @@ using Kayak.Http;
 
 namespace HttpMock
 {
-    public class RequestHandler : IRequestHandler, IRequestStub, IRequestVerify
-    {
+	public class RequestHandler : IRequestHandler, IRequestStub, IRequestVerify
+	{
 		private readonly ResponseBuilder _webResponseBuilder = new ResponseBuilder();
-	    private readonly IList<Func<string, bool>> _constraints = new List<Func<string, bool>>();
+		private readonly IList<Func<string, bool>> _constraints = new List<Func<string, bool>>();
 		private readonly Queue<ReceivedRequest> _observedRequests = new Queue<ReceivedRequest>();
 
 		public RequestHandler(string path, IRequestProcessor requestProcessor) {
@@ -34,16 +34,21 @@ namespace HttpMock
 			return this;
 		}
 
+		public IRequestStub Return(Func<string> responseBody) {
+			_webResponseBuilder.Return(responseBody);
+			return this;
+		}
+
 		public IRequestStub ReturnFile(string pathToFile) {
 			_webResponseBuilder.WithFile(pathToFile);
-			
+
 			return this;
 		}
 
 		public IRequestStub ReturnFileRange(string pathToFile, int from, int to)
 		{
 			_webResponseBuilder.WithFileRange(pathToFile, from, to);
-			
+
 			return this;
 		}
 
@@ -80,10 +85,10 @@ namespace HttpMock
 		}
 
 		public IRequestStub WithUrlConstraint(Func<string, bool> constraint)
-        {
-            _constraints.Add(constraint);
-            return this;
-        }
+		{
+			_constraints.Add(constraint);
+			return this;
+		}
 
 		public override string ToString() {
 			var sb = new StringBuilder();
@@ -107,10 +112,10 @@ namespace HttpMock
 			return _observedRequests.Peek().Body;
 		}
 
-	    public bool CanVerifyConstraintsFor(string url)
-	    {
-	        return _constraints.All(c => c(url));
-	    }
+		public bool CanVerifyConstraintsFor(string url)
+		{
+			return _constraints.All(c => c(url));
+		}
 
 		public ReceivedRequest LastRequest()
 		{

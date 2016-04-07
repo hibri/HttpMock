@@ -102,6 +102,19 @@ namespace HttpMock.Integration.Tests
 			}
 		}
 
+		[Test]
+		public void Should_return_dynamic_data()
+		{
+			string value = "test1";
+			_httpMockRepository
+				.Stub(x => x.Get("/endpoint"))
+				.Return(() => value)
+				.OK();
+			AssertResponse("GET", "test1");
+			value = "test2";
+			AssertResponse("GET", "test2");
+		}
+
 		private void AssertResponse(string method, string expected)
 		{
 			var webRequest = (HttpWebRequest) WebRequest.Create(_endpointToHit);
