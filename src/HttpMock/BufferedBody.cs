@@ -7,29 +7,29 @@ namespace HttpMock
 {
 	class BufferedBody : IResponse
 	{
-		ArraySegment<byte> data;
+		readonly Func<byte[]> dataFunc;
 
 		public BufferedBody(string data) : this(data, Encoding.UTF8) { }
 		public BufferedBody(string data, Encoding encoding) : this(encoding.GetBytes(data)) { }
-		public BufferedBody(byte[] data) : this(new ArraySegment<byte>(data)) { }
-		public BufferedBody(ArraySegment<byte> data)
+		public BufferedBody(byte[] data) : this(() => data) { }
+		public BufferedBody(Func<string> data) : this(() => Encoding.UTF8.GetBytes(data())) { }
+		public BufferedBody(Func<byte[]> data)
 		{
-			this.data = data;
-		    Length = data.Count;
+			this.dataFunc = data;
 		}
 
-	    public int Length { get; private set; }
+		public Func<int> Length => () => dataFunc().Length;
 
-	    public IDisposable Connect(IDataConsumer channel)
+		public IDisposable Connect(IDataConsumer channel)
 		{
 			// null continuation, consumer must swallow the data immediately.
-			channel.OnData(data, null);
+			var bytes = new ArraySegment<byte>(dataFunc());
+			channel.OnData(bytes, null);
 			channel.OnEnd();
 			return null;
 		}
 
 		public void SetRequestHeaders(IDictionary<string, string> requestHeaders) {
-			
 		}
 	}
 
@@ -40,7 +40,6 @@ namespace HttpMock
 		}
 
 		public void SetRequestHeaders(IDictionary<string, string> requestHeaders) {
-			
 		}
 	}
 }
