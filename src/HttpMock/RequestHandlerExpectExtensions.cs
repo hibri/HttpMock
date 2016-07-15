@@ -1,4 +1,7 @@
 ﻿
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework;
 using NUnit.Framework.Constraints;
 
@@ -28,5 +31,17 @@ namespace HttpMock
 			Assert.That(headerValue, Is.Not.Null, "Request did not contain a header '{0}'", header);
 			Assert.That(headerValue, match);
 		}
-	}
+
+        public static void WithParams(this IRequestVerify handler, IDictionary<string, string> expectedQueryParameters)
+        {
+            var queryParamsString = handler.LastRequest().RequestHead.QueryString;
+            
+            Assert.That(queryParamsString, Is.Not.Null, "Request did not contain query parameters");
+
+            var queryParams = queryParamsString.Split('&').ToList()
+                .Select(s => s.Split('='))
+                .ToDictionary(key => key[0].Trim(), value => value[1].Trim());
+            Assert.IsTrue(queryParams.ContentEquals(expectedQueryParameters), "The query parameters {0} do not match the expected ones {1}", queryParams, expectedQueryParameters);
+        }
+    }
 }

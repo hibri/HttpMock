@@ -115,10 +115,9 @@ namespace HttpMock.Unit.Tests {
 
 			Assert.That(handler.Path, Is.EqualTo(expectedPath));
 			Assert.That(handler.Method, Is.EqualTo(expectedMethod));
-
 		}
 
-		[Test]
+        [Test]
 		public void When_a_handler_is_hit_handlers_request_count_is_incremented() {
 
 			string expectedPath = "/blah/test";
