@@ -84,7 +84,7 @@ namespace HttpMock
 	    public IRequestVerify FindHandler(string method, string path)
         {
             return (IRequestVerify)_handlers
-                .FirstOrDefault(x => x.Path == path && x.Method == method/* && x.QueryParams.ContentEquals(queryParams)*/);
+                .FirstOrDefault(x => x.Path == path && x.Method == method);
         }
 
         private static string DumpQueryParams(IDictionary<string, string> queryParams) {
