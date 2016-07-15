@@ -83,9 +83,6 @@ namespace HttpMock
 
 	    public IRequestVerify FindHandler(string method, string path)
         {
-            _log.DebugFormat("M1keeee {0}|{1}", method, path);
-            path = path.Split('?').First();
-            
             return (IRequestVerify)_handlers
                 .FirstOrDefault(x => x.Path == path && x.Method == method/* && x.QueryParams.ContentEquals(queryParams)*/);
         }
