@@ -8,7 +8,7 @@ namespace HttpMock.Integration.Tests
 	{
 		private string _hostUrl;
 
-		[TestFixtureSetUp]
+		[OneTimeSetUp]
 		public void SetUp()
 		{
 			_hostUrl = HostHelper.GenerateAHostUrlForAStubServer();
