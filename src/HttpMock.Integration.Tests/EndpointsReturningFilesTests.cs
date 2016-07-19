@@ -9,18 +9,22 @@ namespace HttpMock.Integration.Tests
 	public class EndpointsReturningFilesTests	
 	{
 		private const string FILE_NAME = "transcode-input.mp3";
-		private const string RES_TRANSCODE_INPUT_MP3 = "./res/"+FILE_NAME;
+		private const string RES_TRANSCODE_INPUT_MP3 = "res\\"+FILE_NAME;
 
 		[Test]
 		public void A_Setting_return_file_return_the_correct_content_length() {
 			var stubHttp = HttpMockRepository.At("http://localhost.:9191");
-			stubHttp.Stub(x => x.Get("/afile"))
-				.ReturnFile(RES_TRANSCODE_INPUT_MP3)
+
+
+		    var pathToFile = Path.Combine(TestContext.CurrentContext.TestDirectory, RES_TRANSCODE_INPUT_MP3);
+
+		    stubHttp.Stub(x => x.Get("/afile"))
+				.ReturnFile(pathToFile)
 				.OK();
 
 			Console.WriteLine(stubHttp.WhatDoIHave());
-
-			var fileLength = new FileInfo(RES_TRANSCODE_INPUT_MP3).Length;
+            
+			var fileLength = new FileInfo(pathToFile).Length;
 
 			var webRequest = (HttpWebRequest) WebRequest.Create("http://localhost.:9191/afile");
 			using (var response = webRequest.GetResponse())
