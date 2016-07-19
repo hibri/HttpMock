@@ -70,7 +70,7 @@ namespace HttpMock.Integration.Tests
 
 			new WebClient().UploadString(string.Format("{0}/endpoint/handler", _hostUrl), expectedData);
 
-			stubHttp.AssertWasCalled(x => x.Post("/endpoint/handler")).WithBody(Is.StringStarting("postdata"));
+			stubHttp.AssertWasCalled(x => x.Post("/endpoint/handler")).WithBody(Does.StartWith("postdata"));
 		}
 
 
@@ -85,7 +85,7 @@ namespace HttpMock.Integration.Tests
 
 			Assert.Throws<AssertionException>(() =>
 				stubHttp.AssertWasCalled(x => x.Post("/endpoint/handler"))
-					.WithBody(Is.StringStarting("postdata")));
+					.WithBody(Does.StartWith("postdata")));
 		}
 
 		[Test]
