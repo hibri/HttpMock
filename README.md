@@ -60,3 +60,7 @@ Eample usage:
 
 		Assert.That(result, Is.EqualTo(expected));
 	}
+
+
+##Reporting Issues.
+When reporting issues, please provide a failing test. 
