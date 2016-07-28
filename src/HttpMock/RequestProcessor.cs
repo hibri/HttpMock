@@ -81,11 +81,13 @@ namespace HttpMock
 			return _handlers.Count();
 		}
 
-	    public IRequestVerify FindHandler(string method, string path) {
-			return (IRequestVerify) _handlers.Where(x => x.Path == path && x.Method == method).FirstOrDefault();
-		}
+	    public IRequestVerify FindHandler(string method, string path)
+        {
+            return (IRequestVerify)_handlers
+                .FirstOrDefault(x => x.Path == path && x.Method == method);
+        }
 
-		private static string DumpQueryParams(IDictionary<string, string> queryParams) {
+        private static string DumpQueryParams(IDictionary<string, string> queryParams) {
 			var sb = new StringBuilder();
 			foreach (var param in queryParams) {
 				sb.AppendFormat("{0}={1}&", param.Key, param.Value);

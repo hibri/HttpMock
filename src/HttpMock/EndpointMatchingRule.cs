@@ -14,21 +14,11 @@ namespace HttpMock
 			if (requestHandler.QueryParams == null)
 				throw new ArgumentException("requestHandler QueryParams cannot be null");
 
-			var requestQueryParams = GetQueryParams(request);
-
             bool uriStartsWith = MatchPath(requestHandler, request);
-            
 
 			bool httpMethodsMatch = requestHandler.Method == request.Method;
 			
-			bool queryParamMatch = true;
-			bool shouldMatchQueryParams = (requestHandler.QueryParams.Count > 0);
-			
-			if (shouldMatchQueryParams) {
-				queryParamMatch = new QueryParamMatch().MatchQueryParams(requestHandler, requestQueryParams);
-			}
-
-			return uriStartsWith && httpMethodsMatch && queryParamMatch;
+			return uriStartsWith && httpMethodsMatch;
 		}
 
 	    private static bool MatchPath(IRequestHandler requestHandler, HttpRequestHead request)

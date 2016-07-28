@@ -54,7 +54,7 @@ namespace HttpMock.Unit.Tests
 		}
 
 		[Test]
-		public void urls_and_methods_match_queryparams_differ_it_returns_false() {
+		public void urls_and_methods_match_queryparams_differ_it_returns_true() {
 			var requestHandler = MockRepository.GenerateStub<IRequestHandler>();
 			requestHandler.Path = "test";
 			requestHandler.Method = "GET";
@@ -62,7 +62,7 @@ namespace HttpMock.Unit.Tests
 
 			var httpRequestHead = new HttpRequestHead { Uri = "test", Method = "GET" };
 			var endpointMatchingRule = new EndpointMatchingRule();
-			Assert.That(endpointMatchingRule.IsEndpointMatch(requestHandler, httpRequestHead), Is.False);
+			Assert.That(endpointMatchingRule.IsEndpointMatch(requestHandler, httpRequestHead), Is.True);
 		}
 
 		[Test]
@@ -78,7 +78,7 @@ namespace HttpMock.Unit.Tests
 		}
 
 		[Test]
-		public void urls_and_methods_match_and_queryparams_does_not_exist_it_returns_false() {
+		public void urls_and_methods_match_and_queryparams_does_not_exist_it_returns_true() {
 			var requestHandler = MockRepository.GenerateStub<IRequestHandler>();
 			requestHandler.Path = "test";
 			requestHandler.Method = "GET";
@@ -86,7 +86,7 @@ namespace HttpMock.Unit.Tests
 
 			var httpRequestHead = new HttpRequestHead { Uri = "test?oauth_consumer_key=test-api&elvis=alive&moonlandings=faked", Method = "GET" };
 			var endpointMatchingRule = new EndpointMatchingRule();
-			Assert.That(endpointMatchingRule.IsEndpointMatch(requestHandler, httpRequestHead), Is.False);
+			Assert.That(endpointMatchingRule.IsEndpointMatch(requestHandler, httpRequestHead), Is.True);
 		}
 
 

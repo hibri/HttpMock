@@ -1,3 +1,4 @@
+using System.Linq;
 using NUnit.Framework;
 
 namespace HttpMock
@@ -15,8 +16,9 @@ namespace HttpMock
 			return AssertHandler("GET", path);
 		}
 
-		private IRequestVerify AssertHandler(string method, string path) {
-			var handler = _requestProcessor.FindHandler(method, path);
+		private IRequestVerify AssertHandler(string method, string path)
+		{
+		    var handler = _requestProcessor.FindHandler(method, path);
 			Assert.That(handler, Is.Not.Null, string.Format("Handler for path {0} and method {1} was not stubbed", path, method));
 			Assert.That(handler.RequestCount(), Is.GreaterThan(0), string.Format("Handler for path {0} and method {1} was never called", path, method));
 			return handler;

@@ -55,6 +55,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Extensions.cs" />
     <Compile Include="IRequestVerify.cs" />
     <Compile Include="RequestMatcher.cs" />
     <Compile Include="ReceivedRequest.cs" />

@@ -1,4 +1,7 @@
 using System;
+using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Linq;
 using System.Net;
 using NUnit.Framework;
 
@@ -211,9 +214,60 @@ namespace HttpMock.Integration.Tests
 	        var result = new WebClient().DownloadString(string.Format("{0}/api/path/one", _hostUrl));
 
             Assert.That(result, Is.EqualTo(expectedResponse));
-
-	        
-	        
 	    }
-	}
+
+        [Test]
+        public void Should_assert_a_request_was_made_with_correct_query_params()
+        {
+            var stubHttp = HttpMockRepository.At(_hostUrl);
+            var queryParameters = new Dictionary<string, string> {{"a", "a"}};
+            stubHttp.Stub(x => x.Get("/api/status"))
+                .WithParams(queryParameters)
+                .Return("OK").OK();
+
+            new WebClient().DownloadString(string.Format("{0}/api/status?a=a", _hostUrl));
+
+            stubHttp.AssertWasCalled(x => x.Get("/api/status")).WithParams(queryParameters);
+        }
+
+        [Test]
+        public void Should_fail_assertion_if_a_request_was_made_with_incorrect_query_params()
+        {
+            var stubHttp = HttpMockRepository.At(_hostUrl);
+            var queryParams = new Dictionary<string, string> {{"a", "a"}};
+            stubHttp.Stub(x => x.Get("/api/status"))
+                .WithParams(queryParams)
+                .Return("OK").OK();
+
+            var webClient = new WebClient {QueryString = new NameValueCollection {{"a", "b"}}};
+
+            using (webClient)
+            {
+                webClient.DownloadString(string.Format("{0}/api/status", _hostUrl));
+
+                Assert.Throws<AssertionException>(() =>
+                    stubHttp.AssertWasCalled(x => x.Get("/api/status")).WithParams(queryParams));
+            }
+        }
+
+        [Test]
+        public void Should_fail_assertion_if_a_request_was_made_with_no_query_params_but_there_should_have_been_there()
+        {
+            var stubHttp = HttpMockRepository.At(_hostUrl);
+            var queryParams = new Dictionary<string, string> { { "a", "a" } };
+            stubHttp.Stub(x => x.Get("/api/status"))
+                .WithParams(queryParams)
+                .Return("OK").OK();
+
+            var webClient = new WebClient();
+
+            using (webClient)
+            {
+                webClient.DownloadString(string.Format("{0}/api/status", _hostUrl));
+
+                Assert.Throws<AssertionException>(() =>
+                    stubHttp.AssertWasCalled(x => x.Get("/api/status")).WithParams(queryParams));
+            }
+        }
+    }
 }
