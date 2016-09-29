@@ -5,13 +5,13 @@ using System.Reflection;
 using System.Threading;
 using Kayak;
 using Kayak.Http;
-using log4net;
+using System.Diagnostics;
+using System.Linq;
 
 namespace HttpMock
 {
     public class HttpServer : IHttpServer
     {
-        private static readonly ILog _log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         private readonly RequestHandlerFactory _requestHandlerFactory;
         private readonly IRequestProcessor _requestProcessor;
         private readonly RequestWasCalled _requestWasCalled;
@@ -31,8 +31,19 @@ namespace HttpMock
             _requestHandlerFactory = new RequestHandlerFactory(_requestProcessor);
         }
 
+
         public void Start()
         {
+            if (Trace.Listeners.OfType<ConsoleTraceListener>().Any() == false)
+            {
+                Trace.Listeners.Add(GetConsoleTrace());
+            }
+
+            if (Debug.Listeners.OfType<ConsoleTraceListener>().Any() == false)
+            {
+                Debug.Listeners.Add(GetConsoleTrace());
+            }
+
             _thread = new Thread(StartListening);
             _thread.Start();
             if (!IsAvailable())
@@ -110,6 +121,15 @@ namespace HttpMock
             return _requestProcessor.WhatDoIHave();
         }
 
+        private ConsoleTraceListener GetConsoleTrace()
+        {
+            var consoleTraceListener = new ConsoleTraceListener(true);
+            consoleTraceListener.Filter = new EventTypeFilter(SourceLevels.All);
+
+            return consoleTraceListener;
+        }
+
+
         private void StartListening()
         {
             try
@@ -127,7 +147,7 @@ namespace HttpMock
                     catch (Exception ex)
                     {
                         e = ex;
-                        _log.Error("Error when trying to post actions to the scheduler in StartListening", ex);
+                        Trace.TraceError("Error when trying to post actions to the scheduler in StartListening", ex);
                     }
                 });
 
@@ -138,7 +158,7 @@ namespace HttpMock
             }
             catch (Exception ex)
             {
-                _log.Error("Error when trying to StartListening", ex);
+                Trace.TraceError("Error when trying to StartListening", ex);
             }
         }
     }

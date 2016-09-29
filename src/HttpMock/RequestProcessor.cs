@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Text;
 using Kayak;
 using Kayak.Http;
-using log4net;
+using System.Diagnostics;
 
 namespace HttpMock
 {
@@ -19,7 +19,6 @@ namespace HttpMock
 
 	public class RequestProcessor :  IRequestProcessor
 	{
-		private static readonly ILog _log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 	    private IRequestHandlerList _handlers;
 	    private readonly RequestMatcher _requestMatcher;
 
@@ -29,7 +28,7 @@ namespace HttpMock
 		}
 
 		public void OnRequest(HttpRequestHead request, IDataProducer body, IHttpResponseDelegate response) {
-			_log.DebugFormat("Start Processing request for : {0}:{1}", request.Method, request.Uri);
+            Debug.WriteLine("Start Processing request for : {0}:{1}", request.Method, request.Uri);
 			if (GetHandlerCount() < 1) {
 				ReturnHttpMockNotFound(response);
 				return;
@@ -38,7 +37,7 @@ namespace HttpMock
 			var handler = _requestMatcher.Match(request, _handlers);
 
 			if (handler == null) {
-				_log.DebugFormat("No Handlers matched");
+                Debug.WriteLine("No Handlers matched");
 				ReturnHttpMockNotFound(response);
 				return;
 			}
@@ -47,7 +46,7 @@ namespace HttpMock
 
 	    private static void HandleRequest(HttpRequestHead request, IDataProducer body, IHttpResponseDelegate response, IRequestHandler handler)
 	    {
-	        _log.DebugFormat("Matched a handler {0}:{1} {2}", handler.Method, handler.Path, DumpQueryParams(handler.QueryParams));
+            Debug.WriteLine("Matched a handler {0}:{1} {2}", handler.Method, handler.Path, DumpQueryParams(handler.QueryParams));
 	        IDataProducer dataProducer = GetDataProducer(request, handler);
 	        if (request.HasBody())
 	        {
@@ -55,12 +54,12 @@ namespace HttpMock
 	                bufferedBody =>
 	                {
 	                    handler.RecordRequest(request, bufferedBody);
-	                    _log.DebugFormat("Body: {0}", bufferedBody);
+	                    Debug.WriteLine("Body: {0}", bufferedBody);
 	                    response.OnResponse(handler.ResponseBuilder.BuildHeaders(), dataProducer);
 	                },
 	                error =>
 	                {
-	                    _log.DebugFormat("Error while reading body {0}", error.Message);
+	                    Debug.WriteLine("Error while reading body {0}", error.Message);
 	                    response.OnResponse(handler.ResponseBuilder.BuildHeaders(), dataProducer);
 	                }
 	                ));
@@ -70,7 +69,7 @@ namespace HttpMock
 	            response.OnResponse(handler.ResponseBuilder.BuildHeaders(), dataProducer);
 	            handler.RecordRequest(request, null);
 	        }
-	        _log.DebugFormat("End Processing request for : {0}:{1}", request.Method, request.Uri);
+            Debug.WriteLine("End Processing request for : {0}:{1}", request.Method, request.Uri);
 	    }
 
 	    private static IDataProducer GetDataProducer(HttpRequestHead request, IRequestHandler handler) {
