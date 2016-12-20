@@ -5,15 +5,15 @@ using System.Net;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using Kayak;
-using log4net;
+using Common.Logging;
 
 namespace HttpMock
 {
 	class FileResponseBody :  IResponse
 	{
 		private readonly string _filepath;
-		private static readonly ILog _log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
-		private IDictionary<string, string> _requestHeaders;
+        private static readonly ILog Log = LogManager.GetLogger<RequestProcessor>();
+        private IDictionary<string, string> _requestHeaders;
 
 		public FileResponseBody(string filepath) {
 			_filepath = filepath;
@@ -40,7 +40,7 @@ namespace HttpMock
 				ArraySegment<byte> data = new ArraySegment<byte>(buffer, offset, length);
 				channel.OnData(data, null);
 				
-				_log.DebugFormat("Wrote {0} bytes to buffer", data.Array.Length);
+				Log.DebugFormat("Wrote {0} bytes to buffer", data.Array.Length);
 				channel.OnEnd();
 				return null;
 			}
