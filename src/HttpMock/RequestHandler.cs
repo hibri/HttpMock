@@ -110,9 +110,9 @@ namespace HttpMock
 
 		public string GetBody() {
 			return _observedRequests.Peek().Body;
-		}
+        }
 
-		public bool CanVerifyConstraintsFor(string url)
+        public bool CanVerifyConstraintsFor(string url)
 		{
 			return _constraints.All(c => c(url));
 		}
@@ -120,6 +120,10 @@ namespace HttpMock
 		public ReceivedRequest LastRequest()
 		{
 			return _observedRequests.Peek();
+		}
+
+		public ReceivedRequest GetRequestAt(int index){
+			return _observedRequests.ElementAt(index);
 		}
 	}
 }

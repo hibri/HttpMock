@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using NUnit.Framework;
+using System.Collections.Generic;
 
 namespace HttpMock.Integration.Tests
 {
@@ -59,10 +60,41 @@ namespace HttpMock.Integration.Tests
             var requestBody = ((RequestHandler)requestHandler).LastRequest().Body;
 
             Assert.That(requestBody, Is.EqualTo(expected));
-        }      
+        }
+
+        [TestCase(1)]
+        [TestCase(10)]
+        [TestCase(50)]
+        public void SUT_should_get_back_exact_content_in_the_nth_request_body(int count)
+        {
+            _stubHttp = HttpMockRepository.At(_hostUrl);
+
+            var requestHandlerStub = _stubHttp.Stub(x => x.Post("/endpoint"));
+
+            requestHandlerStub.Return(string.Empty).OK();
+
+            var expectedList = new List<string>();
+            using (var wc = new WebClient())
+            {
+                wc.Headers[HttpRequestHeader.ContentType] = "application/xml";
+                for (int i = 0; i < count; i++)
+                {
+                    string expected = string.Format("<xml><>response>{0}</response></xml>", string.Join(" ", Enumerable.Range(0, i)));
+                    wc.UploadString(string.Format("{0}/endpoint", _hostUrl), expected);
+                    expectedList.Add(expected);
+                }
+            }
+
+            var requestHandler = (RequestHandler)requestHandlerStub;
+            for (int i = 0; i < count; i++)
+            {
+                var requestBody = requestHandler.GetRequestAt(i).Body;
+                Assert.That(requestBody, Is.EqualTo(expectedList[i]));
+            }
+        }
 
 
-		[Test]
+        [Test]
 		public void Should_start_listening_before_stubs_have_been_set()
 		{
 			_stubHttp = HttpMockRepository.At(_hostUrl);
