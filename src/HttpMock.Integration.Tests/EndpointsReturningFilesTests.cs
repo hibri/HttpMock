@@ -9,7 +9,7 @@ namespace HttpMock.Integration.Tests
 	public class EndpointsReturningFilesTests	
 	{
 		private const string FILE_NAME = "transcode-input.mp3";
-		private const string RES_TRANSCODE_INPUT_MP3 = "res\\"+FILE_NAME;
+		private static readonly string RES_TRANSCODE_INPUT_MP3 = Path.Combine("res",FILE_NAME);
 
 		[Test]
 		public void A_Setting_return_file_return_the_correct_content_length() {
