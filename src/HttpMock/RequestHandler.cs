@@ -122,8 +122,8 @@ namespace HttpMock
 			return _observedRequests.Peek();
 		}
 
-		public ReceivedRequest GetRequestAt(int index){
-			return _observedRequests.ElementAt(index);
+		public Queue<ReceivedRequest> GetObservedRequests(){
+			return _observedRequests;
 		}
 	}
 }
