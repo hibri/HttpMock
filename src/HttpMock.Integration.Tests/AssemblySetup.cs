@@ -1,4 +1,3 @@
-using log4net.Config;
 using NUnit.Framework;
 
 namespace HttpMock.Integration.Tests
@@ -7,7 +6,6 @@ namespace HttpMock.Integration.Tests
 	public class AssemblySetup
 	{
 		public AssemblySetup() {
-			XmlConfigurator.Configure();
 		}
 	}
 }

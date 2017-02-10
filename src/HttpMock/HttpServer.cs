@@ -5,13 +5,13 @@ using System.Reflection;
 using System.Threading;
 using Kayak;
 using Kayak.Http;
-using log4net;
+using Common.Logging;
 
 namespace HttpMock
 {
     public class HttpServer : IHttpServer
     {
-        private static readonly ILog _log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly ILog Log = LogManager.GetLogger<HttpServer>();
         private readonly RequestHandlerFactory _requestHandlerFactory;
         private readonly IRequestProcessor _requestProcessor;
         private readonly RequestWasCalled _requestWasCalled;
@@ -127,7 +127,7 @@ namespace HttpMock
                     catch (Exception ex)
                     {
                         e = ex;
-                        _log.Error("Error when trying to post actions to the scheduler in StartListening", ex);
+                        Log.Error("Error when trying to post actions to the scheduler in StartListening", ex);
                     }
                 });
 
@@ -138,7 +138,7 @@ namespace HttpMock
             }
             catch (Exception ex)
             {
-                _log.Error("Error when trying to StartListening", ex);
+                Log.Error("Error when trying to StartListening", ex);
             }
         }
     }
