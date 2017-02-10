@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using NUnit.Framework;
+using System.Collections.Generic;
 
 namespace HttpMock.Integration.Tests
 {
@@ -251,5 +252,39 @@ namespace HttpMock.Integration.Tests
 				Assert.That(((WebException) ex).Status, Is.EqualTo(WebExceptionStatus.ProtocolError));
 			}
 		}
+		
+		[TestCase(1)]
+        [TestCase(10)]
+        [TestCase(50)]
+        public void SUT_should_get_back_the_collection_of_requests(int count)
+        {
+            _stubHttp = HttpMockRepository.At(_hostUrl);
+
+            var requestHandlerStub = _stubHttp.Stub(x => x.Post("/endpoint"));
+
+            requestHandlerStub.Return(string.Empty).OK();
+
+            var expectedBodyList = new List<string>();
+            using (var wc = new WebClient())
+            {
+                wc.Headers[HttpRequestHeader.ContentType] = "application/xml";
+                for (int i = 0; i < count; i++)
+                {
+                    string expected = string.Format("<xml><>response>{0}</response></xml>", string.Join(" ", Enumerable.Range(0, i)));
+                    wc.UploadString(string.Format("{0}/endpoint", _hostUrl), expected);
+                    expectedBodyList.Add(expected);
+                }
+            }
+
+            var requestHandler = (RequestHandler)requestHandlerStub;
+
+            var observedRequests = requestHandler.GetObservedRequests();
+            Assert.AreEqual(expectedBodyList.Count, observedRequests.ToList().Count);
+
+            for (int i = 0; i < expectedBodyList.Count; i++)
+            {
+                Assert.AreEqual(expectedBodyList.ElementAt(i), observedRequests.ElementAt(i).Body);
+            }
+        }
 	}
 }

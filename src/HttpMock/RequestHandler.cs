@@ -121,5 +121,10 @@ namespace HttpMock
 		{
 			return _observedRequests.Peek();
 		}
+		
+		public IEnumerable<ReceivedRequest> GetObservedRequests()
+        {
+            return _observedRequests;
+        }
 	}
 }
