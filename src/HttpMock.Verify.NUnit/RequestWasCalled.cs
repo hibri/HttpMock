@@ -1,6 +1,6 @@
 using NUnit.Framework;
 
-namespace HttpMock
+namespace HttpMock.Verify.NUnit
 {
 	public class RequestWasCalled
 	{

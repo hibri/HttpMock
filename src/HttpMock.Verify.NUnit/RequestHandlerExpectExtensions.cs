@@ -1,8 +1,7 @@
-﻿
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using NUnit.Framework.Constraints;
 
-namespace HttpMock
+namespace HttpMock.Verify.NUnit
 {
 	public static  class RequestHandlerExpectExtensions
 	{

@@ -9,14 +9,6 @@ using log4net;
 
 namespace HttpMock
 {
-	public interface IRequestProcessor : IHttpRequestDelegate
-	{
-		IRequestVerify FindHandler(string method, string path);
-	    void Add(RequestHandler requestHandler);
-	    void ClearHandlers();
-	    string WhatDoIHave();
-	}
-
 	public class RequestProcessor :  IRequestProcessor
 	{
 		private static readonly ILog _log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);

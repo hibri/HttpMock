@@ -81,6 +81,10 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\HttpMock.Verify.NUnit\HttpMock.Verify.NUnit.csproj">
+      <Project>{1B61C8E3-7A43-479B-B7FE-D374DFEAA5E7}</Project>
+      <Name>HttpMock.Verify.NUnit</Name>
+    </ProjectReference>
     <ProjectReference Include="..\HttpMock\HttpMock.csproj">
       <Project>{7D7A1C68-6D1C-4AD5-BD2E-CA2D7B76AE1C}</Project>
       <Name>HttpMock</Name>
