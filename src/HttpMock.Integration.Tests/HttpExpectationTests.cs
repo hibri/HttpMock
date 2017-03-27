@@ -1,5 +1,6 @@
 using System;
 using System.Net;
+using HttpMock.Verify.NUnit;
 using NUnit.Framework;
 
 namespace HttpMock.Integration.Tests

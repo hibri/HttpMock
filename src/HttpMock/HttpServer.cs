@@ -14,9 +14,7 @@ namespace HttpMock
         private static readonly ILog _log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         private readonly RequestHandlerFactory _requestHandlerFactory;
         private readonly IRequestProcessor _requestProcessor;
-        private readonly RequestWasCalled _requestWasCalled;
-        private readonly RequestWasNotCalled _requestWasNotCalled;
-        private readonly IScheduler _scheduler;
+	    private readonly IScheduler _scheduler;
         private readonly Uri _uri;
         private IDisposable _disposableServer;
         private Thread _thread;
@@ -26,8 +24,7 @@ namespace HttpMock
             _uri = uri;
             _scheduler = KayakScheduler.Factory.Create(new SchedulerDelegate());
             _requestProcessor = new RequestProcessor(new EndpointMatchingRule(), new RequestHandlerList());
-            _requestWasCalled = new RequestWasCalled(_requestProcessor);
-            _requestWasNotCalled = new RequestWasNotCalled(_requestProcessor);
+
             _requestHandlerFactory = new RequestHandlerFactory(_requestProcessor);
         }
 
@@ -65,7 +62,12 @@ namespace HttpMock
             }
         }
 
-        public void Dispose()
+	    public IRequestProcessor GetRequestProcessor()
+	    {
+		    return _requestProcessor;
+	    }
+
+	    public void Dispose()
         {
             if (_scheduler != null)
             {
@@ -83,15 +85,7 @@ namespace HttpMock
             return func.Invoke(_requestHandlerFactory);
         }
 
-        public IRequestVerify AssertWasCalled(Func<RequestWasCalled, IRequestVerify> func)
-        {
-            return func.Invoke(_requestWasCalled);
-        }
 
-        public IRequestVerify AssertWasNotCalled(Func<RequestWasNotCalled, IRequestVerify> func)
-        {
-            return func.Invoke(_requestWasNotCalled);
-        }
 
         public IHttpServer WithNewContext()
         {
