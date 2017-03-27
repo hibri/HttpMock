@@ -7,7 +7,7 @@ namespace HttpMock.Verify.NUnit
 	{
 		public static void WithBody(this IRequestVerify handler, string expectedBody) {
 			
-			Assert.That(handler.GetBody(), Is.EqualTo(expectedBody));
+			Asse rt.That(handler.GetBody(), Is.EqualTo(expectedBody));
 		}
 
 		public static void WithBody(this IRequestVerify handler, IResolveConstraint constraint)
