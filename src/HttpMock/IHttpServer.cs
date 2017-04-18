@@ -6,7 +6,6 @@ namespace HttpMock
 	{
 		IRequestStub Stub(Func<RequestHandlerFactory, IRequestStub> func);
 		IHttpServer WithNewContext();
-		IHttpServer WithNewContext(string baseUri);
 		void Start();
 		string WhatDoIHave();
 		bool IsAvailable();

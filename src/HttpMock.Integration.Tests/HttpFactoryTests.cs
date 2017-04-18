@@ -13,14 +13,14 @@ namespace HttpMock.Integration.Tests
 
 			var uri = new Uri(HostHelper.GenerateAHostUrlForAStubServer());
 			IHttpServer server1, server2 = null;
-			server1 = serverFactory.Get(uri).WithNewContext(uri.AbsoluteUri);
+			server1 = serverFactory.Get(uri).WithNewContext();
 			try
 			{
 				server1.Start();
 				server1.Dispose();
 				server1 = null;
 
-				server2 = serverFactory.Get(uri).WithNewContext(uri.AbsoluteUri);
+				server2 = serverFactory.Get(uri).WithNewContext();
 				Assert.DoesNotThrow(server2.Start);
 			}
 			finally

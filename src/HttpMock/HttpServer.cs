@@ -93,13 +93,7 @@ namespace HttpMock
             return this;
         }
 
-        public IHttpServer WithNewContext(string baseUri)
-        {
-            WithNewContext();
-            return this;
-        }
-
-        public string WhatDoIHave()
+	    public string WhatDoIHave()
         {
             return _requestProcessor.WhatDoIHave();
         }
