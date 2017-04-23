@@ -5,13 +5,12 @@ using System.Reflection;
 using System.Text;
 using Kayak;
 using Kayak.Http;
-using log4net;
 
 namespace HttpMock
 {
 	public class RequestProcessor :  IRequestProcessor
 	{
-		private static readonly ILog _log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+		private static readonly ILog _log = LogFactory.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 	    private IRequestHandlerList _handlers;
 	    private readonly RequestMatcher _requestMatcher;
 
