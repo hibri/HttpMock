@@ -8,6 +8,7 @@ namespace HttpMock
 		string Method { get; set; }
 		IRequestProcessor RequestProcessor { get; set; }
 		IDictionary<string, string> QueryParams { get; set; }
+		IDictionary<string, string> RequestHeaders { get; set; }
 		ResponseBuilder ResponseBuilder { get; }
         bool CanVerifyConstraintsFor(string url);
         void RecordRequest(HttpRequestHead request, string body);

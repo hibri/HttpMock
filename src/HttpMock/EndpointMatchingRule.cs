@@ -15,6 +15,7 @@ namespace HttpMock
 				throw new ArgumentException("requestHandler QueryParams cannot be null");
 
 			var requestQueryParams = GetQueryParams(request);
+			var requestHeaders = GetHeaders(request);
 
             bool uriStartsWith = MatchPath(requestHandler, request);
             
@@ -28,7 +29,14 @@ namespace HttpMock
 				queryParamMatch = new QueryParamMatch().MatchQueryParams(requestHandler, requestQueryParams);
 			}
 
-			return uriStartsWith && httpMethodsMatch && queryParamMatch;
+			bool headerMatch = true;
+			bool shouldMatchHeaders = (requestHandler.RequestHeaders.Count > 0);
+
+			if (shouldMatchHeaders) {
+				headerMatch = new HeaderMatch().MatchHeaders(requestHandler, requestHeaders);
+			}
+
+			return uriStartsWith && httpMethodsMatch && queryParamMatch && headerMatch;
 		}
 
 	    private static bool MatchPath(IRequestHandler requestHandler, HttpRequestHead request)
@@ -59,6 +67,11 @@ namespace HttpMock
 				.Where(k => !string.IsNullOrEmpty(k))
 				.ToDictionary(k => k, k => valueCollection[k]);
 			return requestQueryParams;
+		}
+
+		private static IDictionary<string, string> GetHeaders(HttpRequestHead request)
+		{
+			return request.Headers ?? new Dictionary<string, string>();
 		}
 	}
 }

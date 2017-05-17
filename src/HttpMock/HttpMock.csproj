@@ -52,6 +52,7 @@
   <ItemGroup>
     <Compile Include="IRequestProcessor.cs" />
     <Compile Include="IRequestVerify.cs" />
+    <Compile Include="HeaderMatch.cs" />
     <Compile Include="RequestMatcher.cs" />
     <Compile Include="ReceivedRequest.cs" />
     <Compile Include="RequestHandlerFactory.cs" />
