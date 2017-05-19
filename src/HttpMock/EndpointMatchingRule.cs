@@ -10,6 +10,15 @@ namespace HttpMock
 {
 	public class EndpointMatchingRule : IMatchingRule
 	{
+		private readonly HeaderMatch _headerMatch;
+		private readonly QueryParamMatch _queryParamMatch;
+
+		public EndpointMatchingRule()
+		{
+			_headerMatch = new HeaderMatch();
+			_queryParamMatch = new QueryParamMatch();
+		}
+
 		public bool IsEndpointMatch(IRequestHandler requestHandler, HttpRequestHead request) {
 			if (requestHandler.QueryParams == null)
 				throw new ArgumentException("requestHandler QueryParams cannot be null");
@@ -17,8 +26,7 @@ namespace HttpMock
 			var requestQueryParams = GetQueryParams(request);
 			var requestHeaders = GetHeaders(request);
 
-            bool uriStartsWith = MatchPath(requestHandler, request);
-            
+			bool uriStartsWith = MatchPath(requestHandler, request);
 
 			bool httpMethodsMatch = requestHandler.Method == request.Method;
 			
@@ -26,14 +34,15 @@ namespace HttpMock
 			bool shouldMatchQueryParams = (requestHandler.QueryParams.Count > 0);
 			
 			if (shouldMatchQueryParams) {
-				queryParamMatch = new QueryParamMatch().MatchQueryParams(requestHandler, requestQueryParams);
+				queryParamMatch = _queryParamMatch.MatchQueryParams(requestHandler, requestQueryParams);
 			}
 
 			bool headerMatch = true;
-			bool shouldMatchHeaders = (requestHandler.RequestHeaders.Count > 0);
+			bool shouldMatchHeaders = requestHandler.RequestHeaders != null
+				&& requestHandler.RequestHeaders.Count > 0;
 
 			if (shouldMatchHeaders) {
-				headerMatch = new HeaderMatch().MatchHeaders(requestHandler, requestHeaders);
+				headerMatch = _headerMatch.MatchHeaders(requestHandler, requestHeaders);
 			}
 
 			return uriStartsWith && httpMethodsMatch && queryParamMatch && headerMatch;
