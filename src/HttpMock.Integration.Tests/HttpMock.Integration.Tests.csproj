@@ -67,6 +67,7 @@
     <Compile Include="SystemUnderTest.cs" />
     <Compile Include="UsingMultipleServersTests.cs" />
     <Compile Include="UsingTheSameStubServerAndDifferentQueryRequestParams.cs" />
+    <Compile Include="UsingTheSameStubServerAndDifferentRequestHeaders.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="App.config">

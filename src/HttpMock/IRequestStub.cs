@@ -10,6 +10,7 @@ namespace HttpMock
 		IRequestStub Return(Func<string> responseBody);
 		IRequestStub ReturnFile(string pathToFile);
 		IRequestStub WithParams(IDictionary<string, string> nameValueCollection);
+		IRequestStub WithHeaders(IDictionary<string, string> nameValueCollection);
 		void OK();
 		void WithStatus( HttpStatusCode httpStatusCode);
 		void NotFound();

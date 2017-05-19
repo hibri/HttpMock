@@ -118,6 +118,62 @@ namespace HttpMock.Unit.Tests
 		}
 
 		[Test]
+		public void urls_and_methods_match_headers_differ_it_returns_false() {
+			var requestHandler = MockRepository.GenerateStub<IRequestHandler>();
+			requestHandler.Path = "test";
+			requestHandler.Method = "GET";
+			requestHandler.QueryParams = new Dictionary<string, string>();
+			requestHandler.RequestHeaders = new Dictionary<string, string> { { "myHeader", "one" } };
+
+			var httpRequestHead = new HttpRequestHead
+			{
+				Uri = "test",
+				Method = "GET",
+				Headers = new Dictionary<string, string>
+				{
+					{ "myHeader", "two" }
+				}
+			};
+			var endpointMatchingRule = new EndpointMatchingRule();
+			Assert.That(endpointMatchingRule.IsEndpointMatch(requestHandler, httpRequestHead), Is.False);
+		}
+
+		[Test]
+		public void urls_and_methods_match_and_headers_match_it_returns_true() {
+			var requestHandler = MockRepository.GenerateStub<IRequestHandler>();
+			requestHandler.Path = "test";
+			requestHandler.Method = "GET";
+			requestHandler.QueryParams = new Dictionary<string, string>();
+			requestHandler.RequestHeaders = new Dictionary<string, string> { { "myHeader", "one" } };
+
+			var httpRequestHead = new HttpRequestHead
+			{
+				Uri = "test",
+				Method = "GET",
+				Headers = new Dictionary<string, string>
+				{
+					{ "myHeader", "one" },
+					{ "anotherHeader", "two" }
+				}
+			};
+			var endpointMatchingRule = new EndpointMatchingRule();
+			Assert.That(endpointMatchingRule.IsEndpointMatch(requestHandler, httpRequestHead));
+		}
+
+		[Test]
+		public void urls_and_methods_match_and_header_does_not_exist_it_returns_false() {
+			var requestHandler = MockRepository.GenerateStub<IRequestHandler>();
+			requestHandler.Path = "test";
+			requestHandler.Method = "GET";
+			requestHandler.QueryParams = new Dictionary<string, string>();
+			requestHandler.RequestHeaders = new Dictionary<string, string> { { "myHeader", "one" } };
+
+			var httpRequestHead = new HttpRequestHead { Uri = "test", Method = "GET" };
+			var endpointMatchingRule = new EndpointMatchingRule();
+			Assert.That(endpointMatchingRule.IsEndpointMatch(requestHandler, httpRequestHead), Is.False);
+		}
+
+		[Test]
 		public void should_do_a_case_insensitive_match_on_query_string_parameter_values() {
 
 			var requestHandler = MockRepository.GenerateStub<IRequestHandler>();
@@ -126,6 +182,29 @@ namespace HttpMock.Unit.Tests
 			requestHandler.QueryParams = new Dictionary<string, string> { { "myParam", "one" } };
 
 			var httpRequestHead = new HttpRequestHead { Uri = "test?myParam=OnE", Method = "GET" };
+
+			var endpointMatchingRule = new EndpointMatchingRule();
+			Assert.That(endpointMatchingRule.IsEndpointMatch(requestHandler, httpRequestHead));
+		}
+
+		[Test]
+		public void should_do_a_case_insensitive_match_on_header_names_and_values() {
+
+			var requestHandler = MockRepository.GenerateStub<IRequestHandler>();
+			requestHandler.Path = "test";
+			requestHandler.Method = "GET";
+			requestHandler.QueryParams = new Dictionary<string, string>();
+			requestHandler.RequestHeaders = new Dictionary<string, string> { { "myHeader", "one" } };
+
+			var httpRequestHead = new HttpRequestHead
+			{
+				Uri = "test",
+				Method = "GET",
+				Headers = new Dictionary<string, string>
+				{
+					{ "MYheaDER", "OnE" }
+				}
+			};
 
 			var endpointMatchingRule = new EndpointMatchingRule();
 			Assert.That(endpointMatchingRule.IsEndpointMatch(requestHandler, httpRequestHead));

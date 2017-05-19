@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -18,12 +17,14 @@ namespace HttpMock
 			Path = path;
 			RequestProcessor = requestProcessor;
 			QueryParams = new Dictionary<string, string>();
+			RequestHeaders = new Dictionary<string, string>();
 		}
 
 		public string Path { get; set; }
 		public string Method { get; set; }
 		public IRequestProcessor RequestProcessor { get; set; }
 		public IDictionary<string, string> QueryParams { get; set; }
+		public IDictionary<string, string> RequestHeaders { get; set; }
 
 		public ResponseBuilder ResponseBuilder {
 			get { return _webResponseBuilder; }
@@ -54,6 +55,12 @@ namespace HttpMock
 
 		public IRequestStub WithParams(IDictionary<string, string> nameValueCollection) {
 			QueryParams = nameValueCollection;
+			return this;
+		}
+
+		public IRequestStub WithHeaders(IDictionary<string, string> nameValueCollection)
+		{
+			RequestHeaders = nameValueCollection;
 			return this;
 		}
 
