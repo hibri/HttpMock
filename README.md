@@ -2,7 +2,7 @@
 (https://ci.appveyor.com/api/projects/status/pqjfme8k5kl7r7av)]
 (https://ci.appveyor.com/project/hibri/httpmock)
 
-#HttpMock
+# HttpMock
 
 HttpMock enables you to mock the behaviour of HTTP services, that your application depends on, during testing.
 It's particularly useful for Integration and Acceptance testing.
@@ -10,7 +10,7 @@ It's particularly useful for Integration and Acceptance testing.
 HttpMock returns canned responses at run time.
 
 
-##Usage.
+## Usage.
 
 First, in the application you are testing, change the url of the HTTP service you want to mock, with the url for HttpMock.
 
@@ -62,5 +62,5 @@ Eample usage:
 	}
 
 
-##Reporting Issues.
+## Reporting Issues.
 When reporting issues, please provide a failing test. 
