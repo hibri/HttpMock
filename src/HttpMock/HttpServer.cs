@@ -84,8 +84,6 @@ namespace HttpMock
 			return func.Invoke(_requestHandlerFactory);
 		}
 
-
-
 		public IHttpServer WithNewContext()
 		{
 			_requestProcessor.ClearHandlers();
