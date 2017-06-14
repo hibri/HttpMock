@@ -34,9 +34,6 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="log4net, Version=2.0.7.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a">
-      <HintPath>..\..\packages\log4net.2.0.7\lib\net45-full\log4net.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Net" />
@@ -50,9 +47,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ILog.cs" />
     <Compile Include="IRequestProcessor.cs" />
     <Compile Include="IRequestVerify.cs" />
     <Compile Include="HeaderMatch.cs" />
+    <Compile Include="LogFactory.cs" />
     <Compile Include="RequestMatcher.cs" />
     <Compile Include="ReceivedRequest.cs" />
     <Compile Include="RequestHandlerFactory.cs" />
