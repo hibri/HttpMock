@@ -1,6 +1,6 @@
 ﻿using log4net;
 
-namespace HttpMock.Log4NetLogger
+namespace HttpMock.Logging.Log4Net
 {
 	public static class Log4NetFactory
 	{

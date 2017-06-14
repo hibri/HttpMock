@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace HttpMock.Log4NetLogger
+namespace HttpMock.Logging.Log4Net
 {
 	public class Logger : ILog
 	{

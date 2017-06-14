@@ -18,7 +18,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{BF7536
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpMock.Verify.NUnit", "src\HttpMock.Verify.NUnit\HttpMock.Verify.NUnit.csproj", "{1B61C8E3-7A43-479B-B7FE-D374DFEAA5E7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpMock.Log4NetLogger", "src\HttpMock.Log4NetLogger\HttpMock.Log4NetLogger.csproj", "{873E4657-ED89-4B3A-B2F2-82B183AB358C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpMock.Logging.Log4Net", "src\HttpMock.Logging.Log4Net\HttpMock.Logging.Log4Net.csproj", "{873E4657-ED89-4B3A-B2F2-82B183AB358C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
