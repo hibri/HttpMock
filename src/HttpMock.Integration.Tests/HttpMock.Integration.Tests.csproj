@@ -80,6 +80,10 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\HttpMock.Logging.Log4Net\HttpMock.Logging.Log4Net.csproj">
+      <Project>{873E4657-ED89-4B3A-B2F2-82B183AB358C}</Project>
+      <Name>HttpMock.Logging.Log4Net</Name>
+    </ProjectReference>
     <ProjectReference Include="..\HttpMock.Verify.NUnit\HttpMock.Verify.NUnit.csproj">
       <Project>{1B61C8E3-7A43-479B-B7FE-D374DFEAA5E7}</Project>
       <Name>HttpMock.Verify.NUnit</Name>
@@ -100,7 +104,7 @@
     </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')"/>
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
