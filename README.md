@@ -1,7 +1,6 @@
 
 ![Build status]
-(https://ci.appveyor.com/api/projects/status/pqjfme8k5kl7r7av)
-(https://ci.appveyor.com/project/hibri/httpmock)
+(https://ci.appveyor.com/api/projects/status/github/hibri/HttpMock?svg=true&retrina=true)
 
 # HttpMock
 
