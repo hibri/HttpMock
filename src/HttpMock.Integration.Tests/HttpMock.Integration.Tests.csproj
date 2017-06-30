@@ -37,8 +37,8 @@
     <Reference Include="Kayak">
       <HintPath>..\..\packages\Kayak.0.7.2\lib\Kayak.dll</HintPath>
     </Reference>
-    <Reference Include="log4net, Version=2.0.7.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a">
-      <HintPath>..\..\packages\log4net.2.0.7\lib\net45-full\log4net.dll</HintPath>
+    <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a">
+      <HintPath>..\..\packages\log4net.2.0.8\lib\net45-full\log4net.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework, Version=3.6.1.0, Culture=neutral, PublicKeyToken=2638cd05610744eb">
       <HintPath>..\..\packages\NUnit.3.6.1\lib\net45\nunit.framework.dll</HintPath>
@@ -79,6 +79,10 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\HttpMock.Logging.Log4Net\HttpMock.Logging.Log4Net.csproj">
+      <Project>{873E4657-ED89-4B3A-B2F2-82B183AB358C}</Project>
+      <Name>HttpMock.Logging.Log4Net</Name>
+    </ProjectReference>
     <ProjectReference Include="..\HttpMock.Verify.NUnit\HttpMock.Verify.NUnit.csproj">
       <Project>{1B61C8E3-7A43-479B-B7FE-D374DFEAA5E7}</Project>
       <Name>HttpMock.Verify.NUnit</Name>

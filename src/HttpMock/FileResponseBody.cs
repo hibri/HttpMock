@@ -5,14 +5,13 @@ using System.Net;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using Kayak;
-using log4net;
 
 namespace HttpMock
 {
 	class FileResponseBody :  IResponse
 	{
 		private readonly string _filepath;
-		private static readonly ILog _log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+		private static readonly ILog _log = LogFactory.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 		private IDictionary<string, string> _requestHeaders;
 
 		public FileResponseBody(string filepath) {
