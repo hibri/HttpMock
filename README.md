@@ -27,38 +27,39 @@ There are three essential parts to setting up a stub.
 
 1. The path that will respond.
 	
-	stubHttp.Stub(x => x.Get("/endpoint"))
+	`stubHttp.Stub(x => x.Get("/endpoint"))`
 
 2. The content that will be returned. Supported body types can be Json, file and string content. 
 
-	.Return(expected)
+	`.Return(expected)`
 
 3. The status code of the response.
 	
- 	.OK()
+ 	`.OK()`
 
 
 
 
 Eample usage:
 
-	[Test]
- 	public void SUT_should_return_stubbed_response() {
-		_stubHttp = HttpMockRepository.At("http://localhost:9191");
+```csharp
+[Test]
+public void SUT_should_return_stubbed_response()
+{
+	_stubHttp = HttpMockRepository.At("http://localhost:9191");
 
-		const string expected = "<xml><>response>Hello World</response></xml>";
-		_stubHttp.Stub(x => x.Get("/endpoint"))
-				.Return(expected)
-				.OK();
+	const string expected = "<xml><response>Hello World</response></xml>";
+	_stubHttp.Stub(x => x.Get("/endpoint"))
+			.Return(expected)
+			.OK();
 
-		
+	string result = new WebClient().DownloadString("http://localhost:9191/endpoint");
 
-		string result = new WebClient().DownloadString("http://localhost:9191/endpoint");
+	Console.WriteLine("RESPONSE: {0}", result);
 
-		Console.WriteLine("RESPONSE: {0}", result);
-
-		Assert.That(result, Is.EqualTo(expected));
-	}
+	Assert.That(result, Is.EqualTo(expected));
+}
+```
 
 
 ## Reporting Issues.
