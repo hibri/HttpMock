@@ -3,9 +3,9 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Threading;
 using NUnit.Framework;
 using System.Collections.Generic;
+using System.Text;
 
 namespace HttpMock.Integration.Tests
 {
@@ -34,6 +34,21 @@ namespace HttpMock.Integration.Tests
 
 
 			string result = new WebClient().DownloadString(string.Format("{0}/endpoint", _hostUrl));
+
+			Assert.That(result, Is.EqualTo(expected));
+		}
+
+		[Test]
+		public void SUT_should_return_stubbed_byte_array_response()
+		{
+			_stubHttp = HttpMockRepository.At(_hostUrl);
+
+			byte[] expected = Encoding.UTF8.GetBytes("<xml><>response>Change to bytes to simulate possible stream response</response></xml>");
+			_stubHttp.Stub(x => x.Get("/endpoint"))
+				.Return(expected)
+				.OK();
+
+			byte[] result = new WebClient().DownloadData(string.Format("{0}/endpoint", _hostUrl));
 
 			Assert.That(result, Is.EqualTo(expected));
 		}

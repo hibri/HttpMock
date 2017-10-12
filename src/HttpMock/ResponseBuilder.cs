@@ -32,6 +32,14 @@ namespace HttpMock
 			return this;
 		}
 
+		public ResponseBuilder Return(byte[] body) {
+			var bufferedBody = new BufferedBody(body);
+			_contentLength = bufferedBody.Length;
+			_response = bufferedBody;
+
+			return this;
+		}
+
 		public IDataProducer BuildBody(IDictionary<string, string> headers) {
 			_response.SetRequestHeaders(headers);
 			return _response;
