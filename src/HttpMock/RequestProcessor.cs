@@ -15,14 +15,17 @@ namespace HttpMock
         private ConcurrentDictionary<Guid, RequestHandlerList> _handlers { get; set; }
         private readonly RequestMatcher _requestMatcher;
 
-        public RequestProcessor(IMatchingRule matchingRule, ConcurrentDictionary<Guid, RequestHandlerList> requestHandlers) {
+        public RequestProcessor(IMatchingRule matchingRule, ConcurrentDictionary<Guid, RequestHandlerList> requestHandlers)
+        {
             _handlers = requestHandlers;
             _requestMatcher = new RequestMatcher(matchingRule);
         }
 
-        public void OnRequest(HttpRequestHead request, IDataProducer body, IHttpResponseDelegate response) {
+        public void OnRequest(HttpRequestHead request, IDataProducer body, IHttpResponseDelegate response)
+        {
             _log.DebugFormat("Start Processing request for : {0}:{1}", request.Method, request.Uri);
-            if (GetHandlerCount() < 1) {
+            if (GetHandlerCount() < 1)
+            {
                 ReturnHttpMockNotFound(response);
                 return;
             }
@@ -36,7 +39,7 @@ namespace HttpMock
             {
                 currentRequestId = new Guid(request.Headers[Constants.MockSessionHeaderKey]);
             }
-            else if (request.Headers.ContainsKey(Constants.CookieHeaderKey))
+            else if (request.Headers.ContainsKey(Constants.CookieHeaderKey) && request.Headers[Constants.CookieHeaderKey].Contains("="))
             {
                 var mockSessionId = request.Headers[Constants.CookieHeaderKey].Split("=".ToCharArray());
                 currentRequestId = new Guid(mockSessionId[1]);
@@ -59,7 +62,8 @@ namespace HttpMock
             HandleRequest(request, body, response, handler);
         }
 
-        private static void HandleRequest(HttpRequestHead request, IDataProducer body, IHttpResponseDelegate response, IRequestHandler handler) {
+        private static void HandleRequest(HttpRequestHead request, IDataProducer body, IHttpResponseDelegate response, IRequestHandler handler)
+        {
             _log.DebugFormat("Matched a handler {0}:{1} {2}", handler.Method, handler.Path, DumpQueryParams(handler.QueryParams));
             IDataProducer dataProducer = GetDataProducer(request, handler);
             if (request.HasBody())
@@ -86,15 +90,18 @@ namespace HttpMock
             _log.DebugFormat("End Processing request for : {0}:{1}", request.Method, request.Uri);
         }
 
-        private static IDataProducer GetDataProducer(HttpRequestHead request, IRequestHandler handler) {
+        private static IDataProducer GetDataProducer(HttpRequestHead request, IRequestHandler handler)
+        {
             return request.Method != "HEAD" ? handler.ResponseBuilder.BuildBody(request.Headers) : null;
         }
 
-        private int GetHandlerCount() {
+        private int GetHandlerCount()
+        {
             return _handlers.Count();
         }
 
-        public IRequestVerify FindHandler(string method, string path, Guid sessionId = default(Guid)) {
+        public IRequestVerify FindHandler(string method, string path, Guid sessionId = default(Guid))
+        {
             RequestHandlerList finder;
             if (_handlers.TryGetValue(sessionId, out finder))
             {
@@ -103,7 +110,8 @@ namespace HttpMock
             return null;
         }
 
-        private static string DumpQueryParams(IDictionary<string, string> queryParams) {
+        private static string DumpQueryParams(IDictionary<string, string> queryParams)
+        {
             var sb = new StringBuilder();
             foreach (var param in queryParams)
             {
@@ -112,7 +120,8 @@ namespace HttpMock
             return sb.ToString();
         }
 
-        private static void ReturnHttpMockNotFound(IHttpResponseDelegate response) {
+        private static void ReturnHttpMockNotFound(IHttpResponseDelegate response)
+        {
             var dictionary = new Dictionary<string, string>
             {
                 {HttpHeaderNames.ContentLength, "0"},
@@ -124,12 +133,14 @@ namespace HttpMock
             response.OnResponse(notFoundResponse, null);
         }
 
-        public void ClearHandlers(Guid sessionId) {
+        public void ClearHandlers(Guid sessionId)
+        {
             RequestHandlerList lst;
             _handlers.TryRemove(sessionId, out lst);
         }
 
-        public void Add(RequestHandler requestHandler) {
+        public void Add(RequestHandler requestHandler)
+        {
             Guid currentRequestId = Guid.Empty;
             if (requestHandler.RequestHeaders.ContainsKey(Constants.MockSessionHeaderKey))
             {
@@ -156,7 +167,8 @@ namespace HttpMock
             }
         }
 
-        public string WhatDoIHave() {
+        public string WhatDoIHave()
+        {
             var stringBuilder = new StringBuilder();
             stringBuilder.AppendLine("Handlers:");
             foreach (var requestHandler in _handlers)

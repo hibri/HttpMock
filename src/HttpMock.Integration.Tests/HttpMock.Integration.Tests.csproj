@@ -58,6 +58,8 @@
     <Compile Include="HttpEndPointTests.cs" />
     <Compile Include="HttpExpectationTests.cs" />
     <Compile Include="HttpFactoryTests.cs" />
+    <Compile Include="MultipleTestsUsingTheSameStubServerAndParallelScenariosWithCookieAsHeader.cs" />
+    <Compile Include="MultipleTestsUsingTheSameStubServerAndParallelScenarios.cs" />
     <Compile Include="MultipleTestsUsingTheSameStubServerAndDifferentUris.cs" />
     <Compile Include="MultipleTestsUsingTheSameStubServerWithDifferentHttpMethods.cs" />
     <Compile Include="PortHelper.cs" />
