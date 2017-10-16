@@ -8,21 +8,21 @@ namespace HttpMock.Integration.Tests
 	[TestFixture]
 	public class HttpExpectationTests
 	{
-		private string _hostUrl;
-
 		[SetUp]
 		public void SetUp()
 		{
-			_hostUrl = HostHelper.GenerateAHostUrlForAStubServer();
-		}
+		    var hostUrl = HostHelper.GenerateAHostUrlForAStubServer();
+		    TestContext.CurrentContext.SetCurrentHostUrl(hostUrl);
+		    TestContext.CurrentContext.SetCurrentHttpMock(HttpMockRepository.At(hostUrl));
+        }
 
 		[Test]
 		public void Should_assert_a_request_was_made()
 		{
-			var stubHttp = HttpMockRepository.At(_hostUrl);
+			var stubHttp = TestContext.CurrentContext.GetCurrentHttpMock();
 			stubHttp.Stub(x => x.Get("/api/status")).Return("OK").OK();
 
-			new WebClient().DownloadString(string.Format("{0}/api/status", _hostUrl));
+			new WebClient().DownloadString(string.Format("{0}/api/status", TestContext.CurrentContext.GetCurrentHostUrl()));
 
 			stubHttp.AssertWasCalled(x => x.Get("/api/status"));
 		}
@@ -31,11 +31,11 @@ namespace HttpMock.Integration.Tests
 		[Test]
 		public void Should_assert_that_a_request_was_not_made()
 		{
-			var stubHttp = HttpMockRepository.At(_hostUrl);
+			var stubHttp = TestContext.CurrentContext.GetCurrentHttpMock();
 			stubHttp.Stub(x => x.Get("/api/status")).Return("OK").OK();
 			stubHttp.Stub(x => x.Get("/api/echo")).Return("OK").OK();
 
-			new WebClient().DownloadString(string.Format("{0}/api/status", _hostUrl));
+			new WebClient().DownloadString(string.Format("{0}/api/status", TestContext.CurrentContext.GetCurrentHostUrl()));
 
 			stubHttp.AssertWasNotCalled(x => x.Get("/api/echo"));
 		}
@@ -43,7 +43,7 @@ namespace HttpMock.Integration.Tests
 		[Test]
 		public void Should_assert_when_stub_is_missing()
 		{
-			var stubHttp = HttpMockRepository.At(_hostUrl);
+			var stubHttp = TestContext.CurrentContext.GetCurrentHttpMock();
 
 			Assert.Throws<AssertionException>(() => stubHttp.AssertWasCalled(x => x.Get("/api/echo")));
 		}
@@ -51,12 +51,12 @@ namespace HttpMock.Integration.Tests
 		[Test]
 		public void Should_match_a_POST_request_was_made_with_the_expected_body()
 		{
-			var stubHttp = HttpMockRepository.At(_hostUrl);
+			var stubHttp = TestContext.CurrentContext.GetCurrentHttpMock();
 			stubHttp.Stub(x => x.Post("/endpoint/handler")).Return("OK").OK();
 
 			string expectedData = "postdata";
 
-			new WebClient().UploadString(string.Format("{0}/endpoint/handler", _hostUrl), expectedData);
+			new WebClient().UploadString(string.Format("{0}/endpoint/handler", TestContext.CurrentContext.GetCurrentHostUrl()), expectedData);
 
 			stubHttp.AssertWasCalled(x => x.Post("/endpoint/handler")).WithBody(expectedData);
 		}
@@ -64,12 +64,12 @@ namespace HttpMock.Integration.Tests
 		[Test]
 		public void Should_match_a_POST_request_was_made_with_a_body_that_matches_a_constraint()
 		{
-			var stubHttp = HttpMockRepository.At(_hostUrl);
+			var stubHttp = TestContext.CurrentContext.GetCurrentHttpMock();
 			stubHttp.Stub(x => x.Post("/endpoint/handler")).Return("OK").OK();
 
 			string expectedData = "postdata" + DateTime.Now;
 
-			new WebClient().UploadString(string.Format("{0}/endpoint/handler", _hostUrl), expectedData);
+			new WebClient().UploadString(string.Format("{0}/endpoint/handler", TestContext.CurrentContext.GetCurrentHostUrl()), expectedData);
 
 			stubHttp.AssertWasCalled(x => x.Post("/endpoint/handler")).WithBody(Does.StartWith("postdata"));
 		}
@@ -78,11 +78,11 @@ namespace HttpMock.Integration.Tests
 		[Test]
 		public void Should_not_match_a_POST_request_was_made_with_a_body_that_doesnt_match_a_constraint()
 		{
-			var stubHttp = HttpMockRepository.At(_hostUrl);
+			var stubHttp = TestContext.CurrentContext.GetCurrentHttpMock();
 			stubHttp.Stub(x => x.Post("/endpoint/handler")).Return("OK").OK();
 
 			string expectedData = "DUMMYPREFIX-postdata" + DateTime.Now;
-			new WebClient().UploadString(string.Format("{0}/endpoint/handler", _hostUrl), expectedData);
+			new WebClient().UploadString(string.Format("{0}/endpoint/handler", TestContext.CurrentContext.GetCurrentHostUrl()), expectedData);
 
 			Assert.Throws<AssertionException>(() =>
 				stubHttp.AssertWasCalled(x => x.Post("/endpoint/handler"))
@@ -93,10 +93,10 @@ namespace HttpMock.Integration.Tests
 		public void Should_fail_assertion_if_request_header_is_missing()
 		{
 			const string endPoint = "/put/no/header";
-			var stubHttp = HttpMockRepository.At(_hostUrl);
+			var stubHttp = TestContext.CurrentContext.GetCurrentHttpMock();
 			stubHttp.Stub(x => x.Put(endPoint)).Return("OK").OK();
 
-			var request = (HttpWebRequest) WebRequest.Create(_hostUrl + endPoint);
+			var request = (HttpWebRequest) WebRequest.Create(TestContext.CurrentContext.GetCurrentHostUrl() + endPoint);
 			request.Method = "PUT";
 
 			using (request.GetResponse())
@@ -111,10 +111,10 @@ namespace HttpMock.Integration.Tests
 		public void Should_fail_assertion_if_request_header_differs_from_expectation()
 		{
 			const string endPoint = "/put/no/header";
-			var stubHttp = HttpMockRepository.At(_hostUrl);
+			var stubHttp = TestContext.CurrentContext.GetCurrentHttpMock();
 			stubHttp.Stub(x => x.Put(endPoint)).Return("OK").OK();
 
-			var request = (HttpWebRequest) WebRequest.Create(_hostUrl + endPoint);
+			var request = (HttpWebRequest) WebRequest.Create(TestContext.CurrentContext.GetCurrentHostUrl() + endPoint);
 			request.Method = "PUT";
 			request.Headers.Add("Waffle", "Pancake");
 
@@ -130,10 +130,10 @@ namespace HttpMock.Integration.Tests
 		public void Should_pass_assertion_if_request_header_satisfies_expectation()
 		{
 			const string endPoint = "/put/no/header";
-			var stubHttp = HttpMockRepository.At(_hostUrl);
+			var stubHttp = TestContext.CurrentContext.GetCurrentHttpMock();
 			stubHttp.Stub(x => x.Put(endPoint)).Return("OK").OK();
 
-			var request = (HttpWebRequest) WebRequest.Create(_hostUrl + endPoint);
+			var request = (HttpWebRequest) WebRequest.Create(TestContext.CurrentContext.GetCurrentHostUrl() + endPoint);
 			request.Method = "PUT";
 			const string pancake = "Pancake";
 			request.Headers.Add("Waffle", pancake);
@@ -145,12 +145,12 @@ namespace HttpMock.Integration.Tests
 		[Test]
 		public void Should_match_many_POST_requests_which_were_made_with_expected_body()
 		{
-			var stubHttp = HttpMockRepository.At(_hostUrl);
+			var stubHttp = TestContext.CurrentContext.GetCurrentHttpMock();
 			stubHttp.Stub(x => x.Post("/endpoint/handler")).Return("OK").OK();
 
 			const string expectedData = "postdata";
-			new WebClient().UploadString(string.Format("{0}/endpoint/handler", _hostUrl), expectedData);
-			new WebClient().UploadString(string.Format("{0}/endpoint/handler", _hostUrl), expectedData);
+			new WebClient().UploadString(string.Format("{0}/endpoint/handler", TestContext.CurrentContext.GetCurrentHostUrl()), expectedData);
+			new WebClient().UploadString(string.Format("{0}/endpoint/handler", TestContext.CurrentContext.GetCurrentHostUrl()), expectedData);
 
 			stubHttp.AssertWasCalled(x => x.Post("/endpoint/handler")).Times(2);
 		}
@@ -158,13 +158,13 @@ namespace HttpMock.Integration.Tests
 		[Test]
 		public void Should_not_match_if_times_value_doesnt_match_requestCount()
 		{
-			var stubHttp = HttpMockRepository.At(_hostUrl);
+			var stubHttp = TestContext.CurrentContext.GetCurrentHttpMock();
 			stubHttp.Stub(x => x.Post("/endpoint/handler")).Return("OK").OK();
 
 			const string expectedData = "postdata";
 
-			new WebClient().UploadString(string.Format("{0}/endpoint/handler", _hostUrl), expectedData);
-			new WebClient().UploadString(string.Format("{0}/endpoint/handler", _hostUrl), expectedData);
+			new WebClient().UploadString(string.Format("{0}/endpoint/handler", TestContext.CurrentContext.GetCurrentHostUrl()), expectedData);
+			new WebClient().UploadString(string.Format("{0}/endpoint/handler", TestContext.CurrentContext.GetCurrentHostUrl()), expectedData);
 
 			Assert.Throws<AssertionException>(() => stubHttp.AssertWasCalled(x => x.Post("/endpoint/handler")).Times(3));
 		}
@@ -173,11 +173,11 @@ namespace HttpMock.Integration.Tests
 		[Test]
 		public void Should_assert_a_request_was_not_made_when_multiple_requests_are_made()
 		{
-			var stubHttp = HttpMockRepository.At(_hostUrl);
+			var stubHttp = TestContext.CurrentContext.GetCurrentHttpMock();
 			stubHttp.Stub(x => x.Get("/api/status")).Return("OK").OK();
 			stubHttp.Stub(x => x.Get("/api/echo")).Return("OK").OK();
 
-			new WebClient().DownloadString(string.Format("{0}/api/status", _hostUrl));
+			new WebClient().DownloadString(string.Format("{0}/api/status", TestContext.CurrentContext.GetCurrentHostUrl()));
 
 			stubHttp.AssertWasNotCalled(x => x.Get("/api/echo"));
 
@@ -187,11 +187,11 @@ namespace HttpMock.Integration.Tests
 		[Test]
 		public void Should_assert_a_request_was_called_when_multiple_requests_are_made()
 		{
-			var stubHttp = HttpMockRepository.At(_hostUrl);
+			var stubHttp = TestContext.CurrentContext.GetCurrentHttpMock();
 			stubHttp.Stub(x => x.Get("/api/status")).Return("OK").OK();
 			stubHttp.Stub(x => x.Get("/api/echo")).Return("OK").OK();
 
-			new WebClient().DownloadString(string.Format("{0}/api/status", _hostUrl));
+			new WebClient().DownloadString(string.Format("{0}/api/status", TestContext.CurrentContext.GetCurrentHostUrl()));
 
 			stubHttp.AssertWasCalled(x => x.Get("/api/status"));
 
@@ -203,13 +203,13 @@ namespace HttpMock.Integration.Tests
 	    {
 	        var expectedResponse = "PATH/ONE";
 
-	        var stubHttp = HttpMockRepository.At(_hostUrl);
+	        var stubHttp = TestContext.CurrentContext.GetCurrentHttpMock();
 
 	        stubHttp.Stub(x => x.Get("/api/path")).Return("PATH").OK();
 	        stubHttp.Stub(x => x.Get("/api/path/one")).Return(expectedResponse).OK();
 
 
-	        var result = new WebClient().DownloadString(string.Format("{0}/api/path/one", _hostUrl));
+	        var result = new WebClient().DownloadString(string.Format("{0}/api/path/one", TestContext.CurrentContext.GetCurrentHostUrl()));
 
             Assert.That(result, Is.EqualTo(expectedResponse));
 
