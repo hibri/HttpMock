@@ -16,7 +16,7 @@ namespace HttpMock
 
 		public static IHttpServer At(Uri uri)
 		{
-			return _httpServerFactory.Get(uri).WithNewContext();
+			return _httpServerFactory.Get(uri).WithNewContext(Guid.Empty);
 		}
 	}
 }
