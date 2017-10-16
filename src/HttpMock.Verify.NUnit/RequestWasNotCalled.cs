@@ -1,3 +1,4 @@
+using System;
 using NUnit.Framework;
 
 namespace HttpMock.Verify.NUnit
@@ -15,8 +16,8 @@ namespace HttpMock.Verify.NUnit
 			return AssertHandler( "GET", path);
 		}
 
-		private IRequestVerify AssertHandler(string method, string path) {
-			var handler = _requestProcessor.FindHandler(method, path);
+		private IRequestVerify AssertHandler(string method, string path, Guid sessionId = default(Guid)) {
+			var handler = _requestProcessor.FindHandler(method, path, sessionId);
 			if (handler != null) {
 				Assert.That(handler.RequestCount(), Is.EqualTo(0), "Expected not to find a request for {1}{0} but was found", method, path);
 			}else {

@@ -41,7 +41,8 @@ namespace HttpMock
                 var mockSessionId = request.Headers[Constants.CookieHeaderKey].Split("=".ToCharArray());
                 currentRequestId = new Guid(mockSessionId[1]);
             }
-            if (_handlers.TryGetValue(currentRequestId, out var requestHandler))
+            RequestHandlerList requestHandler;
+            if (_handlers.TryGetValue(currentRequestId, out requestHandler))
             {
                 lock (requestHandler)
                 {
@@ -94,7 +95,8 @@ namespace HttpMock
         }
 
         public IRequestVerify FindHandler(string method, string path, Guid sessionId = default(Guid)) {
-            if (_handlers.TryGetValue(sessionId, out var finder))
+            RequestHandlerList finder;
+            if (_handlers.TryGetValue(sessionId, out finder))
             {
                 return (IRequestVerify)finder.FirstOrDefault(x => x.Path == path && x.Method == method);
             }
@@ -123,7 +125,8 @@ namespace HttpMock
         }
 
         public void ClearHandlers(Guid sessionId) {
-            _handlers.TryRemove(sessionId, out var lst);
+            RequestHandlerList lst;
+            _handlers.TryRemove(sessionId, out lst);
         }
 
         public void Add(RequestHandler requestHandler) {
@@ -137,7 +140,8 @@ namespace HttpMock
                 var mockSessionId = requestHandler.RequestHeaders[Constants.CookieHeaderKey].Split("=".ToCharArray());
                 currentRequestId = new Guid(mockSessionId[1]);
             }
-            if (_handlers.TryGetValue(currentRequestId, out var lst))
+            RequestHandlerList lst;
+            if (_handlers.TryGetValue(currentRequestId, out lst))
             {
                 lock (lst)
                 {
