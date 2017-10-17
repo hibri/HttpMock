@@ -7,11 +7,14 @@ namespace HttpMock.Integration.Tests
 	public class SameServerUsingDifferentBaseUrlsTests
 	{
 		private string _hostUrl;
+	    private IHttpServer stubHttp;
 
-		[OneTimeSetUp]
+        [OneTimeSetUp]
 		public void SetUp()
 		{
 			_hostUrl = HostHelper.GenerateAHostUrlForAStubServer();
+		    stubHttp = HttpMockRepository.At(_hostUrl);
+		    stubHttp.IsAvailable();
 		}
 
 		[Test]
@@ -19,8 +22,8 @@ namespace HttpMock.Integration.Tests
 		{
 			string expected = "expected response";
 			var url = _hostUrl + "/appone";
-			HttpMockRepository.At(url)
-				.Stub(x => x.Get("/appone/endpoint"))
+		    stubHttp
+                .Stub(x => x.Get("/appone/endpoint"))
 				.Return(expected)
 				.OK();
 
@@ -35,7 +38,7 @@ namespace HttpMock.Integration.Tests
 			string expected = "expected response";
 
 			var url = _hostUrl + "/apptwo";
-			HttpMockRepository.At(url)
+			stubHttp
 				.Stub(x => x.Get("/apptwo/endpoint"))
 				.Return(expected)
 				.OK();
@@ -49,8 +52,8 @@ namespace HttpMock.Integration.Tests
 		{
 			string expected = "expected response";
 			var url = _hostUrl + "/appthree";
-			HttpMockRepository.At(url)
-				.Stub(x => x.Get("/appthree/endpoint"))
+		    stubHttp
+                .Stub(x => x.Get("/appthree/endpoint"))
 				.Return(expected)
 				.OK();
 
