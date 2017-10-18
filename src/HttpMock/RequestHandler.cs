@@ -40,6 +40,11 @@ namespace HttpMock
 			return this;
 		}
 
+		public IRequestStub Return(byte[] responseBody) {
+			_webResponseBuilder.Return(responseBody);
+			return this;
+		}
+
 		public IRequestStub ReturnFile(string pathToFile) {
 			_webResponseBuilder.WithFile(pathToFile);
 

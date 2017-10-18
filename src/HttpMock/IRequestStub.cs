@@ -8,6 +8,7 @@ namespace HttpMock
 	{
 		IRequestStub Return(string responseBody);
 		IRequestStub Return(Func<string> responseBody);
+		IRequestStub Return(byte[] responseBody);
 		IRequestStub ReturnFile(string pathToFile);
 		IRequestStub WithParams(IDictionary<string, string> nameValueCollection);
 		IRequestStub WithHeaders(IDictionary<string, string> nameValueCollection);
