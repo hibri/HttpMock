@@ -1,3 +1,4 @@
+using System;
 using NUnit.Framework;
 
 namespace HttpMock.Verify.NUnit
@@ -5,9 +6,10 @@ namespace HttpMock.Verify.NUnit
 	public class RequestWasCalled
 	{
 		private readonly IRequestProcessor _requestProcessor;
-
-		public RequestWasCalled(IRequestProcessor requestProcessor) {
+	    private readonly Guid _sessionId;
+		public RequestWasCalled(IRequestProcessor requestProcessor, Guid sessionId = default(Guid)) {
 			_requestProcessor = requestProcessor;
+		    _sessionId = sessionId;
 		}
 
 		public IRequestVerify Get(string path)
@@ -16,7 +18,7 @@ namespace HttpMock.Verify.NUnit
 		}
 
 		private IRequestVerify AssertHandler(string method, string path) {
-			var handler = _requestProcessor.FindHandler(method, path);
+			var handler = _requestProcessor.FindHandler(method, path, _sessionId);
 			Assert.That(handler, Is.Not.Null, string.Format("Handler for path {0} and method {1} was not stubbed", path, method));
 			Assert.That(handler.RequestCount(), Is.GreaterThan(0), string.Format("Handler for path {0} and method {1} was never called", path, method));
 			return handler;

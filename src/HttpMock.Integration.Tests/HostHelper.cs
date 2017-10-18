@@ -4,6 +4,8 @@ namespace HttpMock.Integration.Tests
 {
 	internal static class HostHelper
 	{
+        private static object lckObject=new object();
+         
 		public static string GenerateAHostUrlForAStubServerWith(string basePath)
 		{
 			return String.Format("{0}/{1}", GenerateAHostUrlForAStubServer(), basePath);
@@ -12,7 +14,10 @@ namespace HttpMock.Integration.Tests
 
 		public static string GenerateAHostUrlForAStubServer()
 		{
-			return String.Format("http://localhost:{0}", PortHelper.FindLocalAvailablePortForTesting());
+		    lock (lckObject)
+		    {
+		        return String.Format("http://localhost:{0}", PortHelper.FindLocalAvailablePortForTesting());
+		    }
 		}
 	}
 }

@@ -9,11 +9,12 @@ namespace HttpMock.Integration.Tests
 {
 	internal static class PortHelper
 	{
-		internal static int FindLocalAvailablePortForTesting ()
+	    private static Random random = new Random();
+
+        internal static int FindLocalAvailablePortForTesting ()
 		{
 			const int minPort = 1024;
 
-			var random = new Random ();
 			var maxPort = 64000;
 			var randomPort = random.Next (minPort, maxPort);
 
