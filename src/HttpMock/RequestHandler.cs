@@ -69,17 +69,18 @@ namespace HttpMock
 			return this;
 		}
 
-		public void OK() {
-			WithStatus(HttpStatusCode.OK);
+		public IRequestVerify OK() {
+			return WithStatus(HttpStatusCode.OK);
 		}
 
-		public void WithStatus(HttpStatusCode httpStatusCode) {
+		public IRequestVerify WithStatus(HttpStatusCode httpStatusCode) {
 			ResponseBuilder.WithStatus(httpStatusCode);
 			RequestProcessor.Add(this);
+			return this;
 		}
 
-		public void NotFound() {
-			WithStatus(HttpStatusCode.NotFound);
+		public IRequestVerify NotFound() {
+			return WithStatus(HttpStatusCode.NotFound);
 		}
 
 		public IRequestStub AsXmlContent() {

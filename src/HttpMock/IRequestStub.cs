@@ -12,13 +12,13 @@ namespace HttpMock
 		IRequestStub ReturnFile(string pathToFile);
 		IRequestStub WithParams(IDictionary<string, string> nameValueCollection);
 		IRequestStub WithHeaders(IDictionary<string, string> nameValueCollection);
-		void OK();
-		void WithStatus( HttpStatusCode httpStatusCode);
-		void NotFound();
+		IRequestVerify OK();
+		IRequestVerify WithStatus( HttpStatusCode httpStatusCode);
+		IRequestVerify NotFound();
 		IRequestStub AsXmlContent();
 		IRequestStub AsContentType( string contentType);
 		IRequestStub AddHeader( string header, string headerValue);
 		IRequestStub WithUrlConstraint(Func<string, bool> constraint);
-	    IRequestStub ReturnFileRange(string pathToFile, int from, int to);
+		IRequestStub ReturnFileRange(string pathToFile, int from, int to);
 	}
 }
