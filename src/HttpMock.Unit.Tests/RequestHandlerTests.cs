@@ -40,7 +40,7 @@ namespace HttpMock.Unit.Tests
 
 
         [Test]
-        public void Added_handler_should_be_equal_returned_handler(Func<RequestHandler, IRequestVerify> verifyBuilder)
+        public void Added_handler_should_be_equal_returned_handler()
         {
             var requestProcessor = new RequestProcessor(null, new RequestHandlerList());
 
