@@ -1,5 +1,8 @@
 
 ![Build status](https://ci.appveyor.com/api/projects/status/github/hibri/HttpMock?svg=true&retrina=true)
+[![Gitter chat](https://badges.gitter.im/HttpMockChat/Lobby/gitter.svg)](https://gitter.im/HttpMockChat/Lobby)
+
+
 
 # HttpMock
 
