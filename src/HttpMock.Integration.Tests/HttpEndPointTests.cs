@@ -253,6 +253,19 @@ namespace HttpMock.Integration.Tests
 			return fileName;
 		}
 
+
+		[Test]
+		public void Handler_should_be_called_on_request()
+		{
+			_stubHttp = HttpMockRepository.At(_hostUrl);
+
+			var requestVerify = _stubHttp.Stub(x => x.Get("/endpoint"))
+				.OK();
+
+			new WebClient().DownloadString(string.Format("{0}/endpoint", _hostUrl));
+			Assert.AreEqual(1, requestVerify.RequestCount());
+		}
+
 		private static void RequestEcho(string endpoint)
 		{
 			var wc = new WebClient();

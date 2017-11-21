@@ -37,5 +37,17 @@ namespace HttpMock.Unit.Tests
 
             Assert.That(h.CanVerifyConstraintsFor(uriWithBlah), Is.EqualTo(false));
         }
+
+
+        [Test]
+        public void Added_handler_should_be_equal_returned_handler()
+        {
+            var requestProcessor = new RequestProcessor(null, new RequestHandlerList());
+
+            var requestVerify = new RequestHandler("/endpoint", requestProcessor) { Method = "GET" }.OK();
+            var addedRequestVerify = requestProcessor.FindHandler("GET", "/endpoint");
+
+            Assert.AreEqual(requestVerify, addedRequestVerify);
+        }
     }
 }
