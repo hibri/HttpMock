@@ -56,7 +56,7 @@ namespace HttpMock
 	        {
 	            pathToMatch = request.Uri.Substring(0, positionOfQueryStart);
 	        }
-            var pathMatch = new Regex(string.Format(@"^{0}\/*$", requestHandler.Path));
+            var pathMatch = new Regex(string.Format(@"^{0}\/*$", Regex.Escape(requestHandler.Path)));
 	        return pathMatch.IsMatch(pathToMatch);
 	    }
 
