@@ -226,8 +226,18 @@ namespace HttpMock.Unit.Tests
 			
 		}
 
+        [Test]
+        public void should_match_urls_containings_regex_reserved_characters()
+        {
+            var requestHandler = MockRepository.GenerateStub<IRequestHandler>();
+            requestHandler.Path = "/test()";
+            requestHandler.QueryParams = new Dictionary<string, string>();
 
-	}
+            var httpRequestHead = new HttpRequestHead { Uri = "/test()" };
+            var endpointMatchingRule = new EndpointMatchingRule();
+            Assert.That(endpointMatchingRule.IsEndpointMatch(requestHandler, httpRequestHead));
+        }
+    }
 
 
     [TestFixture]
