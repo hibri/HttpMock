@@ -6,6 +6,7 @@ namespace HttpMock
     public interface IRequestHandler {
 		string Path { get; set; }
 		string Method { get; set; }
+        uint ResponseDelay { get; set; }
 		IRequestProcessor RequestProcessor { get; set; }
 		IDictionary<string, string> QueryParams { get; set; }
 		IDictionary<string, string> RequestHeaders { get; set; }

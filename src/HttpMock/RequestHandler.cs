@@ -22,6 +22,7 @@ namespace HttpMock
 
 		public string Path { get; set; }
 		public string Method { get; set; }
+        public uint ResponseDelay { get; set; }
 		public IRequestProcessor RequestProcessor { get; set; }
 		public IDictionary<string, string> QueryParams { get; set; }
 		public IDictionary<string, string> RequestHeaders { get; set; }
@@ -138,5 +139,11 @@ namespace HttpMock
         {
             return _observedRequests;
         }
-	}
+
+        public IRequestStub Delay(uint milliseconds)
+        {
+            ResponseDelay = milliseconds;
+            return this;
+        }
+    }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using Kayak;
 using Kayak.Http;
 
@@ -39,6 +40,8 @@ namespace HttpMock
 	    private static void HandleRequest(HttpRequestHead request, IDataProducer body, IHttpResponseDelegate response, IRequestHandler handler)
 	    {
 	        _log.DebugFormat("Matched a handler {0}:{1} {2}", handler.Method, handler.Path, DumpQueryParams(handler.QueryParams));
+
+            Thread.Sleep((int)handler.ResponseDelay);
 	        IDataProducer dataProducer = GetDataProducer(request, handler);
 	        if (request.HasBody())
 	        {
