@@ -303,14 +303,16 @@ namespace HttpMock.Integration.Tests
             }
         }
 
-        [TestCase(500)]
-        [TestCase(1234)]
-        [TestCase(2000)]
-        public void Should_wait_more_than_the_added_delay(uint count)
+        [TestCase(500, 200)]
+        [TestCase(1234, 250)]
+        [TestCase(2000, 350)]
+        public void Should_wait_more_than_the_added_delay(int wait, int added)
         {
             _stubHttp = HttpMockRepository.At(_hostUrl);
-            _stubHttp.Stub(x => x.Get("/endpoint")).Return("Delayed response").Delay(count).OK();
+            var stub = _stubHttp.Stub(x => x.Get("/endpoint")).Return("Delayed response");
+            stub.OK();
 
+            stub.AddDelay((uint)wait);
             string ans;
             var sw = new Stopwatch();
 
@@ -321,9 +323,22 @@ namespace HttpMock.Integration.Tests
                 sw.Stop();
             }
 
-            Assert.GreaterOrEqual(sw.ElapsedMilliseconds, count);
-            Assert.Equals("Delayed response", ans);
+            Assert.GreaterOrEqual(sw.ElapsedMilliseconds, wait);
+            Assert.AreEqual("Delayed response", ans);
+
+            stub.AddDelay((uint)added).Return("Delayed response 2");
+            sw.Reset();
+            using (var wc = new WebClient())
+            {
+                sw.Start();
+                ans = wc.DownloadString($"{_hostUrl}/endpoint");
+                sw.Stop();
+            }
+
+            Assert.GreaterOrEqual(sw.ElapsedMilliseconds, wait + added);
+            Assert.AreEqual("Delayed response 2", ans);
+
         }
 
-	}
+    }
 }
