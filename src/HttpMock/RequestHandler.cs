@@ -145,5 +145,11 @@ namespace HttpMock
             ResponseDelay += milliseconds;
             return this;
         }
+
+        public IRequestStub AddDelay(TimeSpan timeSpan)
+        {
+            ResponseDelay += Convert.ToUInt32(timeSpan.TotalMilliseconds);
+            return this;
+        }
     }
 }

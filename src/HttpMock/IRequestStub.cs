@@ -21,5 +21,6 @@ namespace HttpMock
 		IRequestStub WithUrlConstraint(Func<string, bool> constraint);
 	    IRequestStub ReturnFileRange(string pathToFile, int from, int to);
         IRequestStub AddDelay(uint milliseconds);
+        IRequestStub AddDelay(TimeSpan timeSpan);
 	}
 }

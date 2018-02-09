@@ -312,7 +312,7 @@ namespace HttpMock.Integration.Tests
             var stub = _stubHttp.Stub(x => x.Get("/endpoint")).Return("Delayed response");
             stub.OK();
 
-            stub.AddDelay((uint)wait);
+            stub.AddDelay(Convert.ToUInt32(wait));
             string ans;
             var sw = new Stopwatch();
 
@@ -326,7 +326,7 @@ namespace HttpMock.Integration.Tests
             Assert.GreaterOrEqual(sw.ElapsedMilliseconds, wait);
             Assert.AreEqual("Delayed response", ans);
 
-            stub.AddDelay((uint)added).Return("Delayed response 2");
+            stub.AddDelay(TimeSpan.FromMilliseconds(added)).Return("Delayed response 2");
             sw.Reset();
             using (var wc = new WebClient())
             {
