@@ -6,6 +6,7 @@ using System.Net.Sockets;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Text;
+using System.Diagnostics;
 
 namespace HttpMock.Integration.Tests
 {
@@ -301,5 +302,28 @@ namespace HttpMock.Integration.Tests
                 Assert.AreEqual(expectedBodyList.ElementAt(i), observedRequests.ElementAt(i).Body);
             }
         }
+
+        [TestCase(500)]
+        [TestCase(1234)]
+        [TestCase(2000)]
+        public void Should_wait_more_than_the_added_delay(uint count)
+        {
+            _stubHttp = HttpMockRepository.At(_hostUrl);
+            _stubHttp.Stub(x => x.Get("/endpoint")).Return("Delayed response").Delay(count).OK();
+
+            string ans;
+            var sw = new Stopwatch();
+
+            using (var wc = new WebClient())
+            {
+                sw.Start();
+                ans = wc.DownloadString($"{_hostUrl}/endpoint");
+                sw.Stop();
+            }
+
+            Assert.GreaterOrEqual(sw.ElapsedMilliseconds, count);
+            Assert.Equals("Delayed response", ans);
+        }
+
 	}
 }

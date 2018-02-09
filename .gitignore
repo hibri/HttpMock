@@ -12,3 +12,4 @@ Bin
 packages
 *.nupkg
 HttpMock.userprefs
+.vs/
