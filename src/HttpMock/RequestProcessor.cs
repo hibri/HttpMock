@@ -41,7 +41,7 @@ namespace HttpMock
 	    {
 	        _log.DebugFormat("Matched a handler {0}:{1} {2}", handler.Method, handler.Path, DumpQueryParams(handler.QueryParams));
 
-            Thread.Sleep((int)handler.ResponseDelay);
+            Thread.Sleep(handler.ResponseDelay);
 	        IDataProducer dataProducer = GetDataProducer(request, handler);
 	        if (request.HasBody())
 	        {

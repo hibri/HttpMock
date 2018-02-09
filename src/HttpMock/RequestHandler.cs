@@ -22,7 +22,7 @@ namespace HttpMock
 
 		public string Path { get; set; }
 		public string Method { get; set; }
-        public uint ResponseDelay { get; set; }
+        public TimeSpan ResponseDelay { get; set; }
 		public IRequestProcessor RequestProcessor { get; set; }
 		public IDictionary<string, string> QueryParams { get; set; }
 		public IDictionary<string, string> RequestHeaders { get; set; }
@@ -142,13 +142,13 @@ namespace HttpMock
 
         public IRequestStub AddDelay(uint milliseconds)
         {
-            ResponseDelay += milliseconds;
+            ResponseDelay = ResponseDelay.Add(TimeSpan.FromMilliseconds(milliseconds));
             return this;
         }
 
         public IRequestStub AddDelay(TimeSpan timeSpan)
         {
-            ResponseDelay += Convert.ToUInt32(timeSpan.TotalMilliseconds);
+            ResponseDelay = ResponseDelay.Add(timeSpan);
             return this;
         }
     }
