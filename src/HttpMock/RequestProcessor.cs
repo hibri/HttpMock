@@ -42,7 +42,7 @@ namespace HttpMock
 	    {
 	        _log.DebugFormat("Matched a handler {0}:{1} {2}", handler.Method, handler.Path, DumpQueryParams(handler.QueryParams));
 
-            if (handler.ResponseDelay != null)
+            if (handler.ResponseDelay > TimeSpan.Zero)
             {
                 await Task.Delay(handler.ResponseDelay);
             }
