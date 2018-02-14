@@ -341,10 +341,22 @@ namespace HttpMock.Integration.Tests
 
         }
 
-        [TestCase(85)]
-        [TestCase(185)]
-        [TestCase(231)]
-        public void Delayed_stub_shouldnt_block_undelayed_stub(int wait)
+
+        public async Task<string> StartDelayedRequest(Stopwatch sw)
+        {
+            using (var wc = new WebClient())
+            {
+                sw.Restart();
+                var ans = await wc.DownloadStringTaskAsync($"{_hostUrl}/firstEndp");
+                sw.Stop();
+                return ans;
+            }
+        }
+
+        [TestCase(407, 50)]
+        [TestCase(1015, 50)]
+        [TestCase(1691, 50)]
+        public void Delayed_stub_shouldnt_block_undelayed_stub(int wait, int epsilon)
         {
             _stubHttp = HttpMockRepository.At(_hostUrl);
             _stubHttp.Stub(x => x.Get("/firstEndp")).WithDelay(Convert.ToUInt32(wait)).Return("Delayed response (stub 1)").OK();
@@ -358,13 +370,13 @@ namespace HttpMock.Integration.Tests
             using (var wcUndelayed = new WebClient())
             using (var wcDelayed = new WebClient())
             {
-                taskDelayed = Task.Run(() =>
-                {
-                    swDelayed.Start();
-                    var ans = wcDelayed.DownloadString($"{_hostUrl}/firstEndp");
-                    swDelayed.Stop();
-                    return ans;
-                });
+
+                // This triggers the server so that we won't have any initial (unwanted) delays
+                wcDelayed.DownloadString($"{_hostUrl}/firstEndp");
+                wcUndelayed.DownloadString($"{_hostUrl}/secondEndp");
+
+                taskDelayed = StartDelayedRequest(swDelayed);
+
                 taskUndelayed = Task.Run(() =>
                 {
                     swUndelayed.Start();
@@ -379,7 +391,7 @@ namespace HttpMock.Integration.Tests
 
             Assert.AreEqual("Delayed response (stub 1)", taskDelayed.Result);
             Assert.AreEqual("Undelayed response (stub 2)", taskUndelayed.Result);
-            Assert.Greater(swDelayed.ElapsedMilliseconds - 45, swUndelayed.ElapsedMilliseconds);
+            Assert.Greater(swDelayed.ElapsedMilliseconds - epsilon, swUndelayed.ElapsedMilliseconds);
 
         }
 
