@@ -22,6 +22,7 @@ namespace HttpMock
 
 		public string Path { get; set; }
 		public string Method { get; set; }
+        public TimeSpan ResponseDelay { get; set; }
 		public IRequestProcessor RequestProcessor { get; set; }
 		public IDictionary<string, string> QueryParams { get; set; }
 		public IDictionary<string, string> RequestHeaders { get; set; }
@@ -138,5 +139,17 @@ namespace HttpMock
         {
             return _observedRequests;
         }
-	}
+
+        public IRequestStub WithDelay(uint milliseconds)
+        {
+            ResponseDelay = ResponseDelay.Add(TimeSpan.FromMilliseconds(milliseconds));
+            return this;
+        }
+
+        public IRequestStub WithDelay(TimeSpan timeSpan)
+        {
+            ResponseDelay = ResponseDelay.Add(timeSpan);
+            return this;
+        }
+    }
 }

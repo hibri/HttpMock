@@ -6,6 +6,8 @@ using System.Net.Sockets;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Text;
+using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace HttpMock.Integration.Tests
 {
@@ -301,5 +303,97 @@ namespace HttpMock.Integration.Tests
                 Assert.AreEqual(expectedBodyList.ElementAt(i), observedRequests.ElementAt(i).Body);
             }
         }
-	}
+
+        [TestCase(500, 200)]
+        [TestCase(1234, 250)]
+        [TestCase(2000, 350)]
+        public void Should_wait_more_than_the_added_delay(int wait, int added)
+        {
+            _stubHttp = HttpMockRepository.At(_hostUrl);
+            var stub = _stubHttp.Stub(x => x.Get("/endpoint")).Return("Delayed response");
+            stub.OK();
+
+            stub.WithDelay(Convert.ToUInt32(wait));
+            string ans;
+            var sw = new Stopwatch();
+
+            using (var wc = new WebClient())
+            {
+                sw.Start();
+                ans = wc.DownloadString($"{_hostUrl}/endpoint");
+                sw.Stop();
+            }
+
+            Assert.GreaterOrEqual(sw.ElapsedMilliseconds, wait);
+            Assert.AreEqual("Delayed response", ans);
+
+            stub.WithDelay(TimeSpan.FromMilliseconds(added)).Return("Delayed response 2");
+            sw.Reset();
+            using (var wc = new WebClient())
+            {
+                sw.Start();
+                ans = wc.DownloadString($"{_hostUrl}/endpoint");
+                sw.Stop();
+            }
+
+            Assert.GreaterOrEqual(sw.ElapsedMilliseconds, wait + added);
+            Assert.AreEqual("Delayed response 2", ans);
+
+        }
+
+
+        public async Task<string> StartDelayedRequest(Stopwatch sw)
+        {
+            using (var wc = new WebClient())
+            {
+                sw.Restart();
+                var ans = await wc.DownloadStringTaskAsync($"{_hostUrl}/firstEndp");
+                sw.Stop();
+                return ans;
+            }
+        }
+
+        [TestCase(407, 50)]
+        [TestCase(1015, 50)]
+        [TestCase(1691, 50)]
+        public void Delayed_stub_shouldnt_block_undelayed_stub(int wait, int epsilon)
+        {
+            _stubHttp = HttpMockRepository.At(_hostUrl);
+            _stubHttp.Stub(x => x.Get("/firstEndp")).WithDelay(Convert.ToUInt32(wait)).Return("Delayed response (stub 1)").OK();
+            _stubHttp.Stub(x => x.Get("/secondEndp")).Return("Undelayed response (stub 2)").OK();
+
+            Stopwatch swDelayed = new Stopwatch();
+            Stopwatch swUndelayed = new Stopwatch();
+            Task<string> taskDelayed = null, 
+                taskUndelayed = null;
+
+            using (var wcUndelayed = new WebClient())
+            using (var wcDelayed = new WebClient())
+            {
+
+                // This triggers the server so that we won't have any initial (unwanted) delays
+                wcDelayed.DownloadString($"{_hostUrl}/firstEndp");
+                wcUndelayed.DownloadString($"{_hostUrl}/secondEndp");
+
+                taskDelayed = StartDelayedRequest(swDelayed);
+
+                taskUndelayed = Task.Run(() =>
+                {
+                    swUndelayed.Start();
+                    var ans = wcUndelayed.DownloadString($"{_hostUrl}/secondEndp");
+                    swUndelayed.Stop();
+                    return ans;
+                });
+
+                taskDelayed.Wait();
+                taskUndelayed.Wait();
+            }
+
+            Assert.AreEqual("Delayed response (stub 1)", taskDelayed.Result);
+            Assert.AreEqual("Undelayed response (stub 2)", taskUndelayed.Result);
+            Assert.Greater(swDelayed.ElapsedMilliseconds - epsilon, swUndelayed.ElapsedMilliseconds);
+
+        }
+
+    }
 }
