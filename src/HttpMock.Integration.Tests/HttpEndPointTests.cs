@@ -313,7 +313,7 @@ namespace HttpMock.Integration.Tests
             var stub = _stubHttp.Stub(x => x.Get("/endpoint")).Return("Delayed response");
             stub.OK();
 
-            stub.WithDelay(Convert.ToUInt32(wait));
+            stub.WithDelay(wait);
             string ans;
             var sw = new Stopwatch();
 
@@ -359,7 +359,7 @@ namespace HttpMock.Integration.Tests
         public void Delayed_stub_shouldnt_block_undelayed_stub(int wait, int epsilon)
         {
             _stubHttp = HttpMockRepository.At(_hostUrl);
-            _stubHttp.Stub(x => x.Get("/firstEndp")).WithDelay(Convert.ToUInt32(wait)).Return("Delayed response (stub 1)").OK();
+            _stubHttp.Stub(x => x.Get("/firstEndp")).WithDelay(wait).Return("Delayed response (stub 1)").OK();
             _stubHttp.Stub(x => x.Get("/secondEndp")).Return("Undelayed response (stub 2)").OK();
 
             Stopwatch swDelayed = new Stopwatch();
@@ -372,8 +372,9 @@ namespace HttpMock.Integration.Tests
             {
 
                 // This triggers the server so that we won't have any initial (unwanted) delays
+	        
                 wcDelayed.DownloadString($"{_hostUrl}/firstEndp");
-                wcUndelayed.DownloadString($"{_hostUrl}/secondEndp");
+	            wcUndelayed.DownloadString($"{_hostUrl}/secondEndp");
 
                 taskDelayed = StartDelayedRequest(swDelayed);
 

@@ -140,7 +140,7 @@ namespace HttpMock
             return _observedRequests;
         }
 
-        public IRequestStub WithDelay(uint milliseconds)
+        public IRequestStub WithDelay(int milliseconds)
         {
             ResponseDelay = ResponseDelay.Add(TimeSpan.FromMilliseconds(milliseconds));
             return this;
