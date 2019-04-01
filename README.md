@@ -16,7 +16,7 @@ HttpMock returns canned responses at run time.
 
 First, in the application you are testing, change the url of the HTTP service you want to mock, with the url for HttpMock.
 
-Tell HttpMock to listen on the url you've provided. For example:
+Tell HttpMock to listen on the port you've provided. This is always localhost For example:
 
 	_stubHttp = HttpMockRepository.At("http://localhost:9191");
 
