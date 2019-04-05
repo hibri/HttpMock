@@ -32,6 +32,6 @@ steps:
 - task: NuGetCommand@2
   inputs:
     command: pack
-    packagesToPack: '**/*.csproj'
+    packagesToPack: '**/*.nuspec'
     packDestination: '$(Build.ArtifactStagingDirectory)'
     includeSymbols: true
