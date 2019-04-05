@@ -35,3 +35,8 @@ steps:
     packagesToPack: '**/*.nuspec'
     packDestination: '$(Build.ArtifactStagingDirectory)'
     includeSymbols: true
+    
+- task: PublishPipelineArtifact@0
+  inputs:
+    artifactName: 'nugetpackages' 
+    targetPath: '$(Build.ArtifactStagingDirectory)'
