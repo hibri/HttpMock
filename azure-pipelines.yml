@@ -28,3 +28,15 @@ steps:
   inputs:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
+    pathtoCustomTestAdapters: '$(Build.SourcesDirectory)\packages'
+- task: NuGetCommand@2
+  inputs:
+    command: pack
+    packagesToPack: '**/*.nuspec'
+    packDestination: '$(Build.ArtifactStagingDirectory)'
+    includeSymbols: true
+    
+- task: PublishPipelineArtifact@0
+  inputs:
+    artifactName: 'nugetpackages' 
+    targetPath: '$(Build.ArtifactStagingDirectory)'
