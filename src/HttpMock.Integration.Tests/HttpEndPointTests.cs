@@ -80,6 +80,30 @@ namespace HttpMock.Integration.Tests
 
 			Assert.That(requestBody, Is.EqualTo(expected));
 		}
+		
+		[Test]
+		public void Should_get_the_last_request_that_was_sent()
+		{
+			
+			var expected = "expectedbody";
+			_stubHttp = HttpMockRepository.At(_hostUrl);
+			var requestHandler =_stubHttp.Stub( x => x.Post("/endpoint"));
+			requestHandler.Return(expected).OK();
+			
+			using (var wc = new WebClient())
+			{
+				wc.Headers[HttpRequestHeader.ContentType] = "application/xml";
+				wc.UploadString(string.Format("{0}/endpoint", _hostUrl), "first");
+				wc.UploadString(string.Format("{0}/endpoint", _hostUrl), "second");
+				
+				wc.UploadString(string.Format("{0}/endpoint", _hostUrl), expected);
+			}
+			
+
+			var requestBody = ((RequestHandler) requestHandler).LastRequest().Body;
+			
+			Assert.That(requestBody, Is.EqualTo(expected));
+		}
 
 
 		[Test]
