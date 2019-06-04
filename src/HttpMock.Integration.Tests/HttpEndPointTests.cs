@@ -72,12 +72,19 @@ namespace HttpMock.Integration.Tests
             using (var wc = new WebClient())
             {
                 wc.Headers[HttpRequestHeader.ContentType] = "application/xml";
+                wc.UploadString(string.Format("{0}/endpoint", _hostUrl), "<xml><>response>First</response></xml>");
+            }
+
+            using (var wc = new WebClient())
+            {
+                wc.Headers[HttpRequestHeader.ContentType] = "application/xml";
                 wc.UploadString(string.Format("{0}/endpoint", _hostUrl), expected);
             }
+
             var requestBody = ((RequestHandler)requestHandler).LastRequest().Body;
 
             Assert.That(requestBody, Is.EqualTo(expected));
-        }      
+        }
 
 
 		[Test]
