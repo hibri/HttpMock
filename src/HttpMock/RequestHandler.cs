@@ -132,7 +132,7 @@ namespace HttpMock
 
 		public ReceivedRequest LastRequest()
 		{
-			return _observedRequests.Peek();
+			return _observedRequests.Last();
 		}
 		
 		public IEnumerable<ReceivedRequest> GetObservedRequests()
