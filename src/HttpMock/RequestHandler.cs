@@ -11,7 +11,7 @@ namespace HttpMock
 	{
 		private readonly ResponseBuilder _webResponseBuilder = new ResponseBuilder();
 		private readonly IList<Func<string, bool>> _constraints = new List<Func<string, bool>>();
-		private readonly Queue<ReceivedRequest> _observedRequests = new Queue<ReceivedRequest>();
+		private readonly List<ReceivedRequest> _observedRequests = new List<ReceivedRequest>();
 
 		public RequestHandler(string path, IRequestProcessor requestProcessor) {
 			Path = path;
@@ -118,11 +118,11 @@ namespace HttpMock
 
 		public void RecordRequest(HttpRequestHead request, string body)
 		{
-			_observedRequests.Enqueue(new ReceivedRequest(request, body));
+			_observedRequests.Add(new ReceivedRequest(request, body));
 		}
 
 		public string GetBody() {
-			return _observedRequests.Peek().Body;
+			return _observedRequests.Last().Body;
 		}
 
 		public bool CanVerifyConstraintsFor(string url)
@@ -132,7 +132,7 @@ namespace HttpMock
 
 		public ReceivedRequest LastRequest()
 		{
-			return _observedRequests.Peek();
+			return _observedRequests.Last();
 		}
 		
 		public IEnumerable<ReceivedRequest> GetObservedRequests()
