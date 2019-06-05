@@ -1,4 +1,5 @@
 ﻿using System;
+using Kayak.Http;
 using NUnit.Framework;
 
 namespace HttpMock.Unit.Tests
@@ -36,6 +37,22 @@ namespace HttpMock.Unit.Tests
             var uriWithBlah = "http://www.xyz.com/moomins/goncalo";
 
             Assert.That(h.CanVerifyConstraintsFor(uriWithBlah), Is.EqualTo(false));
+        }
+
+        [Test]
+        public void Gets_the_last_request_that_was_handled()
+        {
+	        const string expected = "third";
+
+	        var requestHandler = new RequestHandler("/path", null);
+	        
+	        requestHandler.RecordRequest(new HttpRequestHead(), "first");
+	        requestHandler.RecordRequest(new HttpRequestHead(), "second");
+	        requestHandler.RecordRequest(new HttpRequestHead(), expected);
+	        
+	        var receivedRequest = requestHandler.LastRequest();
+	        
+	        Assert.That(receivedRequest.Body, Is.EqualTo(expected));
         }
     }
 }
