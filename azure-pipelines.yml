@@ -41,3 +41,12 @@ steps:
   inputs:
     artifactName: 'nugetpackages' 
     targetPath: '$(Build.ArtifactStagingDirectory)'
+
+- task: NuGetAuthenticate@0
+  inputs:
+    nuGetServiceConnections: 'HttpMockNuget'
+- task: NuGetCommand@2
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+  inputs:
+    command: push
+    nuGetFeedType: external
