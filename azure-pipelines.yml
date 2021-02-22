@@ -41,12 +41,15 @@ steps:
   inputs:
     artifactName: 'nugetpackages' 
     targetPath: '$(Build.ArtifactStagingDirectory)'
+    nuGetFeedType: external
 
-- task: NuGetAuthenticate@0
-  inputs:
-    nuGetServiceConnections: 'HttpMockNuget'
-- task: NuGetCommand@2
+- task: DotNetCoreCLI@2
+  displayName: Push Nuget Package
   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
   inputs:
-    command: push
-    nuGetFeedType: external
+    command: custom
+    custom: nuget
+    arguments: >
+      push $(Build.ArtifactStagingDirectory)/*.nupkg
+      -s https://api.nuget.org/v3/index.json
+      -k $(NugetApiKey) 
