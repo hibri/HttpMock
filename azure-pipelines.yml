@@ -37,6 +37,19 @@ steps:
     includeSymbols: true
     
 - task: PublishPipelineArtifact@0
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
   inputs:
     artifactName: 'nugetpackages' 
     targetPath: '$(Build.ArtifactStagingDirectory)'
+    nuGetFeedType: external
+
+- task: DotNetCoreCLI@2
+  displayName: Push Nuget Package
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+  inputs:
+    command: custom
+    custom: nuget
+    arguments: >
+      push $(Build.ArtifactStagingDirectory)/*.nupkg
+      -s https://api.nuget.org/v3/index.json
+      -k $(NugetApiKey) 
