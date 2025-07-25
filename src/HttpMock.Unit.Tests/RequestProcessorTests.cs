@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Kayak;
 using Kayak.Http;
 using NUnit.Framework;
-using Rhino.Mocks;
+using Moq;
 
 namespace HttpMock.Unit.Tests {
 	[TestFixture]
@@ -18,16 +18,18 @@ namespace HttpMock.Unit.Tests {
 
 		[SetUp]
 		public void SetUp() {
+			var ruleFirstHandlerMock = new Mock<IMatchingRule>();
+			ruleFirstHandlerMock.Setup(x => x.IsEndpointMatch(It.IsAny<object>(), It.IsAny<HttpRequestHead>())).Returns(true);
+			_ruleThatReturnsFirstHandler = ruleFirstHandlerMock.Object;
+
+			var ruleNoHandlersMock = new Mock<IMatchingRule>();
+			ruleNoHandlersMock.Setup(x => x.IsEndpointMatch(It.IsAny<object>(), It.IsAny<HttpRequestHead>())).Returns(false);
+			_ruleThatReturnsNoHandlers = ruleNoHandlersMock.Object;
+
 			_processor = new RequestProcessor(_ruleThatReturnsFirstHandler, new RequestHandlerList());
 			_requestHandlerFactory = new RequestHandlerFactory(_processor);
-			_dataProducer = MockRepository.GenerateStub<IDataProducer>();
-			_httpResponseDelegate = MockRepository.GenerateStub<IHttpResponseDelegate>();
-
-			_ruleThatReturnsFirstHandler = MockRepository.GenerateStub<IMatchingRule>();
-			_ruleThatReturnsFirstHandler.Stub(x => x.IsEndpointMatch(null, new HttpRequestHead())).IgnoreArguments().Return(true).Repeat.Once();
-
-			_ruleThatReturnsNoHandlers = MockRepository.GenerateStub<IMatchingRule>();
-			_ruleThatReturnsNoHandlers.Stub(x => x.IsEndpointMatch(null, new HttpRequestHead())).IgnoreArguments().Return(false);
+			_dataProducer = new Mock<IDataProducer>().Object;
+			_httpResponseDelegate = new Mock<IHttpResponseDelegate>().Object;
 		}
 
 		[Test]

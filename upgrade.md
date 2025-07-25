@@ -1,5 +1,6 @@
 # Upgrade Plan: HttpMock to .NET 8
 
+Always use Test Drven Development.
 ## User Instructions
 
 1. Upgrade the entire project to .NET 8.
@@ -10,7 +11,8 @@
 6. Commit changes when tests pass
 7. Run tests before making changes so that all the tests pass
 8. Do not change test behaviour
-
+9. Maintain the behaviour of interfaces that are used in test. Change the parameters of the interfaces to remove Kayak dependencies, but ensure that the interfaces still behave the same way.
+10. Change the RhinoMocks to use Moq
 
 ### 1. Project Upgrade
 - Convert all `.csproj` files to SDK-style format.
