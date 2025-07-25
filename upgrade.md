@@ -5,8 +5,12 @@
 1. Upgrade the entire project to .NET 8.
 2. Remove the Kayak dependency completely.
 3. Preserve all tests. Do not change any test code.
+4. Run all the tests after making changes
+5. Make small changes
+6. Commit changes when tests pass
+7. Run tests before making changes so that all the tests pass
+8. Do not change test behaviour
 
-## Assistant Suggestions & Plan
 
 ### 1. Project Upgrade
 - Convert all `.csproj` files to SDK-style format.
@@ -28,6 +32,10 @@
 ### 4. Build & Test
 - Update build/test scripts (e.g., Azure Pipelines, PowerShell) to use .NET 8 if needed.
 - Verify that all tests pass after the upgrade and refactor.
+
+### 5. Keep a journal
+
+- Keep a journal of all changes made to journal.md
 
 ---
 
