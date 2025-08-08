@@ -20,6 +20,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpMock.Verify.NUnit", "sr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpMock.Logging.Log4Net", "src\HttpMock.Logging.Log4Net\HttpMock.Logging.Log4Net.csproj", "{873E4657-ED89-4B3A-B2F2-82B183AB358C}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ci", "ci", "{AB33A74A-FBFF-4598-855E-1BD6014F0CE3}"
+	ProjectSection(SolutionItems) = preProject
+		azure-pipelines.yml = azure-pipelines.yml
+		buildpackage.ps1 = buildpackage.ps1
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

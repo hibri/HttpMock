@@ -3,6 +3,7 @@
 Always use Test Drven Development.
 ## User Instructions
 
+
 1. Upgrade the entire project to .NET 8.
 2. Remove the Kayak dependency completely.
 3. Preserve all tests. Do not change any test code.
@@ -15,6 +16,7 @@ Always use Test Drven Development.
 10. Change the RhinoMocks to use Moq
 
 ### 1. Project Upgrade
+- Create a Dockerfile to build and test the project in a container. Use an image .Net framework 4.8 first, then upgrade to .NET 8.
 - Convert all `.csproj` files to SDK-style format.
 - Change target framework to `net8.0` for all projects.
 - Remove any legacy or obsolete settings from project files.
