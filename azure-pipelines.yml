@@ -4,7 +4,7 @@
 # https://docs.microsoft.com/azure/devops/pipelines/apps/windows/dot-net
 
 pool:
-  vmImage: 'VS2017-Win2016'
+  vmImage: 'windows-2019'
 
 variables:
   solution: '**/*.sln'
@@ -43,13 +43,3 @@ steps:
     targetPath: '$(Build.ArtifactStagingDirectory)'
     nuGetFeedType: external
 
-- task: DotNetCoreCLI@2
-  displayName: Push Nuget Package
-  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
-  inputs:
-    command: custom
-    custom: nuget
-    arguments: >
-      push $(Build.ArtifactStagingDirectory)/*.nupkg
-      -s https://api.nuget.org/v3/index.json
-      -k $(NugetApiKey) 
