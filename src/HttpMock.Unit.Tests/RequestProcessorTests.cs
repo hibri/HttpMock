@@ -1,33 +1,36 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Kayak;
 using Kayak.Http;
+using Moq;
 using NUnit.Framework;
-using Rhino.Mocks;
 
 namespace HttpMock.Unit.Tests {
 	[TestFixture]
 	public class RequestProcessorTests
 	{
 		private RequestProcessor _processor;
-		private IDataProducer _dataProducer;
-		private IHttpResponseDelegate _httpResponseDelegate;
-		private IMatchingRule _ruleThatReturnsFirstHandler;
-		private IMatchingRule _ruleThatReturnsNoHandlers;
+		private Mock<IDataProducer> _dataProducer;
+		private Mock<IHttpResponseDelegate> _httpResponseDelegate;
+		private Mock<IMatchingRule> _ruleThatReturnsFirstHandler;
+		private Mock<IMatchingRule> _ruleThatReturnsNoHandlers;
 		private RequestHandlerFactory _requestHandlerFactory;
 
 		[SetUp]
 		public void SetUp() {
-			_processor = new RequestProcessor(_ruleThatReturnsFirstHandler, new RequestHandlerList());
+			_dataProducer = new Mock<IDataProducer>();
+			_httpResponseDelegate = new Mock<IHttpResponseDelegate>();
+			_ruleThatReturnsFirstHandler = new Mock<IMatchingRule>();
+			_ruleThatReturnsNoHandlers = new Mock<IMatchingRule>();
+			
+			_processor = new RequestProcessor(_ruleThatReturnsFirstHandler.Object, new RequestHandlerList());
 			_requestHandlerFactory = new RequestHandlerFactory(_processor);
-			_dataProducer = MockRepository.GenerateStub<IDataProducer>();
-			_httpResponseDelegate = MockRepository.GenerateStub<IHttpResponseDelegate>();
 
-			_ruleThatReturnsFirstHandler = MockRepository.GenerateStub<IMatchingRule>();
-			_ruleThatReturnsFirstHandler.Stub(x => x.IsEndpointMatch(null, new HttpRequestHead())).IgnoreArguments().Return(true).Repeat.Once();
+			_ruleThatReturnsFirstHandler
+				.SetupSequence(x => x.IsEndpointMatch(It.IsAny<RequestHandler>(), It.IsAny<HttpRequestHead>()))
+				.Returns(true)
+				.Returns(false);
 
-			_ruleThatReturnsNoHandlers = MockRepository.GenerateStub<IMatchingRule>();
-			_ruleThatReturnsNoHandlers.Stub(x => x.IsEndpointMatch(null, new HttpRequestHead())).IgnoreArguments().Return(false);
 		}
 
 		[Test]
@@ -68,23 +71,23 @@ namespace HttpMock.Unit.Tests {
 
 		[Test]
 		public void If_no_handlers_found_should_fire_onresponse_with_a_404() {
-			_processor = new RequestProcessor(_ruleThatReturnsNoHandlers, new RequestHandlerList());
+			_processor = new RequestProcessor(_ruleThatReturnsNoHandlers.Object, new RequestHandlerList());
 
 			_processor.Add(_requestHandlerFactory.Get("test"));
-			_processor.OnRequest(new HttpRequestHead(), _dataProducer, _httpResponseDelegate);
-			_httpResponseDelegate.AssertWasCalled(x => x.OnResponse(Arg<HttpResponseHead>.Matches(y => y.Status == "404 NotFound"), Arg<IDataProducer>.Is.Null));
+			_processor.OnRequest(new HttpRequestHead(), _dataProducer.Object, _httpResponseDelegate.Object);
+			_httpResponseDelegate.Verify(x => x.OnResponse(It.Is<HttpResponseHead>(y => y.Status == "404 NotFound"),It.Is<IDataProducer>( p => p ==null) ));
 		}
 
 		[Test]
 		public void If_a_handler_found_should_fire_onresponse_with_that_repsonse() {
-			_processor = new RequestProcessor(_ruleThatReturnsFirstHandler, new RequestHandlerList());
+			_processor = new RequestProcessor(_ruleThatReturnsFirstHandler.Object, new RequestHandlerList());
 
 			RequestHandler requestHandler = _requestHandlerFactory.Get("test");
 			_processor.Add(requestHandler);
 			Dictionary<string, string> headers = new Dictionary<string, string>();
-			_processor.OnRequest(new HttpRequestHead{ Headers =  headers}, _dataProducer, _httpResponseDelegate);
+			_processor.OnRequest(new HttpRequestHead{ Headers =  headers}, _dataProducer.Object, _httpResponseDelegate.Object);
 
-			_httpResponseDelegate.AssertWasCalled(
+			_httpResponseDelegate.Verify(
 				x => x.OnResponse(requestHandler.ResponseBuilder.BuildHeaders(), 
 				requestHandler.ResponseBuilder.BuildBody(headers)));
 		}
@@ -92,14 +95,14 @@ namespace HttpMock.Unit.Tests {
 		[Test]
 		public void Matching_HEAD_handler_should_output_handlers_expected_response_with_null_body() {
 
-			_processor = new RequestProcessor(_ruleThatReturnsFirstHandler, new RequestHandlerList());
+			_processor = new RequestProcessor(_ruleThatReturnsFirstHandler.Object, new RequestHandlerList());
 
 			RequestHandler requestHandler = _requestHandlerFactory.Head("test");
 			_processor.Add(requestHandler);
 			var httpRequestHead = new HttpRequestHead { Method = "HEAD", Headers = new Dictionary<string, string>() };
-			_processor.OnRequest(httpRequestHead, _dataProducer, _httpResponseDelegate);
+			_processor.OnRequest(httpRequestHead, _dataProducer.Object, _httpResponseDelegate.Object);
 
-			_httpResponseDelegate.AssertWasCalled(x => x.OnResponse(requestHandler.ResponseBuilder.BuildHeaders(), null));
+			_httpResponseDelegate.Verify(x => x.OnResponse(requestHandler.ResponseBuilder.BuildHeaders(), null));
 		}
 
 		[Test]
@@ -124,13 +127,13 @@ namespace HttpMock.Unit.Tests {
 			string expectedPath = "/blah/test";
 			string expectedMethod = "GET";
 
-			var requestProcessor = new RequestProcessor(_ruleThatReturnsFirstHandler, new RequestHandlerList());
+			var requestProcessor = new RequestProcessor(_ruleThatReturnsFirstHandler.Object, new RequestHandlerList());
 
 			requestProcessor.Add(_requestHandlerFactory.Get(expectedPath));
 			var httpRequestHead = new HttpRequestHead { Headers = new Dictionary<string, string>() };
 			httpRequestHead.Path = expectedPath;
 			httpRequestHead.Method = expectedPath;
-			requestProcessor.OnRequest(httpRequestHead, _dataProducer, _httpResponseDelegate);
+			requestProcessor.OnRequest(httpRequestHead, _dataProducer.Object, _httpResponseDelegate.Object);
 
 			var handler = requestProcessor.FindHandler(expectedMethod, expectedPath);
 			Assert.That(handler.RequestCount(), Is.EqualTo(1));
@@ -144,18 +147,19 @@ namespace HttpMock.Unit.Tests {
             var handlerWithConstraints = new RequestHandler("", null);
             handlerWithConstraints.WithUrlConstraint(uri => uri.Contains(excludePhrase) == false);
 
-            var matchingRule = MockRepository.GenerateMock<IMatchingRule>();
-            matchingRule.Stub(m => m.IsEndpointMatch(Arg<IRequestHandler>.Is.Anything, Arg<HttpRequestHead>.Is.Anything)).Return(true);
+            var matchingRule = new Mock<IMatchingRule>();
+            matchingRule
+	            .Setup(m => m.IsEndpointMatch(It.IsAny<RequestHandler>(), It.IsAny<HttpRequestHead>()))
+	            .Returns(true);
             
-            var p = new RequestProcessor(matchingRule, new RequestHandlerList { handlerWithConstraints });
+            var p = new RequestProcessor(matchingRule.Object, new RequestHandlerList { handlerWithConstraints });
 
-            var response = MockRepository.GenerateMock<IHttpResponseDelegate>();
-            p.OnRequest(new HttpRequestHead{Uri = "http://blah.com/cheese/" + excludePhrase}, null, response);
+            var response = new Mock<IHttpResponseDelegate>();
+            p.OnRequest(new HttpRequestHead{Uri = "http://blah.com/cheese/" + excludePhrase}, null, response.Object);
 
-            var notFoundResponse = (HttpResponseHead)response.GetArgumentsForCallsMadeOn(
-                r => r.OnResponse(Arg<HttpResponseHead>.Is.Anything, Arg<IDataProducer>.Is.Anything))[0][0];
+            var notFoundResponse = (HttpResponseHead) response.Invocations.First().Arguments.First();
 
-            Assert.That(notFoundResponse.Status  == "404 NotFound");
+            Assert.That(notFoundResponse.Status, Is.EqualTo( "404 NotFound"));
         }
 	}
 }
