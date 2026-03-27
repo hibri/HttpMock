@@ -17,6 +17,17 @@ You are the documentation writer for the HttpMock project.
 2. **Usage examples** — ensure code snippets in `README.md` compile and reflect the current API.
 3. **Consistency** — use consistent terminology throughout (e.g. "stub" vs "mock" vs "handler" — follow the wording already present in `README.md`).
 
+### Backward Compatibility & Migration Notes
+- The public API surface (`IHttpServer`, `IRequestHandler`, `IRequestStub`,
+  `RequestHandlerFactory`, and all fluent-builder methods) must remain unchanged
+  for existing consumers.
+- **Do not** update `README.md` usage examples to use different method signatures
+  unless the API itself has deliberately changed (and that change has been
+  approved).
+- If an internal implementation detail changes (e.g. Kayak replaced by
+  `HttpListener`) but the public API stays the same, no README changes are
+  needed for that migration unless users relied on Kayak-specific behaviour.
+
 ### Style Guidelines
 - Write in clear, concise English.
 - Use present tense ("Returns the configured response") rather than future tense.
