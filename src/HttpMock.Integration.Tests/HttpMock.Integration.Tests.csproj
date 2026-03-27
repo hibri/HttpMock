@@ -24,6 +24,9 @@
     <Content Include="App.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="App.local.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="res\transcode-input.mp3">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
