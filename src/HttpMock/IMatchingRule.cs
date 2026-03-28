@@ -2,6 +2,6 @@ namespace HttpMock
 {
     public interface IMatchingRule
 	{
-		bool IsEndpointMatch(IRequestHandler requestHandler, IHttpRequestHead request);
+		bool IsEndpointMatch(IRequestHandler requestHandler, HttpRequestHead request);
 	}
 }

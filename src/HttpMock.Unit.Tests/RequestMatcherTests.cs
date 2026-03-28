@@ -21,7 +21,7 @@ namespace HttpMock.Unit.Tests
             var requestHandlerList = new List<IRequestHandler> { expectedRequest.Object };
 
 
-            var httpRequestHead = new SimpleHttpRequestHead { Method = "GET", Uri = "/path" };
+            var httpRequestHead = new HttpRequestHead { Method = "GET", Uri = "/path" };
 
             var matchedRequest = requestMatcher.Match(httpRequestHead, requestHandlerList);
 
@@ -49,7 +49,7 @@ namespace HttpMock.Unit.Tests
             var requestHandlerList = new List<IRequestHandler> { otherRequest.Object, expectedRequest.Object };
 
 
-            var httpRequestHead = new SimpleHttpRequestHead { Method = "GET", Uri = "/path/specific" };
+            var httpRequestHead = new HttpRequestHead { Method = "GET", Uri = "/path/specific" };
 
             var matchedRequest = requestMatcher.Match(httpRequestHead, requestHandlerList);
 

@@ -140,7 +140,20 @@ namespace HttpMock
 		{
 			try
 			{
-				var requestHead = new HttpListenerRequestHeadAdapter(context.Request);
+				var headers = new Dictionary<string, string>();
+				foreach (string key in context.Request.Headers)
+				{
+					if (key != null)
+						headers[key] = context.Request.Headers[key];
+				}
+
+				var requestHead = new HttpRequestHead
+				{
+					Method = context.Request.HttpMethod,
+					Uri = context.Request.Url.PathAndQuery,
+					Headers = headers,
+					HasEntityBody = context.Request.HasEntityBody
+				};
 				Stream body = context.Request.HasEntityBody ? context.Request.InputStream : null;
 
 				_requestProcessor.OnRequest(requestHead, body, (responseHead, responseBody) =>

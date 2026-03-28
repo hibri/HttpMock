@@ -12,6 +12,6 @@ namespace HttpMock
 		IDictionary<string, string> RequestHeaders { get; set; }
 		ResponseBuilder ResponseBuilder { get; }
         bool CanVerifyConstraintsFor(string url);
-        void RecordRequest(IHttpRequestHead request, string body);
+        void RecordRequest(HttpRequestHead request, string body);
     }
 }

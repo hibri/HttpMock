@@ -115,7 +115,7 @@ namespace HttpMock
 			return _observedRequests.Count;
 		}
 
-		public void RecordRequest(IHttpRequestHead request, string body)
+		public void RecordRequest(HttpRequestHead request, string body)
 		{
 			_observedRequests.Add(new ReceivedRequest(request, body));
 		}
