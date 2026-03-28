@@ -30,7 +30,7 @@ namespace HttpMock.Integration.Tests
 
 			if (Environment.OSVersion.Platform == PlatformID.Unix) {
 				var process = new Process () {
-					StartInfo = new ProcessStartInfo ("/usr/sbin/lsof", "-Pni") {
+					StartInfo = new ProcessStartInfo ("/usr/bin/lsof", "-Pni") {
 						RedirectStandardOutput = true,
 						UseShellExecute = false
 					}
