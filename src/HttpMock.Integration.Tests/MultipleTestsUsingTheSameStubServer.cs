@@ -7,11 +7,11 @@ namespace SevenDigital.HttpMock.Integration.Tests
 	[TestFixture]
 	public class MultipleTestsUsingTheSameStubServer
 	{
-		private IStubHttp _httpMockRepository;
+		private IHttpServer _httpMockRepository;
 
-		[TestFixtureSetUp]
+		[OneTimeSetUp]
 		public void SetUp() {
-			_httpMockRepository = HttpMockRepository.At("http://localhost:8080/");
+			_httpMockRepository = HttpMockRepository.At("http://localhost:8080");
 		}
 
 		[Test]
@@ -46,7 +46,7 @@ namespace SevenDigital.HttpMock.Integration.Tests
 			string stubbedReponseOne = "Response for first test in context";
 			string stubbedReponseTwo = "Response for second test in context";
 
-			IStubHttp stubHttp = _httpMockRepository.WithNewContext();
+			IHttpServer stubHttp = _httpMockRepository.WithNewContext();
 
 			stubHttp.Stub(x => x.Post("/firsttest")).Return(stubbedReponseOne).OK();
 
