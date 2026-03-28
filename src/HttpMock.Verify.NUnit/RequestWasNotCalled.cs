@@ -19,8 +19,6 @@ namespace HttpMock.Verify.NUnit
 			var handler = _requestProcessor.FindHandler(method, path);
 			if (handler != null) {
 				Assert.That(handler.RequestCount(), Is.EqualTo(0), "Expected not to find a request for {1}{0} but was found", method, path);
-			}else {
-				Assert.That(handler, Is.Null, "Expected not to find a request for {1}{0} but was found", method, path);
 			}
 			return handler;
 		}

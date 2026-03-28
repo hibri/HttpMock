@@ -4,8 +4,8 @@ namespace HttpMock
 {
 	public  interface IHttpMockRepository 
 	{
-		HttpServer At(Uri uri);
+		IHttpServer At(Uri uri);
 		
-		HttpServer At(string uri);
+		IHttpServer At(string uri);
 	}
 }
