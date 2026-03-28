@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
-using Kayak;
-using Kayak.Http;
 
 namespace HttpMock
 {
@@ -21,25 +19,24 @@ namespace HttpMock
 		    _requestMatcher = new RequestMatcher(matchingRule);
 		}
 
-		public void OnRequest(HttpRequestHead request, IDataProducer body, IHttpResponseDelegate response) {
-			IHttpRequestHead requestHead = new KayakHttpRequestHeadAdapter(request);
-			_log.DebugFormat("Start Processing request for : {0}:{1}", requestHead.Method, requestHead.Uri);
+		public void OnRequest(IHttpRequestHead request, Stream requestBody, Action<HttpMockResponseHead, byte[]> respond) {
+			_log.DebugFormat("Start Processing request for : {0}:{1}", request.Method, request.Uri);
 			if (GetHandlerCount() < 1) {
-				ReturnHttpMockNotFound(response);
+				ReturnHttpMockNotFound(respond);
 				return;
 			}
 
-			var handler = _requestMatcher.Match(requestHead, _handlers);
+			var handler = _requestMatcher.Match(request, _handlers);
 
 			if (handler == null) {
 				_log.DebugFormat("No Handlers matched");
-				ReturnHttpMockNotFound(response);
+				ReturnHttpMockNotFound(respond);
 				return;
 			}
-			HandleRequest(requestHead, body, response, handler);
+			HandleRequest(request, requestBody, respond, handler);
 		}
 
-	    private static async void HandleRequest(IHttpRequestHead request, IDataProducer body, IHttpResponseDelegate response, IRequestHandler handler)
+	    private static async void HandleRequest(IHttpRequestHead request, Stream requestBody, Action<HttpMockResponseHead, byte[]> respond, IRequestHandler handler)
 	    {
 	        _log.DebugFormat("Matched a handler {0}:{1} {2}", handler.Method, handler.Path, DumpQueryParams(handler.QueryParams));
 
@@ -47,34 +44,36 @@ namespace HttpMock
             {
                 await Task.Delay(handler.ResponseDelay);
             }
-	        IDataProducer dataProducer = GetDataProducer(request, handler);
-	        if (request.HasBody())
+
+	        byte[] responseBody = request.Method != "HEAD"
+	            ? handler.ResponseBuilder.BuildBody(request.Headers)
+	            : null;
+
+	        if (request.HasBody() && requestBody != null)
 	        {
-	            body.Connect(new BufferedConsumer(
-	                bufferedBody =>
+	            try
+	            {
+	                using (var reader = new StreamReader(requestBody, Encoding.UTF8, false, 4096, leaveOpen: true))
 	                {
+	                    string bufferedBody = reader.ReadToEnd();
 	                    handler.RecordRequest(request, bufferedBody);
 	                    _log.DebugFormat("Body: {0}", bufferedBody);
-	                    response.OnResponse(handler.ResponseBuilder.BuildHeaders(), dataProducer);
-	                },
-	                error =>
-	                {
-	                    _log.DebugFormat("Error while reading body {0}", error.Message);
-	                    response.OnResponse(handler.ResponseBuilder.BuildHeaders(), dataProducer);
 	                }
-	                ));
+	            }
+	            catch (Exception error)
+	            {
+	                _log.DebugFormat("Error while reading body {0}", error.Message);
+	                handler.RecordRequest(request, null);
+	            }
 	        }
 	        else
 	        {
-	            response.OnResponse(handler.ResponseBuilder.BuildHeaders(), dataProducer);
 	            handler.RecordRequest(request, null);
 	        }
+
+	        respond(handler.ResponseBuilder.BuildHeaders(), responseBody);
 	        _log.DebugFormat("End Processing request for : {0}:{1}", request.Method, request.Uri);
 	    }
-
-	    private static IDataProducer GetDataProducer(IHttpRequestHead request, IRequestHandler handler) {
-			return request.Method != "HEAD" ? handler.ResponseBuilder.BuildBody(request.Headers) : null;
-		}
 
 		private int GetHandlerCount() {
 			return _handlers.Count();
@@ -92,16 +91,19 @@ namespace HttpMock
 			return sb.ToString();
 		}
 
-		private static void ReturnHttpMockNotFound(IHttpResponseDelegate response) {
+		private static void ReturnHttpMockNotFound(Action<HttpMockResponseHead, byte[]> respond) {
 			var dictionary = new Dictionary<string, string>
 			{
 				{HttpHeaderNames.ContentLength, "0"},
 				{"X-HttpMockError", "No handler found to handle request"}
 			};
 
-			var notFoundResponse = new HttpResponseHead
-			{Status = string.Format("{0} {1}", 404, "NotFound"), Headers = dictionary};
-			response.OnResponse(notFoundResponse, null);
+			var notFoundResponse = new HttpMockResponseHead
+			{
+				Status = string.Format("{0} {1}", 404, "NotFound"),
+				Headers = dictionary
+			};
+			respond(notFoundResponse, null);
 		}
 
 		public void ClearHandlers() {

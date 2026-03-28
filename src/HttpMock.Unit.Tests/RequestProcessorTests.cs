@@ -1,7 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using Kayak;
-using Kayak.Http;
 using Moq;
 using NUnit.Framework;
 
@@ -10,19 +9,15 @@ namespace HttpMock.Unit.Tests {
 	public class RequestProcessorTests
 	{
 		private RequestProcessor _processor;
-		private Mock<IDataProducer> _dataProducer;
-		private Mock<IHttpResponseDelegate> _httpResponseDelegate;
 		private Mock<IMatchingRule> _ruleThatReturnsFirstHandler;
 		private Mock<IMatchingRule> _ruleThatReturnsNoHandlers;
 		private RequestHandlerFactory _requestHandlerFactory;
 
 		[SetUp]
 		public void SetUp() {
-			_dataProducer = new Mock<IDataProducer>();
-			_httpResponseDelegate = new Mock<IHttpResponseDelegate>();
 			_ruleThatReturnsFirstHandler = new Mock<IMatchingRule>();
 			_ruleThatReturnsNoHandlers = new Mock<IMatchingRule>();
-			
+
 			_processor = new RequestProcessor(_ruleThatReturnsFirstHandler.Object, new RequestHandlerList());
 			_requestHandlerFactory = new RequestHandlerFactory(_processor);
 
@@ -74,8 +69,13 @@ namespace HttpMock.Unit.Tests {
 			_processor = new RequestProcessor(_ruleThatReturnsNoHandlers.Object, new RequestHandlerList());
 
 			_processor.Add(_requestHandlerFactory.Get("test"));
-			_processor.OnRequest(new HttpRequestHead(), _dataProducer.Object, _httpResponseDelegate.Object);
-			_httpResponseDelegate.Verify(x => x.OnResponse(It.Is<HttpResponseHead>(y => y.Status == "404 NotFound"),It.Is<IDataProducer>( p => p ==null) ));
+
+			HttpMockResponseHead capturedHead = null;
+			byte[] capturedBody = null;
+			_processor.OnRequest(new SimpleHttpRequestHead(), null, (h, b) => { capturedHead = h; capturedBody = b; });
+
+			Assert.That(capturedHead.Status, Is.EqualTo("404 NotFound"));
+			Assert.That(capturedBody, Is.Null);
 		}
 
 		[Test]
@@ -84,12 +84,15 @@ namespace HttpMock.Unit.Tests {
 
 			RequestHandler requestHandler = _requestHandlerFactory.Get("test");
 			_processor.Add(requestHandler);
-			Dictionary<string, string> headers = new Dictionary<string, string>();
-			_processor.OnRequest(new HttpRequestHead{ Headers =  headers}, _dataProducer.Object, _httpResponseDelegate.Object);
+			var headers = new Dictionary<string, string>();
 
-			_httpResponseDelegate.Verify(
-				x => x.OnResponse(requestHandler.ResponseBuilder.BuildHeaders(), 
-				requestHandler.ResponseBuilder.BuildBody(headers)));
+			HttpMockResponseHead capturedHead = null;
+			byte[] capturedBody = null;
+			_processor.OnRequest(new SimpleHttpRequestHead { Headers = headers }, null,
+				(h, b) => { capturedHead = h; capturedBody = b; });
+
+			Assert.That(capturedHead.Status, Is.EqualTo(requestHandler.ResponseBuilder.BuildHeaders().Status));
+			Assert.That(capturedBody, Is.EqualTo(requestHandler.ResponseBuilder.BuildBody(headers)));
 		}
 		
 		[Test]
@@ -99,10 +102,14 @@ namespace HttpMock.Unit.Tests {
 
 			RequestHandler requestHandler = _requestHandlerFactory.Head("test");
 			_processor.Add(requestHandler);
-			var httpRequestHead = new HttpRequestHead { Method = "HEAD", Headers = new Dictionary<string, string>() };
-			_processor.OnRequest(httpRequestHead, _dataProducer.Object, _httpResponseDelegate.Object);
+			var httpRequestHead = new SimpleHttpRequestHead { Method = "HEAD", Headers = new Dictionary<string, string>() };
 
-			_httpResponseDelegate.Verify(x => x.OnResponse(requestHandler.ResponseBuilder.BuildHeaders(), null));
+			HttpMockResponseHead capturedHead = null;
+			byte[] capturedBody = null;
+			_processor.OnRequest(httpRequestHead, null, (h, b) => { capturedHead = h; capturedBody = b; });
+
+			Assert.That(capturedHead, Is.Not.Null);
+			Assert.That(capturedBody, Is.Null);
 		}
 
 		[Test]
@@ -130,10 +137,8 @@ namespace HttpMock.Unit.Tests {
 			var requestProcessor = new RequestProcessor(_ruleThatReturnsFirstHandler.Object, new RequestHandlerList());
 
 			requestProcessor.Add(_requestHandlerFactory.Get(expectedPath));
-			var httpRequestHead = new HttpRequestHead { Headers = new Dictionary<string, string>() };
-			httpRequestHead.Path = expectedPath;
-			httpRequestHead.Method = expectedPath;
-			requestProcessor.OnRequest(httpRequestHead, _dataProducer.Object, _httpResponseDelegate.Object);
+			var httpRequestHead = new SimpleHttpRequestHead { Headers = new Dictionary<string, string>(), Uri = expectedPath, Method = expectedPath };
+			requestProcessor.OnRequest(httpRequestHead, null, (h, b) => { });
 
 			var handler = requestProcessor.FindHandler(expectedMethod, expectedPath);
 			Assert.That(handler.RequestCount(), Is.EqualTo(1));
@@ -154,12 +159,11 @@ namespace HttpMock.Unit.Tests {
             
             var p = new RequestProcessor(matchingRule.Object, new RequestHandlerList { handlerWithConstraints });
 
-            var response = new Mock<IHttpResponseDelegate>();
-            p.OnRequest(new HttpRequestHead{Uri = "http://blah.com/cheese/" + excludePhrase}, null, response.Object);
+            HttpMockResponseHead capturedHead = null;
+            p.OnRequest(new SimpleHttpRequestHead { Uri = "http://blah.com/cheese/" + excludePhrase }, null,
+                (h, b) => capturedHead = h);
 
-            var notFoundResponse = (HttpResponseHead) response.Invocations.First().Arguments.First();
-
-            Assert.That(notFoundResponse.Status, Is.EqualTo( "404 NotFound"));
+            Assert.That(capturedHead.Status, Is.EqualTo("404 NotFound"));
         }
 	}
 }

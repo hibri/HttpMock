@@ -1,6 +1,7 @@
 using System;
 using System.IO;
-using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
 using NUnit.Framework;
 
 namespace HttpMock.Integration.Tests
@@ -8,11 +9,12 @@ namespace HttpMock.Integration.Tests
 	[TestFixture]
 	public class EndpointsReturningFilesTests	
 	{
+		private static readonly HttpClient _httpClient = new HttpClient();
 		private const string FILE_NAME = "transcode-input.mp3";
 		private static readonly string RES_TRANSCODE_INPUT_MP3 = Path.Combine("res",FILE_NAME);
 
 		[Test]
-		public void A_Setting_return_file_return_the_correct_content_length() {
+		public async Task A_Setting_return_file_return_the_correct_content_length() {
 			var stubHttp = HttpMockRepository.At("http://localhost.:9191");
 
 
@@ -26,16 +28,9 @@ namespace HttpMock.Integration.Tests
             
 			var fileLength = new FileInfo(pathToFile).Length;
 
-			var webRequest = (HttpWebRequest) WebRequest.Create("http://localhost.:9191/afile");
-			using (var response = webRequest.GetResponse())
-			using(var responseStream = response.GetResponseStream())
-			{
+			var bytes = await _httpClient.GetByteArrayAsync("http://localhost.:9191/afile");
 
-				var bytes = new byte[response.ContentLength];
-				responseStream.Read(bytes, 0, (int) response.ContentLength);
-				
-				Assert.That(response.ContentLength, Is.EqualTo(fileLength));
-			}
+			Assert.That((long)bytes.Length, Is.EqualTo(fileLength));
 		}
 
 	}

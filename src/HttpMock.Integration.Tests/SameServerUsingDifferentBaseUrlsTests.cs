@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Net.Http;
+using System.Threading.Tasks;
 using NUnit.Framework;
 
 namespace HttpMock.Integration.Tests
@@ -6,6 +7,7 @@ namespace HttpMock.Integration.Tests
 	[TestFixture]
 	public class SameServerUsingDifferentBaseUrlsTests
 	{
+		private static readonly HttpClient _httpClient = new HttpClient();
 		private string _hostUrl;
 
 		[OneTimeSetUp]
@@ -15,7 +17,7 @@ namespace HttpMock.Integration.Tests
 		}
 
 		[Test]
-		public void UsingAppOne()
+		public async Task UsingAppOne()
 		{
 			string expected = "expected response";
 			var url = _hostUrl + "/appone";
@@ -24,13 +26,13 @@ namespace HttpMock.Integration.Tests
 				.Return(expected)
 				.OK();
 
-			WebClient wc = new WebClient();
+			var result = await _httpClient.GetStringAsync($"{url}/endpoint");
 
-			Assert.That(wc.DownloadString(string.Format("{0}/endpoint", url)), Is.EqualTo(expected));
+			Assert.That(result, Is.EqualTo(expected));
 		}
 
 		[Test]
-		public void UsingAppTwo()
+		public async Task UsingAppTwo()
 		{
 			string expected = "expected response";
 
@@ -40,12 +42,12 @@ namespace HttpMock.Integration.Tests
 				.Return(expected)
 				.OK();
 
-			WebClient wc = new WebClient();
-			Assert.That(wc.DownloadString(string.Format("{0}/endpoint", url)), Is.EqualTo(expected));
+			var result = await _httpClient.GetStringAsync($"{url}/endpoint");
+			Assert.That(result, Is.EqualTo(expected));
 		}
 
 		[Test]
-		public void UsingAppThree()
+		public async Task UsingAppThree()
 		{
 			string expected = "expected response";
 			var url = _hostUrl + "/appthree";
@@ -54,8 +56,8 @@ namespace HttpMock.Integration.Tests
 				.Return(expected)
 				.OK();
 
-			WebClient wc = new WebClient();
-			Assert.That(wc.DownloadString(string.Format("{0}/endpoint", url)), Is.EqualTo(expected));
+			var result = await _httpClient.GetStringAsync($"{url}/endpoint");
+			Assert.That(result, Is.EqualTo(expected));
 		}
 	}
 }

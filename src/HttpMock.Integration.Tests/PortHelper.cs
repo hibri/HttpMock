@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
+using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System.IO;
 
@@ -25,12 +26,24 @@ namespace HttpMock.Integration.Tests
 			return randomPort;
 		}
 
+		private static string FindLsof()
+		{
+			var paths = Environment.GetEnvironmentVariable("PATH")?.Split(':') ?? new string[0];
+			foreach (var dir in paths)
+			{
+				var full = Path.Combine(dir, "lsof");
+				if (File.Exists(full))
+					return full;
+			}
+			return "lsof";
+		}
+
 		private static bool IsPortInUse (int randomPort)
 		{
 
-			if (Environment.OSVersion.Platform == PlatformID.Unix) {
+			if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) || RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) {
 				var process = new Process () {
-					StartInfo = new ProcessStartInfo ("/usr/sbin/lsof", "-Pni") {
+					StartInfo = new ProcessStartInfo (FindLsof(), "-Pni") {
 						RedirectStandardOutput = true,
 						UseShellExecute = false
 					}

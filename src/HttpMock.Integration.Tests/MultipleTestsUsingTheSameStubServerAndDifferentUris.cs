@@ -1,4 +1,6 @@
-﻿using System.Net;
+﻿using System.Net.Http;
+using System.Text;
+using System.Threading.Tasks;
 using NUnit.Framework;
 
 namespace HttpMock.Integration.Tests
@@ -6,6 +8,7 @@ namespace HttpMock.Integration.Tests
 	[TestFixture]
 	public class MultipleTestsUsingTheSameStubServerAndDifferentUris
 	{
+		private static readonly HttpClient _httpClient = new HttpClient();
 		private IHttpServer _httpMockRepository;
 		private string _hostUrl;
 
@@ -17,9 +20,8 @@ namespace HttpMock.Integration.Tests
 		}
 
 		[Test]
-		public void FirstTest()
+		public async Task FirstTest()
 		{
-			var wc = new WebClient();
 			string stubbedReponse = "Response for first test";
 			var stubHttp = _httpMockRepository
 				.WithNewContext();
@@ -29,13 +31,15 @@ namespace HttpMock.Integration.Tests
 				.Return(stubbedReponse)
 				.OK();
 
-			Assert.That(wc.UploadString(string.Format("{0}/firsttest/", _hostUrl), "x"), Is.EqualTo(stubbedReponse));
+			var response = await _httpClient.PostAsync($"{_hostUrl}/firsttest/",
+				new StringContent("x", Encoding.UTF8));
+			var result = await response.Content.ReadAsStringAsync();
+			Assert.That(result, Is.EqualTo(stubbedReponse));
 		}
 
 		[Test]
-		public void SecondTest()
+		public async Task SecondTest()
 		{
-			var wc = new WebClient();
 			string stubbedReponse = "Response for second test";
 			_httpMockRepository
 				.WithNewContext()
@@ -43,13 +47,15 @@ namespace HttpMock.Integration.Tests
 				.Return(stubbedReponse)
 				.OK();
 
-			Assert.That(wc.UploadString(string.Format("{0}/secondtest/", _hostUrl), "x"), Is.EqualTo(stubbedReponse));
+			var response = await _httpClient.PostAsync($"{_hostUrl}/secondtest/",
+				new StringContent("x", Encoding.UTF8));
+			var result = await response.Content.ReadAsStringAsync();
+			Assert.That(result, Is.EqualTo(stubbedReponse));
 		}
 
 		[Test]
-		public void Stubs_should_be_unique_within_context()
+		public async Task Stubs_should_be_unique_within_context()
 		{
-			var wc = new WebClient();
 			string stubbedReponseOne = "Response for first test in context";
 			string stubbedReponseTwo = "Response for second test in context";
 
@@ -63,8 +69,16 @@ namespace HttpMock.Integration.Tests
 				.Return(stubbedReponseTwo)
 				.OK();
 
-			Assert.That(wc.UploadString(string.Format("{0}/firsttest/", _hostUrl), "x"), Is.EqualTo(stubbedReponseOne));
-			Assert.That(wc.UploadString(string.Format("{0}/secondtest/", _hostUrl), "x"), Is.EqualTo(stubbedReponseTwo));
+			var response1 = await _httpClient.PostAsync($"{_hostUrl}/firsttest/",
+				new StringContent("x", Encoding.UTF8));
+			var result1 = await response1.Content.ReadAsStringAsync();
+
+			var response2 = await _httpClient.PostAsync($"{_hostUrl}/secondtest/",
+				new StringContent("x", Encoding.UTF8));
+			var result2 = await response2.Content.ReadAsStringAsync();
+
+			Assert.That(result1, Is.EqualTo(stubbedReponseOne));
+			Assert.That(result2, Is.EqualTo(stubbedReponseTwo));
 		}
 	}
 }

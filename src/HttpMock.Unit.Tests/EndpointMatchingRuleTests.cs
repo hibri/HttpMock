@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Kayak.Http;
+
 using Moq;
 using NUnit.Framework;
 
@@ -23,7 +23,7 @@ namespace HttpMock.Unit.Tests
             _mockRequestHandler.Setup(m => m.Path).Returns("test");
             _mockRequestHandler.Setup(m => m.QueryParams).Returns(new Dictionary<string, string>());
 
-            var httpRequestHead = new KayakHttpRequestHeadAdapter(new HttpRequestHead { Uri = "test" });
+            var httpRequestHead = new SimpleHttpRequestHead { Uri = "test" };
             var endpointMatchingRule = new EndpointMatchingRule();
             Assert.That(endpointMatchingRule.IsEndpointMatch(_mockRequestHandler.Object, httpRequestHead));
         }
@@ -35,7 +35,7 @@ namespace HttpMock.Unit.Tests
             _mockRequestHandler.Setup(m => m.Method).Returns("PUT");
             _mockRequestHandler.Setup(m => m.QueryParams).Returns(new Dictionary<string, string>());
 
-            var httpRequestHead = new KayakHttpRequestHeadAdapter(new HttpRequestHead { Uri = "test", Method = "PUT" });
+            var httpRequestHead = new SimpleHttpRequestHead { Uri = "test", Method = "PUT" };
             var endpointMatchingRule = new EndpointMatchingRule();
 
             Assert.That(endpointMatchingRule.IsEndpointMatch(_mockRequestHandler.Object, httpRequestHead));
@@ -48,7 +48,7 @@ namespace HttpMock.Unit.Tests
             _mockRequestHandler.Setup(m => m.Method).Returns("GET");
             _mockRequestHandler.Setup(m => m.QueryParams).Returns(new Dictionary<string, string>());
 
-            var httpRequestHead = new KayakHttpRequestHeadAdapter(new HttpRequestHead { Uri = "test", Method = "PUT" });
+            var httpRequestHead = new SimpleHttpRequestHead { Uri = "test", Method = "PUT" };
             var endpointMatchingRule = new EndpointMatchingRule();
 
             Assert.That(endpointMatchingRule.IsEndpointMatch(_mockRequestHandler.Object, httpRequestHead), Is.False);
@@ -61,7 +61,7 @@ namespace HttpMock.Unit.Tests
             _mockRequestHandler.Setup(m => m.Method).Returns("GET");
             _mockRequestHandler.Setup(m => m.QueryParams).Returns(new Dictionary<string, string>());
 
-            var httpRequestHead = new KayakHttpRequestHeadAdapter(new HttpRequestHead { Uri = "test", Method = "GET" });
+            var httpRequestHead = new SimpleHttpRequestHead { Uri = "test", Method = "GET" };
             var endpointMatchingRule = new EndpointMatchingRule();
 
             Assert.That(endpointMatchingRule.IsEndpointMatch(_mockRequestHandler.Object, httpRequestHead), Is.False);
@@ -75,7 +75,7 @@ namespace HttpMock.Unit.Tests
             _mockRequestHandler.Setup(m => m.QueryParams)
                 .Returns(new Dictionary<string, string> { { "myParam", "one" } });
 
-            var httpRequestHead = new KayakHttpRequestHeadAdapter(new HttpRequestHead { Uri = "test", Method = "GET" });
+            var httpRequestHead = new SimpleHttpRequestHead { Uri = "test", Method = "GET" };
             var endpointMatchingRule = new EndpointMatchingRule();
 
             Assert.That(endpointMatchingRule.IsEndpointMatch(_mockRequestHandler.Object, httpRequestHead), Is.False);
@@ -89,8 +89,8 @@ namespace HttpMock.Unit.Tests
             _mockRequestHandler.Setup(m => m.QueryParams)
                 .Returns(new Dictionary<string, string> { { "myParam", "one" } });
 
-            var httpRequestHead = new KayakHttpRequestHeadAdapter(new HttpRequestHead
-                { Uri = "test?oauth_consumer_key=test-api&elvis=alive&moonlandings=faked&myParam=one", Method = "GET" });
+            var httpRequestHead = new SimpleHttpRequestHead
+                { Uri = "test?oauth_consumer_key=test-api&elvis=alive&moonlandings=faked&myParam=one", Method = "GET" };
             var endpointMatchingRule = new EndpointMatchingRule();
 
             Assert.That(endpointMatchingRule.IsEndpointMatch(_mockRequestHandler.Object, httpRequestHead));
@@ -104,8 +104,8 @@ namespace HttpMock.Unit.Tests
             _mockRequestHandler.Setup(m => m.QueryParams)
                 .Returns(new Dictionary<string, string> { { "myParam", "one" } });
 
-            var httpRequestHead = new KayakHttpRequestHeadAdapter(new HttpRequestHead
-                { Uri = "test?oauth_consumer_key=test-api&elvis=alive&moonlandings=faked", Method = "GET" });
+            var httpRequestHead = new SimpleHttpRequestHead
+                { Uri = "test?oauth_consumer_key=test-api&elvis=alive&moonlandings=faked", Method = "GET" };
             var endpointMatchingRule = new EndpointMatchingRule();
             Assert.That(endpointMatchingRule.IsEndpointMatch(_mockRequestHandler.Object, httpRequestHead), Is.False);
         }
@@ -118,8 +118,8 @@ namespace HttpMock.Unit.Tests
             _mockRequestHandler.Setup(m => m.Method).Returns("GET");
             _mockRequestHandler.Setup(m => m.QueryParams).Returns(new Dictionary<string, string>());
 
-            var httpRequestHead = new KayakHttpRequestHeadAdapter(new HttpRequestHead
-                { Uri = "test?oauth_consumer_key=test-api&elvis=alive&moonlandings=faked", Method = "GET" });
+            var httpRequestHead = new SimpleHttpRequestHead
+                { Uri = "test?oauth_consumer_key=test-api&elvis=alive&moonlandings=faked", Method = "GET" };
             var endpointMatchingRule = new EndpointMatchingRule();
 
             Assert.That(endpointMatchingRule.IsEndpointMatch(_mockRequestHandler.Object, httpRequestHead), Is.True);
@@ -133,7 +133,7 @@ namespace HttpMock.Unit.Tests
             _mockRequestHandler.Setup(m => m.QueryParams)
                 .Returns(new Dictionary<string, string> { { "myParam", "one" } });
 
-            var httpRequestHead = new KayakHttpRequestHeadAdapter(new HttpRequestHead { Uri = "test?myParam=one", Method = "GET" });
+            var httpRequestHead = new SimpleHttpRequestHead { Uri = "test?myParam=one", Method = "GET" };
 
             var endpointMatchingRule = new EndpointMatchingRule();
             Assert.That(endpointMatchingRule.IsEndpointMatch(_mockRequestHandler.Object, httpRequestHead));
@@ -148,7 +148,7 @@ namespace HttpMock.Unit.Tests
             _mockRequestHandler.Setup(m => m.RequestHeaders)
                 .Returns(new Dictionary<string, string> { { "myHeader", "one" } });
 
-            var httpRequestHead = new KayakHttpRequestHeadAdapter(new HttpRequestHead
+            var httpRequestHead = new SimpleHttpRequestHead
             {
                 Uri = "test",
                 Method = "GET",
@@ -156,7 +156,7 @@ namespace HttpMock.Unit.Tests
                 {
                     { "myHeader", "two" }
                 }
-            });
+            };
             var endpointMatchingRule = new EndpointMatchingRule();
             Assert.That(endpointMatchingRule.IsEndpointMatch(_mockRequestHandler.Object, httpRequestHead), Is.False);
         }
@@ -170,7 +170,7 @@ namespace HttpMock.Unit.Tests
             _mockRequestHandler.Setup(m => m.RequestHeaders)
                 .Returns(new Dictionary<string, string> { { "myHeader", "one" } });
 
-            var httpRequestHead = new KayakHttpRequestHeadAdapter(new HttpRequestHead
+            var httpRequestHead = new SimpleHttpRequestHead
             {
                 Uri = "test",
                 Method = "GET",
@@ -179,7 +179,7 @@ namespace HttpMock.Unit.Tests
                     { "myHeader", "one" },
                     { "anotherHeader", "two" }
                 }
-            });
+            };
             var endpointMatchingRule = new EndpointMatchingRule();
 
             Assert.That(endpointMatchingRule.IsEndpointMatch(_mockRequestHandler.Object, httpRequestHead));
@@ -194,7 +194,7 @@ namespace HttpMock.Unit.Tests
             _mockRequestHandler.Setup(m => m.RequestHeaders)
                 .Returns(new Dictionary<string, string> { { "myHeader", "one" } });
 
-            var httpRequestHead = new KayakHttpRequestHeadAdapter(new HttpRequestHead { Uri = "test", Method = "GET" });
+            var httpRequestHead = new SimpleHttpRequestHead { Uri = "test", Method = "GET" };
             var endpointMatchingRule = new EndpointMatchingRule();
             Assert.That(endpointMatchingRule.IsEndpointMatch(_mockRequestHandler.Object, httpRequestHead), Is.False);
         }
@@ -207,7 +207,7 @@ namespace HttpMock.Unit.Tests
             _mockRequestHandler.Setup(m => m.QueryParams)
                 .Returns(new Dictionary<string, string> { { "myParam", "one" } });
 
-            var httpRequestHead = new KayakHttpRequestHeadAdapter(new HttpRequestHead { Uri = "test?myParam=OnE", Method = "GET" });
+            var httpRequestHead = new SimpleHttpRequestHead { Uri = "test?myParam=OnE", Method = "GET" };
             var endpointMatchingRule = new EndpointMatchingRule();
             Assert.That(endpointMatchingRule.IsEndpointMatch(_mockRequestHandler.Object, httpRequestHead));
         }
@@ -221,7 +221,7 @@ namespace HttpMock.Unit.Tests
             _mockRequestHandler.Setup(m => m.RequestHeaders)
                 .Returns(new Dictionary<string, string> { { "myHeader", "one" } });
 
-            var httpRequestHead = new KayakHttpRequestHeadAdapter(new HttpRequestHead
+            var httpRequestHead = new SimpleHttpRequestHead
             {
                 Uri = "test",
                 Method = "GET",
@@ -229,7 +229,7 @@ namespace HttpMock.Unit.Tests
                 {
                     { "MYheaDER", "OnE" }
                 }
-            });
+            };
 
             var endpointMatchingRule = new EndpointMatchingRule();
             Assert.That(endpointMatchingRule.IsEndpointMatch(_mockRequestHandler.Object, httpRequestHead));
@@ -243,7 +243,7 @@ namespace HttpMock.Unit.Tests
             _mockRequestHandler.Setup(m => m.QueryParams)
                 .Returns(new Dictionary<string, string> { { "a", "b" }, { "c", "d" } });
 
-            var httpRequestHead = new KayakHttpRequestHeadAdapter(new HttpRequestHead { Uri = "test?a=b&c=d&", Method = "GET" });
+            var httpRequestHead = new SimpleHttpRequestHead { Uri = "test?a=b&c=d&", Method = "GET" };
             var endpointMatchingRule = new EndpointMatchingRule();
             Assert.That(endpointMatchingRule.IsEndpointMatch(_mockRequestHandler.Object, httpRequestHead));
         }
@@ -254,7 +254,7 @@ namespace HttpMock.Unit.Tests
             _mockRequestHandler.Setup(m => m.Path).Returns("/test()");
             _mockRequestHandler.Setup(m => m.QueryParams).Returns(new Dictionary<string, string>());
 
-            var httpRequestHead = new KayakHttpRequestHeadAdapter(new HttpRequestHead { Uri = "/test()" });
+            var httpRequestHead = new SimpleHttpRequestHead { Uri = "/test()" };
             var endpointMatchingRule = new EndpointMatchingRule();
             Assert.That(endpointMatchingRule.IsEndpointMatch(_mockRequestHandler.Object, httpRequestHead));
         }

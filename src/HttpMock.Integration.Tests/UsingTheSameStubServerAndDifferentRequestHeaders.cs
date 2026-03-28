@@ -1,6 +1,6 @@
 using System.Collections.Generic;
-using System.IO;
-using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
 using NUnit.Framework;
 
 namespace HttpMock.Integration.Tests
@@ -8,6 +8,7 @@ namespace HttpMock.Integration.Tests
 	[TestFixture]
 	public class UsingTheSameStubServerAndDifferentRequestHeaders
 	{
+		private static readonly HttpClient _httpClient = new HttpClient();
 		private string _endpointToHit;
 		private IHttpServer _httpMockRepository;
 
@@ -51,39 +52,34 @@ namespace HttpMock.Integration.Tests
 		}
 
 		[Test]
-		public void Should_return_first_one()
+		public async Task Should_return_first_one()
 		{
-			AssertResponse("I was the first one", _firstSetOfHeaders);
+			await AssertResponse("I was the first one", _firstSetOfHeaders);
 		}
 
 		[Test]
-		public void Should_return_second_one()
+		public async Task Should_return_second_one()
 		{
-			AssertResponse("I was the second one", _secondSetOfHeaders);
+			await AssertResponse("I was the second one", _secondSetOfHeaders);
 		}
 
 		[Test]
-		public void Should_return_third_one()
+		public async Task Should_return_third_one()
 		{
-			AssertResponse("I was the third one", _thirdSetOfHeaders);
+			await AssertResponse("I was the third one", _thirdSetOfHeaders);
 		}
 
-		private void AssertResponse(string expected, IEnumerable<KeyValuePair<string, string>> headers)
+		private async Task AssertResponse(string expected, IEnumerable<KeyValuePair<string, string>> headers)
 		{
-			var webRequest =
-				(HttpWebRequest) WebRequest.Create(string.Format("{0}?abirdinthehand=twointhebush", _endpointToHit));
+			var request = new HttpRequestMessage(HttpMethod.Get,
+				$"{_endpointToHit}?abirdinthehand=twointhebush");
 			foreach (var header in headers)
 			{
-				webRequest.Headers.Add(header.Key, header.Value);
+				request.Headers.Add(header.Key, header.Value);
 			}
-			using (var response = webRequest.GetResponse())
-			{
-				using (var sr = new StreamReader(response.GetResponseStream()))
-				{
-					var readToEnd = sr.ReadToEnd();
-					Assert.That(readToEnd, Is.EqualTo(expected));
-				}
-			}
+			var response = await _httpClient.SendAsync(request);
+			var readToEnd = await response.Content.ReadAsStringAsync();
+			Assert.That(readToEnd, Is.EqualTo(expected));
 		}
 	}
 }

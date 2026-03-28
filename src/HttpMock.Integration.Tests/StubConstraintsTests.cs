@@ -1,12 +1,15 @@
 ﻿using System.Net;
+using System.Net.Http;
+using System.Text;
+using System.Threading.Tasks;
 using NUnit.Framework;
 
 namespace HttpMock.Integration.Tests
 {
 	public class StubConstraintsTests
 	{
+		private static readonly HttpClient _httpClient = new HttpClient();
 		private IHttpServer _httpMockRepository;
-		private WebClient _wc;
 		private IHttpServer _stubHttp;
 		private string _hostUrl;
 
@@ -15,12 +18,11 @@ namespace HttpMock.Integration.Tests
 		{
 			_hostUrl = HostHelper.GenerateAHostUrlForAStubServer();
 			_httpMockRepository = HttpMockRepository.At(_hostUrl);
-			_wc = new WebClient();
 			_stubHttp = _httpMockRepository.WithNewContext();
 		}
 
 		[Test]
-		public void Constraints_can_be_applied_to_urls()
+		public async Task Constraints_can_be_applied_to_urls()
 		{
 			_stubHttp
 				.Stub(x => x.Post("/firsttest"))
@@ -28,16 +30,11 @@ namespace HttpMock.Integration.Tests
 				.Return("<Xml>ShouldntBeReturned</Xml>")
 				.OK();
 
-			try
-			{
-				_wc.UploadString(string.Format("{0}/firsttest/blah/blah", _hostUrl), "x");
+			var response = await _httpClient.PostAsync(
+				$"{_hostUrl}/firsttest/blah/blah",
+				new StringContent("x", Encoding.UTF8));
 
-				Assert.Fail("Should have 404d");
-			}
-			catch (WebException ex)
-			{
-				Assert.That(((HttpWebResponse)ex.Response).StatusCode, Is.EqualTo(System.Net.HttpStatusCode.NotFound));
-			}
+			Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
 		}
 	}
 }
