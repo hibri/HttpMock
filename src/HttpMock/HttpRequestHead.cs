@@ -8,7 +8,5 @@ namespace HttpMock
         public string Uri { get; set; }
         public IDictionary<string, string> Headers { get; set; }
         public bool HasEntityBody { get; set; }
-
-        public bool HasBody() => HasEntityBody;
     }
 }

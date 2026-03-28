@@ -49,7 +49,7 @@ namespace HttpMock
 	            ? handler.ResponseBuilder.BuildBody(request.Headers)
 	            : null;
 
-	        if (request.HasBody() && requestBody != null)
+	        if (request.HasEntityBody && requestBody != null)
 	        {
 	            try
 	            {
