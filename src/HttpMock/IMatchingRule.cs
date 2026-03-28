@@ -1,9 +1,7 @@
-using Kayak.Http;
-
 namespace HttpMock
 {
     public interface IMatchingRule
 	{
-		bool IsEndpointMatch(IRequestHandler requestHandler, HttpRequestHead request);
+		bool IsEndpointMatch(IRequestHandler requestHandler, IHttpRequestHead request);
 	}
 }

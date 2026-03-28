@@ -4,7 +4,6 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Web;
-using Kayak.Http;
 
 namespace HttpMock
 {
@@ -19,7 +18,7 @@ namespace HttpMock
 			_queryParamMatch = new QueryParamMatch();
 		}
 
-		public bool IsEndpointMatch(IRequestHandler requestHandler, HttpRequestHead request) {
+		public bool IsEndpointMatch(IRequestHandler requestHandler, IHttpRequestHead request) {
 			if (requestHandler.QueryParams == null)
 				throw new ArgumentException("requestHandler QueryParams cannot be null");
 
@@ -48,7 +47,7 @@ namespace HttpMock
 			return uriStartsWith && httpMethodsMatch && queryParamMatch && headerMatch;
 		}
 
-	    private static bool MatchPath(IRequestHandler requestHandler, HttpRequestHead request)
+	    private static bool MatchPath(IRequestHandler requestHandler, IHttpRequestHead request)
 	    {
 	        var pathToMatch = request.Uri;
             int positionOfQueryStart = GetStartOfQueryString(request.Uri);
@@ -65,7 +64,7 @@ namespace HttpMock
 	        return uri.LastIndexOf('?');
 	    }
 
-	    private static Dictionary<string, string> GetQueryParams(HttpRequestHead request) {
+	    private static Dictionary<string, string> GetQueryParams(IHttpRequestHead request) {
             int positionOfQueryStart = GetStartOfQueryString(request.Uri);
 			if(positionOfQueryStart < 1)
 				return new Dictionary<string, string>();
@@ -78,7 +77,7 @@ namespace HttpMock
 			return requestQueryParams;
 		}
 
-		private static IDictionary<string, string> GetHeaders(HttpRequestHead request)
+		private static IDictionary<string, string> GetHeaders(IHttpRequestHead request)
 		{
 			return request.Headers ?? new Dictionary<string, string>();
 		}

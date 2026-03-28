@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
-using Kayak.Http;
 
 namespace HttpMock
 {
@@ -116,7 +115,7 @@ namespace HttpMock
 			return _observedRequests.Count;
 		}
 
-		public void RecordRequest(HttpRequestHead request, string body)
+		public void RecordRequest(IHttpRequestHead request, string body)
 		{
 			_observedRequests.Add(new ReceivedRequest(request, body));
 		}

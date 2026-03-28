@@ -27,7 +27,7 @@ namespace HttpMock.Unit.Tests {
 			_requestHandlerFactory = new RequestHandlerFactory(_processor);
 
 			_ruleThatReturnsFirstHandler
-				.SetupSequence(x => x.IsEndpointMatch(It.IsAny<RequestHandler>(), It.IsAny<HttpRequestHead>()))
+				.SetupSequence(x => x.IsEndpointMatch(It.IsAny<RequestHandler>(), It.IsAny<IHttpRequestHead>()))
 				.Returns(true)
 				.Returns(false);
 
@@ -149,7 +149,7 @@ namespace HttpMock.Unit.Tests {
 
             var matchingRule = new Mock<IMatchingRule>();
             matchingRule
-	            .Setup(m => m.IsEndpointMatch(It.IsAny<RequestHandler>(), It.IsAny<HttpRequestHead>()))
+	            .Setup(m => m.IsEndpointMatch(It.IsAny<RequestHandler>(), It.IsAny<IHttpRequestHead>()))
 	            .Returns(true);
             
             var p = new RequestProcessor(matchingRule.Object, new RequestHandlerList { handlerWithConstraints });
