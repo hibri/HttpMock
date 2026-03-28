@@ -2,6 +2,6 @@ namespace HttpMock
 {
 	public interface IStubResponse
 	{
-		ResponseBuilder Get(HttpRequestHead request);
+		ResponseBuilder Get(IHttpRequestHead request);
 	}
 }

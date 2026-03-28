@@ -19,7 +19,7 @@ namespace HttpMock
 		    _requestMatcher = new RequestMatcher(matchingRule);
 		}
 
-		public void OnRequest(HttpRequestHead request, Stream requestBody, Action<HttpMockResponseHead, byte[]> respond) {
+		public void OnRequest(IHttpRequestHead request, Stream requestBody, Action<HttpMockResponseHead, byte[]> respond) {
 			_log.DebugFormat("Start Processing request for : {0}:{1}", request.Method, request.Uri);
 			if (GetHandlerCount() < 1) {
 				ReturnHttpMockNotFound(respond);
@@ -36,7 +36,7 @@ namespace HttpMock
 			HandleRequest(request, requestBody, respond, handler);
 		}
 
-	    private static async void HandleRequest(HttpRequestHead request, Stream requestBody, Action<HttpMockResponseHead, byte[]> respond, IRequestHandler handler)
+	    private static async void HandleRequest(IHttpRequestHead request, Stream requestBody, Action<HttpMockResponseHead, byte[]> respond, IRequestHandler handler)
 	    {
 	        _log.DebugFormat("Matched a handler {0}:{1} {2}", handler.Method, handler.Path, DumpQueryParams(handler.QueryParams));
 
