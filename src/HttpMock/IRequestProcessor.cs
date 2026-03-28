@@ -1,9 +1,11 @@
-﻿using Kayak.Http;
+using System;
+using System.IO;
 
 namespace HttpMock
 {
-	public interface IRequestProcessor : IHttpRequestDelegate
+	public interface IRequestProcessor
 	{
+		void OnRequest(IHttpRequestHead request, Stream requestBody, Action<HttpMockResponseHead, byte[]> respond);
 		IRequestVerify FindHandler(string method, string path);
 		void Add(RequestHandler requestHandler);
 		void ClearHandlers();

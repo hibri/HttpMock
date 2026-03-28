@@ -17,7 +17,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Kayak" Version="0.7.2" />
     <PackageReference Include="NUnit" Version="3.13.1" />
   </ItemGroup>
 

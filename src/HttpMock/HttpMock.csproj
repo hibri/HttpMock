@@ -17,10 +17,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Kayak" Version="0.7.2" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Reference Include="System.Web" />
   </ItemGroup>
 

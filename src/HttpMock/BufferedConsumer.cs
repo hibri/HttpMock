@@ -1,11 +1,9 @@
 using System;
-using System.Linq;
 using System.Text;
-using Kayak;
 
 namespace HttpMock
 {
-    public class BufferedConsumer : IDataConsumer
+    public class BufferedConsumer
 	{
         readonly Action<string> _resultCallback;
         readonly Action<Exception> _errorCallback;

@@ -1,10 +1,11 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
+using System.Text;
 using System.Threading;
-using Kayak;
-using Kayak.Http;
 
 namespace HttpMock
 {
@@ -13,27 +14,35 @@ namespace HttpMock
 		private static readonly ILog _log = LogFactory.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 		private readonly RequestHandlerFactory _requestHandlerFactory;
 		private readonly IRequestProcessor _requestProcessor;
-		private readonly IScheduler _scheduler;
 		private readonly Uri _uri;
-		private IDisposable _disposableServer;
-		private Thread _thread;
+		private HttpListener _listener;
+		private Thread _listenerThread;
+		private volatile bool _running;
 
 		public HttpServer(Uri uri)
 		{
 			_uri = uri;
-			_scheduler = KayakScheduler.Factory.Create(new SchedulerDelegate());
 			_requestProcessor = new RequestProcessor(new EndpointMatchingRule(), new RequestHandlerList());
-
 			_requestHandlerFactory = new RequestHandlerFactory(_requestProcessor);
 		}
 
+		private readonly object _startLock = new object();
+
 		public void Start()
 		{
-			_thread = new Thread(StartListening);
-			_thread.Start();
+			lock (_startLock)
+			{
+				if (_running) return;
+				_listener = new HttpListener();
+				_listener.Prefixes.Add(string.Format("http://+:{0}/", _uri.Port));
+				_listener.Start();
+				_running = true;
+				_listenerThread = new Thread(ListenLoop) { IsBackground = true };
+				_listenerThread.Start();
+			}
 			if (!IsAvailable())
 			{
-				throw new InvalidOperationException("Kayak server not listening yet.");
+				throw new InvalidOperationException("HttpListener server not listening yet.");
 			}
 		}
 
@@ -68,15 +77,14 @@ namespace HttpMock
 
 		public void Dispose()
 		{
-			if (_scheduler != null)
+			_running = false;
+			if (_listener != null)
 			{
-				_scheduler.Stop();
-				_scheduler.Dispose();
+				try { _listener.Stop(); } catch { }
+				try { _listener.Close(); } catch { }
 			}
-			if (_disposableServer != null)
-			{
-				_disposableServer.Dispose();
-			}
+			if (_listenerThread != null && _listenerThread.IsAlive)
+				_listenerThread.Join(500);
 		}
 
 		public IRequestStub Stub(Func<RequestHandlerFactory, IRequestStub> func)
@@ -95,35 +103,85 @@ namespace HttpMock
 			return _requestProcessor.WhatDoIHave();
 		}
 
-		private void StartListening()
+		private void ListenLoop()
+		{
+			while (_running)
+			{
+				try
+				{
+					var context = _listener.GetContext();
+					ThreadPool.QueueUserWorkItem(_ => HandleContext(context));
+				}
+				catch (HttpListenerException)
+				{
+					if (!_running) break;
+				}
+				catch (Exception ex)
+				{
+					_log.Error("Error in listen loop", ex);
+				}
+			}
+		}
+
+		private void HandleContext(HttpListenerContext context)
 		{
 			try
 			{
-				var ipEndPoint = new IPEndPoint(IPAddress.Any, _uri.Port);
-				Exception e = null;
-				_scheduler.Post(() =>
-				{
-					try
-					{
-						_disposableServer = KayakServer.Factory
-							.CreateHttp(_requestProcessor, _scheduler)
-							.Listen(ipEndPoint);
-					}
-					catch (Exception ex)
-					{
-						e = ex;
-						_log.Error("Error when trying to post actions to the scheduler in StartListening", ex);
-					}
-				});
+				var requestHead = new HttpListenerRequestHeadAdapter(context.Request);
+				Stream body = context.Request.HasEntityBody ? context.Request.InputStream : null;
 
-				_scheduler.Start();
-				Thread.Sleep(100);
-				if (e != null)
-					throw e;
+				_requestProcessor.OnRequest(requestHead, body, (responseHead, responseBody) =>
+					WriteResponse(context.Response, responseHead, responseBody));
 			}
 			catch (Exception ex)
 			{
-				_log.Error("Error when trying to StartListening", ex);
+				_log.Error("Error handling request", ex);
+				try { context.Response.StatusCode = 500; context.Response.Close(); } catch { }
+			}
+		}
+
+		private static void WriteResponse(HttpListenerResponse response, HttpMockResponseHead head, byte[] body)
+		{
+			try
+			{
+				var parts = head.Status.Split(new[] { ' ' }, 2);
+				int statusCode;
+				response.StatusCode = int.TryParse(parts[0], out statusCode) ? statusCode : 500;
+				if (parts.Length > 1)
+					response.StatusDescription = parts[1];
+
+				if (head.Headers != null)
+				{
+					foreach (var header in head.Headers)
+					{
+						switch (header.Key.ToLowerInvariant())
+						{
+							case "content-type":
+								response.ContentType = header.Value;
+								break;
+							case "content-length":
+								// set below via ContentLength64
+								break;
+							default:
+								response.Headers[header.Key] = header.Value;
+								break;
+						}
+					}
+				}
+
+				if (body != null && body.Length > 0)
+				{
+					response.ContentLength64 = body.Length;
+					response.OutputStream.Write(body, 0, body.Length);
+				}
+				else
+				{
+					response.ContentLength64 = 0;
+				}
+			}
+			finally
+			{
+				try { response.Close(); } catch { }
 			}
 		}
 	}

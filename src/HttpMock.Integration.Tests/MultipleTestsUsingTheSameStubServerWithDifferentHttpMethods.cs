@@ -119,6 +119,8 @@ namespace HttpMock.Integration.Tests
 		{
 			var webRequest = (HttpWebRequest) WebRequest.Create(_endpointToHit);
 			webRequest.Method = method;
+			if (method == "POST" || method == "PUT" || method == "DELETE" || method == "PURGE")
+				webRequest.ContentLength = 0;
 			using (var response = webRequest.GetResponse())
 			{
 				using (var sr = new StreamReader(response.GetResponseStream()))

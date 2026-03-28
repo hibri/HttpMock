@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
-using Kayak;
-using Kayak.Http;
 
 namespace HttpMock
 {
@@ -40,21 +38,20 @@ namespace HttpMock
 			return this;
 		}
 
-		public IDataProducer BuildBody(IDictionary<string, string> headers) {
+		public byte[] BuildBody(IDictionary<string, string> headers) {
 			_response.SetRequestHeaders(headers);
-			return _response;
+			return _response.GetBytes();
 		}
 
-		public HttpResponseHead BuildHeaders() {
+		public HttpMockResponseHead BuildHeaders() {
 			AddHeader(HttpHeaderNames.ContentType, _contentType);
 			AddHeader(HttpHeaderNames.ContentLength, _contentLength().ToString());
 
-			var headers = new HttpResponseHead
+			return new HttpMockResponseHead
 			{
 				Status = string.Format("{0} {1}", (int)_httpStatusCode, _httpStatusCode),
 				Headers = _headers
 			};
-			return headers;
 		}
 
 		public void WithStatus(HttpStatusCode httpStatusCode) {

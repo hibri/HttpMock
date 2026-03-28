@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Kayak" Version="0.7.2" />
     <PackageReference Include="log4net" Version="2.0.12" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.0" />
     <PackageReference Include="NUnit" Version="3.13.1" />

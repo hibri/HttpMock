@@ -1,5 +1,5 @@
 ﻿using System;
-using Kayak.Http;
+
 using NUnit.Framework;
 
 namespace HttpMock.Unit.Tests
@@ -46,9 +46,9 @@ namespace HttpMock.Unit.Tests
 
 	        var requestHandler = new RequestHandler("/path", null);
 	        
-	        requestHandler.RecordRequest(new KayakHttpRequestHeadAdapter(new HttpRequestHead()), "first");
-	        requestHandler.RecordRequest(new KayakHttpRequestHeadAdapter(new HttpRequestHead()), "second");
-	        requestHandler.RecordRequest(new KayakHttpRequestHeadAdapter(new HttpRequestHead()), expected);
+	        requestHandler.RecordRequest(new SimpleHttpRequestHead(), "first");
+	        requestHandler.RecordRequest(new SimpleHttpRequestHead(), "second");
+	        requestHandler.RecordRequest(new SimpleHttpRequestHead(), expected);
 	        
 	        var receivedRequest = requestHandler.LastRequest();
 	        

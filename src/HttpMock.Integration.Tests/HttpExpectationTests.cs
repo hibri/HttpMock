@@ -98,6 +98,7 @@ namespace HttpMock.Integration.Tests
 
 			var request = (HttpWebRequest) WebRequest.Create(_hostUrl + endPoint);
 			request.Method = "PUT";
+			request.ContentLength = 0;
 
 			using (request.GetResponse())
 			{
@@ -116,6 +117,7 @@ namespace HttpMock.Integration.Tests
 
 			var request = (HttpWebRequest) WebRequest.Create(_hostUrl + endPoint);
 			request.Method = "PUT";
+			request.ContentLength = 0;
 			request.Headers.Add("Waffle", "Pancake");
 
 			using (request.GetResponse())
@@ -135,6 +137,7 @@ namespace HttpMock.Integration.Tests
 
 			var request = (HttpWebRequest) WebRequest.Create(_hostUrl + endPoint);
 			request.Method = "PUT";
+			request.ContentLength = 0;
 			const string pancake = "Pancake";
 			request.Headers.Add("Waffle", pancake);
 
