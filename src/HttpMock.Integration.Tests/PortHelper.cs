@@ -25,12 +25,24 @@ namespace HttpMock.Integration.Tests
 			return randomPort;
 		}
 
+		private static string FindLsof()
+		{
+			var paths = Environment.GetEnvironmentVariable("PATH")?.Split(':') ?? new string[0];
+			foreach (var dir in paths)
+			{
+				var full = Path.Combine(dir, "lsof");
+				if (File.Exists(full))
+					return full;
+			}
+			return "lsof";
+		}
+
 		private static bool IsPortInUse (int randomPort)
 		{
 
 			if (Environment.OSVersion.Platform == PlatformID.Unix) {
 				var process = new Process () {
-					StartInfo = new ProcessStartInfo ("/usr/bin/lsof", "-Pni") {
+					StartInfo = new ProcessStartInfo (FindLsof(), "-Pni") {
 						RedirectStandardOutput = true,
 						UseShellExecute = false
 					}
