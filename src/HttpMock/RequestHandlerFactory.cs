@@ -34,10 +34,6 @@ namespace HttpMock
 			return CreateHandler(path, verb);
 		}
 
-		public void ClearHandlers() {
-			new List<RequestHandler>();
-		}
-
 
 
 		private RequestHandler CreateHandler(string path, string method) {
