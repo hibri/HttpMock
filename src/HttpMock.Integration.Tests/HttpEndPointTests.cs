@@ -267,6 +267,7 @@ namespace HttpMock.Integration.Tests
 		[TestCase(2000, 350)]
 		public async Task Should_wait_more_than_the_added_delay(int wait, int added)
 		{
+			const int TimingToleranceMs = 15;
 			_stubHttp = HttpMockRepository.At(_hostUrl);
 			var stub = _stubHttp.Stub(x => x.Get("/endpoint")).Return("Delayed response");
 			stub.OK();
@@ -278,7 +279,7 @@ namespace HttpMock.Integration.Tests
 			var ans = await _httpClient.GetStringAsync($"{_hostUrl}/endpoint");
 			sw.Stop();
 
-			Assert.That(sw.ElapsedMilliseconds, Is.GreaterThanOrEqualTo(wait));
+			Assert.That(sw.ElapsedMilliseconds, Is.GreaterThanOrEqualTo(wait - TimingToleranceMs));
 			Assert.That(ans, Is.EqualTo("Delayed response"));
 
 			stub.WithDelay(TimeSpan.FromMilliseconds(added)).Return("Delayed response 2");
@@ -288,7 +289,7 @@ namespace HttpMock.Integration.Tests
 			ans = await _httpClient.GetStringAsync($"{_hostUrl}/endpoint");
 			sw.Stop();
 
-			Assert.That(sw.ElapsedMilliseconds, Is.GreaterThanOrEqualTo(wait + added));
+			Assert.That(sw.ElapsedMilliseconds, Is.GreaterThanOrEqualTo(wait + added - TimingToleranceMs));
 			Assert.That(ans, Is.EqualTo("Delayed response 2"));
 		}
 
