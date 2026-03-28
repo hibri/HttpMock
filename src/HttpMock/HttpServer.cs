@@ -34,7 +34,16 @@ namespace HttpMock
 			{
 				if (_running) return;
 				_listener = new HttpListener();
+
+				var host = _uri.Host;
+				if (Environment.OSVersion.Platform != PlatformID.Unix
+				    && !string.IsNullOrEmpty(host) && host != "+" && host != "*" && host != "localhost")
+				{
+					_listener.Prefixes.Add(string.Format("http://{0}:{1}/", host, _uri.Port));
+				}
+
 				_listener.Prefixes.Add(string.Format("http://+:{0}/", _uri.Port));
+
 				_listener.Start();
 				_running = true;
 				_listenerThread = new Thread(ListenLoop) { IsBackground = true };
@@ -50,13 +59,16 @@ namespace HttpMock
 		{
 			const int timesToWait = 5;
 			var attempts = 0;
+			var connectHost = _uri.Host.TrimEnd('.');
+			if (string.IsNullOrEmpty(connectHost))
+				connectHost = "localhost";
 			using (var tcpClient = new TcpClient())
 			{
 				while (attempts < timesToWait)
 				{
 					try
 					{
-						tcpClient.Connect(_uri.Host, _uri.Port);
+						tcpClient.Connect(connectHost, _uri.Port);
 						return tcpClient.Connected;
 					}
 					catch (SocketException)
