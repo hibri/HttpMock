@@ -7,6 +7,6 @@ namespace HttpMock
         string Method { get; }
         string Uri { get; }
         IDictionary<string, string> Headers { get; }
-        bool HasBody();
+        bool HasEntityBody { get; }
     }
 }
