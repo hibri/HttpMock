@@ -88,13 +88,7 @@ namespace HttpMock
 		}
 
 		public void AddHeader(string header, string headerValue) {
-			if (_headers.ContainsKey(header))
-			{
-				_headers[header] = headerValue;
-			}
-			else {
-				_headers.Add(header, headerValue);
-			}
+			_headers[header] = headerValue;
 		}
 	}
 }
