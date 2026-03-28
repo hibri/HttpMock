@@ -21,7 +21,7 @@ namespace HttpMock.Unit.Tests
             var requestHandlerList = new List<IRequestHandler> { expectedRequest.Object };
 
 
-            var httpRequestHead = new HttpRequestHead { Method = "GET", Path = "/path/", Uri = "/path" };
+            var httpRequestHead = new KayakHttpRequestHeadAdapter(new HttpRequestHead { Method = "GET", Path = "/path/", Uri = "/path" });
 
             var matchedRequest = requestMatcher.Match(httpRequestHead, requestHandlerList);
 
@@ -49,7 +49,7 @@ namespace HttpMock.Unit.Tests
             var requestHandlerList = new List<IRequestHandler> { otherRequest.Object, expectedRequest.Object };
 
 
-            var httpRequestHead = new HttpRequestHead { Method = "GET", Path = "/path/specific", Uri = "/path/specific" };
+            var httpRequestHead = new KayakHttpRequestHeadAdapter(new HttpRequestHead { Method = "GET", Path = "/path/specific", Uri = "/path/specific" });
 
             var matchedRequest = requestMatcher.Match(httpRequestHead, requestHandlerList);
 

@@ -46,9 +46,9 @@ namespace HttpMock.Unit.Tests
 
 	        var requestHandler = new RequestHandler("/path", null);
 	        
-	        requestHandler.RecordRequest(new HttpRequestHead(), "first");
-	        requestHandler.RecordRequest(new HttpRequestHead(), "second");
-	        requestHandler.RecordRequest(new HttpRequestHead(), expected);
+	        requestHandler.RecordRequest(new KayakHttpRequestHeadAdapter(new HttpRequestHead()), "first");
+	        requestHandler.RecordRequest(new KayakHttpRequestHeadAdapter(new HttpRequestHead()), "second");
+	        requestHandler.RecordRequest(new KayakHttpRequestHeadAdapter(new HttpRequestHead()), expected);
 	        
 	        var receivedRequest = requestHandler.LastRequest();
 	        
