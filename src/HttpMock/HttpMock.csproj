@@ -1,10 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net48</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <AssemblyName>HttpMock</AssemblyName>
     <RootNamespace>HttpMock</RootNamespace>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <PackageId>HttpMock</PackageId>
     <Version>2.3.1</Version>
     <Authors>Hibri Marzook</Authors>
@@ -15,9 +14,5 @@
     <PackageTags>httpmock testing stubs http fluent</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Reference Include="System.Web" />
-  </ItemGroup>
 
 </Project>
