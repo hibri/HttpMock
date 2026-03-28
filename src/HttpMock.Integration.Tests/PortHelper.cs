@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
+using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System.IO;
 
@@ -40,7 +41,7 @@ namespace HttpMock.Integration.Tests
 		private static bool IsPortInUse (int randomPort)
 		{
 
-			if (Environment.OSVersion.Platform == PlatformID.Unix) {
+			if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) || RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) {
 				var process = new Process () {
 					StartInfo = new ProcessStartInfo (FindLsof(), "-Pni") {
 						RedirectStandardOutput = true,

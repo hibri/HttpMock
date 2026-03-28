@@ -1,5 +1,8 @@
-using System.IO;
+using System.Linq;
 using System.Net;
+using System.Net.Http;
+using System.Text;
+using System.Threading.Tasks;
 using NUnit.Framework;
 
 namespace HttpMock.Integration.Tests
@@ -7,6 +10,7 @@ namespace HttpMock.Integration.Tests
 	[TestFixture]
 	public class MultipleTestsUsingTheSameStubServerWithDifferentHttpMethods
 	{
+		private static readonly HttpClient _httpClient = new HttpClient();
 		private string _endpointToHit;
 		private IHttpServer _httpMockRepository;
 
@@ -18,117 +22,99 @@ namespace HttpMock.Integration.Tests
 		}
 
 		[Test]
-		public void Should_get()
+		public async Task Should_get()
 		{
 			_httpMockRepository
 				.Stub(x => x.Get("/endpoint"))
 				.Return("I am a GET")
 				.OK();
 
-			AssertResponse("GET", "I am a GET");
+			await AssertResponse("GET", "I am a GET");
 		}
 
 		[Test]
-		public void Should_post()
+		public async Task Should_post()
 		{
 			_httpMockRepository
 				.Stub(x => x.Post("/endpoint"))
 				.Return("I am a POST")
 				.OK();
 
-			AssertResponse("POST", "I am a POST");
+			await AssertResponse("POST", "I am a POST");
 		}
 
 		[Test]
-		public void Should_put()
+		public async Task Should_put()
 		{
 			_httpMockRepository
 				.Stub(x => x.Put("/endpoint"))
 				.Return("I am a PUT")
 				.OK();
 
-			AssertResponse("PUT", "I am a PUT");
+			await AssertResponse("PUT", "I am a PUT");
 		}
 
 		[Test]
-		public void Should_delete()
+		public async Task Should_delete()
 		{
 			_httpMockRepository
 				.Stub(x => x.Delete("/endpoint"))
 				.Return("I am a DELETE")
 				.OK();
 
-			AssertResponse("DELETE", "I am a DELETE");
+			await AssertResponse("DELETE", "I am a DELETE");
 		}
 
 		[Test]
-		public void Should_use_custom_verbs()
+		public async Task Should_use_custom_verbs()
 		{
 			_httpMockRepository.Stub(x => x.CustomVerb("/endpoint", "PURGE")).Return("I am a PURGE").OK();
-			AssertResponse("PURGE", "I am a PURGE");
+			await AssertResponse("PURGE", "I am a PURGE");
 		}
 
 		[Test]
-		public void Should_head()
+		public async Task Should_head()
 		{
 			_httpMockRepository
 				.Stub(x => x.Head("/endpoint"))
 				.Return("I am a HEAD")
 				.OK();
 
-			var webRequest = (HttpWebRequest) WebRequest.Create(_endpointToHit);
-			webRequest.Method = "HEAD";
-			using (var response = webRequest.GetResponse())
-			{
-				Assert.That(response.Headers.Count, Is.GreaterThan(0));
-
-			}
+			var request = new HttpRequestMessage(HttpMethod.Head, _endpointToHit);
+			var response = await _httpClient.SendAsync(request);
+			Assert.That(response.Headers.Count(), Is.GreaterThan(0));
 		}
 
 		[Test]
-		public void If_no_Mocked_Endpoints_matched_then_should_return_404_with_HttpMockError_status()
+		public async Task If_no_Mocked_Endpoints_matched_then_should_return_404_with_HttpMockError_status()
 		{
-			var webRequest = (HttpWebRequest) WebRequest.Create(_endpointToHit + "wibbles");
-			try
-			{
-				using (webRequest.GetResponse())
-				{
-				}
-			}
-			catch (WebException ex)
-			{
-				Assert.That(((HttpWebResponse) ex.Response).StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
-				Assert.That(((HttpWebResponse) ex.Response).Headers["X-HttpMockError"], Is.Not.Null, "Header not set");
-			}
+			var response = await _httpClient.GetAsync(_endpointToHit + "wibbles");
+
+			Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
+			Assert.That(response.Headers.Contains("X-HttpMockError"), Is.True, "Header not set");
 		}
 
 		[Test]
-		public void Should_return_dynamic_data()
+		public async Task Should_return_dynamic_data()
 		{
 			string value = "test1";
 			_httpMockRepository
 				.Stub(x => x.Get("/endpoint"))
 				.Return(() => value)
 				.OK();
-			AssertResponse("GET", "test1");
+			await AssertResponse("GET", "test1");
 			value = "test2";
-			AssertResponse("GET", "test2");
+			await AssertResponse("GET", "test2");
 		}
 
-		private void AssertResponse(string method, string expected)
+		private async Task AssertResponse(string method, string expected)
 		{
-			var webRequest = (HttpWebRequest) WebRequest.Create(_endpointToHit);
-			webRequest.Method = method;
+			var request = new HttpRequestMessage(new HttpMethod(method), _endpointToHit);
 			if (method == "POST" || method == "PUT" || method == "DELETE" || method == "PURGE")
-				webRequest.ContentLength = 0;
-			using (var response = webRequest.GetResponse())
-			{
-				using (var sr = new StreamReader(response.GetResponseStream()))
-				{
-					string readToEnd = sr.ReadToEnd();
-					Assert.That(readToEnd, Is.EqualTo(expected));
-				}
-			}
+				request.Content = new StringContent("", Encoding.UTF8);
+			var response = await _httpClient.SendAsync(request);
+			var readToEnd = await response.Content.ReadAsStringAsync();
+			Assert.That(readToEnd, Is.EqualTo(expected));
 		}
 	}
 }

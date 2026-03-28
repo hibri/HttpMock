@@ -4,6 +4,7 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 
@@ -36,7 +37,7 @@ namespace HttpMock
 				_listener = new HttpListener();
 
 				var host = _uri.Host;
-				if (Environment.OSVersion.Platform != PlatformID.Unix
+				if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && !RuntimeInformation.IsOSPlatform(OSPlatform.OSX)
 				    && !string.IsNullOrEmpty(host) && host != "+" && host != "*" && host != "localhost")
 				{
 					_listener.Prefixes.Add(string.Format("http://{0}:{1}/", host, _uri.Port));

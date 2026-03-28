@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Net.Http;
+using System.Threading.Tasks;
 using NUnit.Framework;
 
 namespace HttpMock.Integration.Tests
@@ -6,8 +7,10 @@ namespace HttpMock.Integration.Tests
 	[TestFixture]
 	public class UsingMultipleServersTests
 	{
+		private static readonly HttpClient _httpClient = new HttpClient();
+
 		[Test, Repeat(3)]
-		public void Should_stubs_on_different_ports_each_time()
+		public async Task Should_stubs_on_different_ports_each_time()
 		{
 			string expected = "expected response";
 			var hostUrl = HostHelper.GenerateAHostUrlForAStubServerWith("app");
@@ -17,9 +20,8 @@ namespace HttpMock.Integration.Tests
 				.Return(expected)
 				.OK();
 
-			WebClient wc = new WebClient();
-
-			Assert.That(wc.DownloadString(string.Format("{0}/endpoint", hostUrl)), Is.EqualTo(expected));
+			var result = await _httpClient.GetStringAsync($"{hostUrl}/endpoint");
+			Assert.That(result, Is.EqualTo(expected));
 		}
 	}
 }

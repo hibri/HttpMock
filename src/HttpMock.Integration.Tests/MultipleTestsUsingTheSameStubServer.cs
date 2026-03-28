@@ -1,4 +1,6 @@
-﻿using System.Net;
+﻿using System.Net.Http;
+using System.Text;
+using System.Threading.Tasks;
 using HttpMock;
 using NUnit.Framework;
 
@@ -7,6 +9,7 @@ namespace SevenDigital.HttpMock.Integration.Tests
 	[TestFixture]
 	public class MultipleTestsUsingTheSameStubServer
 	{
+		private static readonly HttpClient _httpClient = new HttpClient();
 		private IHttpServer _httpMockRepository;
 
 		[OneTimeSetUp]
@@ -15,8 +18,7 @@ namespace SevenDigital.HttpMock.Integration.Tests
 		}
 
 		[Test]
-		public void FirstTest() {
-			var wc = new WebClient();
+		public async Task FirstTest() {
 			string stubbedReponse = "Response for first test";
 			_httpMockRepository
 				.WithNewContext()
@@ -24,12 +26,14 @@ namespace SevenDigital.HttpMock.Integration.Tests
 				.Return(stubbedReponse)
 				.OK();
 
-			Assert.That(wc.UploadString("Http://localhost:8080/firsttest/", ""), Is.EqualTo(stubbedReponse));
+			var response = await _httpClient.PostAsync("http://localhost:8080/firsttest/",
+				new StringContent("", Encoding.UTF8));
+			var result = await response.Content.ReadAsStringAsync();
+			Assert.That(result, Is.EqualTo(stubbedReponse));
 		}
 
 		[Test]
-		public void SecondTest() {
-			var wc = new WebClient();
+		public async Task SecondTest() {
 			string stubbedReponse = "Response for second test";
 			_httpMockRepository
 				.WithNewContext()
@@ -37,12 +41,14 @@ namespace SevenDigital.HttpMock.Integration.Tests
 				.Return(stubbedReponse)
 				.OK();
 
-			Assert.That(wc.UploadString("Http://localhost:8080/secondtest/", ""), Is.EqualTo(stubbedReponse));
+			var response = await _httpClient.PostAsync("http://localhost:8080/secondtest/",
+				new StringContent("", Encoding.UTF8));
+			var result = await response.Content.ReadAsStringAsync();
+			Assert.That(result, Is.EqualTo(stubbedReponse));
 		}
 
 		[Test]
-		public void Stubs_should_be_unique_within_context() {
-			var wc = new WebClient();
+		public async Task Stubs_should_be_unique_within_context() {
 			string stubbedReponseOne = "Response for first test in context";
 			string stubbedReponseTwo = "Response for second test in context";
 
@@ -52,8 +58,16 @@ namespace SevenDigital.HttpMock.Integration.Tests
 
 			stubHttp.Stub(x => x.Post("/secondtest")).Return(stubbedReponseTwo).OK();
 
-			Assert.That(wc.UploadString("Http://localhost:8080/firsttest/", ""), Is.EqualTo(stubbedReponseOne));
-			Assert.That(wc.UploadString("Http://localhost:8080/secondtest/", ""), Is.EqualTo(stubbedReponseTwo));
+			var response1 = await _httpClient.PostAsync("http://localhost:8080/firsttest/",
+				new StringContent("", Encoding.UTF8));
+			var result1 = await response1.Content.ReadAsStringAsync();
+
+			var response2 = await _httpClient.PostAsync("http://localhost:8080/secondtest/",
+				new StringContent("", Encoding.UTF8));
+			var result2 = await response2.Content.ReadAsStringAsync();
+
+			Assert.That(result1, Is.EqualTo(stubbedReponseOne));
+			Assert.That(result2, Is.EqualTo(stubbedReponseTwo));
 		}
 	}
 }
