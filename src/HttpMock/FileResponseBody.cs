@@ -23,7 +23,7 @@ namespace HttpMock
 			using (FileStream fileStream = fileInfo.Open(FileMode.Open, FileAccess.Read))
 			{
 				var buffer = new byte[fileInfo.Length];
-				fileStream.Read(buffer, 0, (int)fileInfo.Length);
+				fileStream.ReadExactly(buffer, 0, (int)fileInfo.Length);
 				int length = (int)fileInfo.Length;
 				int offset = 0;
 

@@ -37,11 +37,11 @@ There are three essential parts to setting up a stub.
 
 
 
-Eample usage:
+Example usage:
 
 ```csharp
 [Test]
-public void SUT_should_return_stubbed_response()
+public async Task SUT_should_return_stubbed_response()
 {
 	_stubHttp = HttpMockRepository.At("http://localhost:9191");
 
@@ -50,7 +50,7 @@ public void SUT_should_return_stubbed_response()
 			.Return(expected)
 			.OK();
 
-	string result = new WebClient().DownloadString("http://localhost:9191/endpoint");
+	string result = await new HttpClient().GetStringAsync("http://localhost:9191/endpoint");
 
 	Console.WriteLine("RESPONSE: {0}", result);
 
