@@ -20,7 +20,7 @@ namespace HttpMock
 		}
 
 		public void OnRequest(IHttpRequestHead request, Stream requestBody, Action<HttpMockResponseHead, byte[]> respond) {
-			_log.LogDebug("Start Processing request for : {Method}:{Uri}", request.Method, request.Uri);
+			_log.LogDebug("Start Processing request for : {Method}:{Uri}", SanitizeForLog(request.Method), SanitizeForLog(request.Uri));
 			if (GetHandlerCount() < 1) {
 				ReturnHttpMockNotFound(respond);
 				return;
@@ -57,7 +57,7 @@ namespace HttpMock
 	                {
 	                    string bufferedBody = reader.ReadToEnd();
 	                    handler.RecordRequest(request, bufferedBody);
-	                    _log.LogDebug("Body: {Body}", bufferedBody);
+	                    _log.LogDebug("Body: {Body}", SanitizeForLog(bufferedBody));
 	                }
 	            }
 	            catch (Exception error)
@@ -72,8 +72,11 @@ namespace HttpMock
 	        }
 
 	        respond(handler.ResponseBuilder.BuildHeaders(), responseBody);
-	        _log.LogDebug("End Processing request for : {Method}:{Uri}", request.Method, request.Uri);
+	        _log.LogDebug("End Processing request for : {Method}:{Uri}", SanitizeForLog(request.Method), SanitizeForLog(request.Uri));
 	    }
+
+		private static string SanitizeForLog(string value) =>
+			value?.Replace("\r", "\\r").Replace("\n", "\\n");
 
 		private int GetHandlerCount() {
 			return _handlers.Count();
