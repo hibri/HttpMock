@@ -35,8 +35,7 @@ namespace HttpMock
 		}
 
 		private RequestHandler CreateHandler(string path, string method) {
-			string cleanedPath = path;
-			var requestHandler = new RequestHandler(cleanedPath, _requestProcessor) {Method = method};
+			var requestHandler = new RequestHandler(path, _requestProcessor) {Method = method};
 			return requestHandler;
 		}
 	}

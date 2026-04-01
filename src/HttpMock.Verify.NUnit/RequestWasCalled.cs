@@ -12,7 +12,7 @@ namespace HttpMock.Verify.NUnit
 
 		public IRequestVerify Get(string path)
 		{
-			return AssertHandler("GET", path);
+			return CustomVerb("GET", path);
 		}
 
 		private IRequestVerify AssertHandler(string method, string path) {

@@ -33,10 +33,10 @@ namespace HttpMock
 				ReturnHttpMockNotFound(respond);
 				return;
 			}
-			HandleRequest(request, requestBody, respond, handler);
+			_ = HandleRequest(request, requestBody, respond, handler);
 		}
 
-	    private static async void HandleRequest(IHttpRequestHead request, Stream requestBody, Action<HttpMockResponseHead, byte[]> respond, IRequestHandler handler)
+	    private static async Task HandleRequest(IHttpRequestHead request, Stream requestBody, Action<HttpMockResponseHead, byte[]> respond, IRequestHandler handler)
 	    {
 	        _log.LogDebug("Matched a handler {Method}:{Path} {QueryParams}", handler.Method, handler.Path, DumpQueryParams(handler.QueryParams));
 
