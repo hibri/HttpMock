@@ -2,15 +2,15 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace HttpMock
 {
 	public class RequestProcessor :  IRequestProcessor
 	{
-		private static readonly ILog _log = LogFactory.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+		private static readonly ILogger<RequestProcessor> _log = HttpMockLogging.CreateLogger<RequestProcessor>();
 	    private IRequestHandlerList _handlers;
 	    private readonly RequestMatcher _requestMatcher;
 
@@ -20,7 +20,7 @@ namespace HttpMock
 		}
 
 		public void OnRequest(IHttpRequestHead request, Stream requestBody, Action<HttpMockResponseHead, byte[]> respond) {
-			_log.DebugFormat("Start Processing request for : {0}:{1}", request.Method, request.Uri);
+			_log.LogDebug("Start Processing request for : {Method}:{Uri}", request.Method, request.Uri);
 			if (GetHandlerCount() < 1) {
 				ReturnHttpMockNotFound(respond);
 				return;
@@ -29,7 +29,7 @@ namespace HttpMock
 			var handler = _requestMatcher.Match(request, _handlers);
 
 			if (handler == null) {
-				_log.DebugFormat("No Handlers matched");
+				_log.LogDebug("No Handlers matched");
 				ReturnHttpMockNotFound(respond);
 				return;
 			}
@@ -38,7 +38,7 @@ namespace HttpMock
 
 	    private static async void HandleRequest(IHttpRequestHead request, Stream requestBody, Action<HttpMockResponseHead, byte[]> respond, IRequestHandler handler)
 	    {
-	        _log.DebugFormat("Matched a handler {0}:{1} {2}", handler.Method, handler.Path, DumpQueryParams(handler.QueryParams));
+	        _log.LogDebug("Matched a handler {Method}:{Path} {QueryParams}", handler.Method, handler.Path, DumpQueryParams(handler.QueryParams));
 
             if (handler.ResponseDelay > TimeSpan.Zero)
             {
@@ -57,12 +57,12 @@ namespace HttpMock
 	                {
 	                    string bufferedBody = reader.ReadToEnd();
 	                    handler.RecordRequest(request, bufferedBody);
-	                    _log.DebugFormat("Body: {0}", bufferedBody);
+	                    _log.LogDebug("Body: {Body}", bufferedBody);
 	                }
 	            }
 	            catch (Exception error)
 	            {
-	                _log.DebugFormat("Error while reading body {0}", error.Message);
+	                _log.LogDebug("Error while reading body {ErrorMessage}", error.Message);
 	                handler.RecordRequest(request, null);
 	            }
 	        }
@@ -72,7 +72,7 @@ namespace HttpMock
 	        }
 
 	        respond(handler.ResponseBuilder.BuildHeaders(), responseBody);
-	        _log.DebugFormat("End Processing request for : {0}:{1}", request.Method, request.Uri);
+	        _log.LogDebug("End Processing request for : {Method}:{Uri}", request.Method, request.Uri);
 	    }
 
 		private int GetHandlerCount() {

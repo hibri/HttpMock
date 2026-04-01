@@ -6,25 +6,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="log4net" Version="3.1.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.0" />
     <PackageReference Include="NUnit" Version="4.3.2" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\HttpMock.Logging.Log4Net\HttpMock.Logging.Log4Net.csproj" />
     <ProjectReference Include="..\HttpMock.Verify.NUnit\HttpMock.Verify.NUnit.csproj" />
     <ProjectReference Include="..\HttpMock\HttpMock.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="App.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="App.local.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Content Include="res\transcode-input.mp3">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

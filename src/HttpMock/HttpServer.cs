@@ -3,16 +3,16 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
+using Microsoft.Extensions.Logging;
 
 namespace HttpMock
 {
 	public class HttpServer : IHttpServer
 	{
-		private static readonly ILog _log = LogFactory.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+		private static readonly ILogger<HttpServer> _log = HttpMockLogging.CreateLogger<HttpServer>();
 		private readonly RequestHandlerFactory _requestHandlerFactory;
 		private readonly IRequestProcessor _requestProcessor;
 		private readonly Uri _uri;
@@ -131,7 +131,7 @@ namespace HttpMock
 				}
 				catch (Exception ex)
 				{
-					_log.Error("Error in listen loop", ex);
+					_log.LogError(ex, "Error in listen loop");
 				}
 			}
 		}
@@ -161,7 +161,7 @@ namespace HttpMock
 			}
 			catch (Exception ex)
 			{
-				_log.Error("Error handling request", ex);
+				_log.LogError(ex, "Error handling request");
 				try { context.Response.StatusCode = 500; context.Response.Close(); } catch { }
 			}
 		}

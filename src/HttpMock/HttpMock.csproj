@@ -7,12 +7,16 @@
     <PackageId>HttpMock</PackageId>
     <Version>2.3.1</Version>
     <Authors>Hibri Marzook</Authors>
-    <Description>A library for creating Http servers on the fly in tests and stubbing responses. The verification calls have now moved to HttpMock.Verify.NUnit. Use HttpMock.Logging.Log4Net for logging to the console.</Description>
+    <Description>A library for creating Http servers on the fly in tests and stubbing responses. The verification calls have now moved to HttpMock.Verify.NUnit. Use HttpMockLogging.Configure(ILoggerFactory) to enable logging via any Microsoft.Extensions.Logging-compatible provider (including OpenTelemetry).</Description>
     <PackageProjectUrl>https://github.com/hibri/HttpMock</PackageProjectUrl>
     <RepositoryUrl>https://github.com/hibri/HttpMock</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>httpmock testing stubs http fluent</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.3" />
+  </ItemGroup>
 
 </Project>
