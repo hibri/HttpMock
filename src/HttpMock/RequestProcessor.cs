@@ -10,13 +10,14 @@ namespace HttpMock
 {
 	public class RequestProcessor :  IRequestProcessor
 	{
-		private static readonly ILogger<RequestProcessor> _log = HttpMockLogging.CreateLogger<RequestProcessor>();
+		private readonly ILogger<RequestProcessor> _log;
 	    private IRequestHandlerList _handlers;
 	    private readonly RequestMatcher _requestMatcher;
 
-	    public RequestProcessor(IMatchingRule matchingRule, IRequestHandlerList requestHandlers) {
+	    public RequestProcessor(IMatchingRule matchingRule, IRequestHandlerList requestHandlers, ILoggerFactory loggerFactory = null) {
 	        _handlers = requestHandlers;
 		    _requestMatcher = new RequestMatcher(matchingRule);
+		    _log = (loggerFactory ?? HttpMockLogging.GetLoggerFactory()).CreateLogger<RequestProcessor>();
 		}
 
 		public void OnRequest(IHttpRequestHead request, Stream requestBody, Action<HttpMockResponseHead, byte[]> respond) {
@@ -36,9 +37,12 @@ namespace HttpMock
 			_ = HandleRequest(request, requestBody, respond, handler);
 		}
 
-	    private static async Task HandleRequest(IHttpRequestHead request, Stream requestBody, Action<HttpMockResponseHead, byte[]> respond, IRequestHandler handler)
+	    private async Task HandleRequest(IHttpRequestHead request, Stream requestBody, Action<HttpMockResponseHead, byte[]> respond, IRequestHandler handler)
 	    {
-	        _log.LogDebug("Matched a handler {Method}:{Path} {QueryParams}", handler.Method, handler.Path, DumpQueryParams(handler.QueryParams));
+	        if (_log.IsEnabled(LogLevel.Debug))
+	        {
+	            _log.LogDebug("Matched a handler {Method}:{Path} {QueryParams}", handler.Method, handler.Path, DumpQueryParams(handler.QueryParams));
+	        }
 
             if (handler.ResponseDelay > TimeSpan.Zero)
             {
@@ -57,12 +61,15 @@ namespace HttpMock
 	                {
 	                    string bufferedBody = reader.ReadToEnd();
 	                    handler.RecordRequest(request, bufferedBody);
-	                    _log.LogDebug("Body: {Body}", SanitizeForLog(bufferedBody));
+	                    if (_log.IsEnabled(LogLevel.Debug))
+	                    {
+	                        _log.LogDebug("Body: {Body}", SanitizeForLog(bufferedBody));
+	                    }
 	                }
 	            }
 	            catch (Exception error)
 	            {
-	                _log.LogDebug("Error while reading body {ErrorMessage}", error.Message);
+	                _log.LogDebug(error, "Error while reading body");
 	                handler.RecordRequest(request, null);
 	            }
 	        }

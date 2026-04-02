@@ -10,11 +10,12 @@ namespace HttpMock
 	class FileResponseBody : IResponse
 	{
 		private readonly string _filepath;
-		private static readonly ILogger<FileResponseBody> _log = HttpMockLogging.CreateLogger<FileResponseBody>();
+		private readonly ILogger<FileResponseBody> _log;
 		private IDictionary<string, string> _requestHeaders;
 
 		public FileResponseBody(string filepath) {
 			_filepath = filepath;
+			_log = HttpMockLogging.CreateLogger<FileResponseBody>();
 		}
 
 		public byte[] GetBytes()

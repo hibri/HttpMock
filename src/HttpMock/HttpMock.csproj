@@ -5,9 +5,9 @@
     <AssemblyName>HttpMock</AssemblyName>
     <RootNamespace>HttpMock</RootNamespace>
     <PackageId>HttpMock</PackageId>
-    <Version>2.3.1</Version>
+    <Version>3.0.0</Version>
     <Authors>Hibri Marzook</Authors>
-    <Description>A library for creating Http servers on the fly in tests and stubbing responses. The verification calls have now moved to HttpMock.Verify.NUnit. Use HttpMockLogging.Configure(ILoggerFactory) to enable logging via any Microsoft.Extensions.Logging-compatible provider (including OpenTelemetry).</Description>
+    <Description>A library for creating Http servers on the fly in tests and stubbing responses. The verification calls have now moved to HttpMock.Verify.NUnit. Pass an ILoggerFactory to HttpServer for logging via any Microsoft.Extensions.Logging-compatible provider (e.g. console, OpenTelemetry). HttpMockLogging.Configure(ILoggerFactory) is available as a global fallback.</Description>
     <PackageProjectUrl>https://github.com/hibri/HttpMock</PackageProjectUrl>
     <RepositoryUrl>https://github.com/hibri/HttpMock</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
