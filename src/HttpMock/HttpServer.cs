@@ -3,16 +3,16 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
+using Microsoft.Extensions.Logging;
 
 namespace HttpMock
 {
 	public class HttpServer : IHttpServer
 	{
-		private static readonly ILog _log = LogFactory.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+		private readonly ILogger<HttpServer> _log;
 		private readonly RequestHandlerFactory _requestHandlerFactory;
 		private readonly IRequestProcessor _requestProcessor;
 		private readonly Uri _uri;
@@ -20,10 +20,19 @@ namespace HttpMock
 		private Thread _listenerThread;
 		private volatile bool _running;
 
-		public HttpServer(Uri uri)
+		/// <summary>
+		/// Creates a new <see cref="HttpServer"/> bound to <paramref name="uri"/>.
+		/// Pass your application's <see cref="ILoggerFactory"/> to enable logging via any
+		/// Microsoft.Extensions.Logging-compatible provider (e.g. console, OpenTelemetry).
+		/// When <paramref name="loggerFactory"/> is <see langword="null"/> the globally
+		/// configured <see cref="HttpMockLogging"/> factory is used, falling back to a
+		/// no-op logger.
+		/// </summary>
+		public HttpServer(Uri uri, ILoggerFactory loggerFactory = null)
 		{
 			_uri = uri;
-			_requestProcessor = new RequestProcessor(new EndpointMatchingRule(), new RequestHandlerList());
+			_log = (loggerFactory ?? HttpMockLogging.GetLoggerFactory()).CreateLogger<HttpServer>();
+			_requestProcessor = new RequestProcessor(new EndpointMatchingRule(), new RequestHandlerList(), loggerFactory);
 			_requestHandlerFactory = new RequestHandlerFactory(_requestProcessor);
 		}
 
@@ -131,7 +140,7 @@ namespace HttpMock
 				}
 				catch (Exception ex)
 				{
-					_log.Error("Error in listen loop", ex);
+					_log.LogError(ex, "Error in listen loop");
 				}
 			}
 		}
@@ -161,7 +170,7 @@ namespace HttpMock
 			}
 			catch (Exception ex)
 			{
-				_log.Error("Error handling request", ex);
+				_log.LogError(ex, "Error handling request");
 				try { context.Response.StatusCode = 500; context.Response.Close(); } catch { }
 			}
 		}

@@ -2,25 +2,26 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace HttpMock
 {
 	public class RequestProcessor :  IRequestProcessor
 	{
-		private static readonly ILog _log = LogFactory.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+		private readonly ILogger<RequestProcessor> _log;
 	    private IRequestHandlerList _handlers;
 	    private readonly RequestMatcher _requestMatcher;
 
-	    public RequestProcessor(IMatchingRule matchingRule, IRequestHandlerList requestHandlers) {
+	    public RequestProcessor(IMatchingRule matchingRule, IRequestHandlerList requestHandlers, ILoggerFactory loggerFactory = null) {
 	        _handlers = requestHandlers;
 		    _requestMatcher = new RequestMatcher(matchingRule);
+		    _log = (loggerFactory ?? HttpMockLogging.GetLoggerFactory()).CreateLogger<RequestProcessor>();
 		}
 
 		public void OnRequest(IHttpRequestHead request, Stream requestBody, Action<HttpMockResponseHead, byte[]> respond) {
-			_log.DebugFormat("Start Processing request for : {0}:{1}", request.Method, request.Uri);
+			_log.LogDebug("Start Processing request for : {Method}:{Uri}", SanitizeForLog(request.Method), SanitizeForLog(request.Uri));
 			if (GetHandlerCount() < 1) {
 				ReturnHttpMockNotFound(respond);
 				return;
@@ -29,16 +30,19 @@ namespace HttpMock
 			var handler = _requestMatcher.Match(request, _handlers);
 
 			if (handler == null) {
-				_log.DebugFormat("No Handlers matched");
+				_log.LogDebug("No Handlers matched");
 				ReturnHttpMockNotFound(respond);
 				return;
 			}
 			_ = HandleRequest(request, requestBody, respond, handler);
 		}
 
-	    private static async Task HandleRequest(IHttpRequestHead request, Stream requestBody, Action<HttpMockResponseHead, byte[]> respond, IRequestHandler handler)
+	    private async Task HandleRequest(IHttpRequestHead request, Stream requestBody, Action<HttpMockResponseHead, byte[]> respond, IRequestHandler handler)
 	    {
-	        _log.DebugFormat("Matched a handler {0}:{1} {2}", handler.Method, handler.Path, DumpQueryParams(handler.QueryParams));
+	        if (_log.IsEnabled(LogLevel.Debug))
+	        {
+	            _log.LogDebug("Matched a handler {Method}:{Path} {QueryParams}", handler.Method, handler.Path, DumpQueryParams(handler.QueryParams));
+	        }
 
             if (handler.ResponseDelay > TimeSpan.Zero)
             {
@@ -57,12 +61,15 @@ namespace HttpMock
 	                {
 	                    string bufferedBody = reader.ReadToEnd();
 	                    handler.RecordRequest(request, bufferedBody);
-	                    _log.DebugFormat("Body: {0}", bufferedBody);
+	                    if (_log.IsEnabled(LogLevel.Debug))
+	                    {
+	                        _log.LogDebug("Body: {Body}", SanitizeForLog(bufferedBody));
+	                    }
 	                }
 	            }
 	            catch (Exception error)
 	            {
-	                _log.DebugFormat("Error while reading body {0}", error.Message);
+	                _log.LogDebug(error, "Error while reading body");
 	                handler.RecordRequest(request, null);
 	            }
 	        }
@@ -72,8 +79,11 @@ namespace HttpMock
 	        }
 
 	        respond(handler.ResponseBuilder.BuildHeaders(), responseBody);
-	        _log.DebugFormat("End Processing request for : {0}:{1}", request.Method, request.Uri);
+	        _log.LogDebug("End Processing request for : {Method}:{Uri}", SanitizeForLog(request.Method), SanitizeForLog(request.Uri));
 	    }
+
+		private static string SanitizeForLog(string value) =>
+			value?.Replace("\r", "\\r").Replace("\n", "\\n");
 
 		private int GetHandlerCount() {
 			return _handlers.Count();

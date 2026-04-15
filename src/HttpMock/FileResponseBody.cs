@@ -2,19 +2,20 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
-using System.Reflection;
 using System.Text.RegularExpressions;
+using Microsoft.Extensions.Logging;
 
 namespace HttpMock
 {
 	class FileResponseBody : IResponse
 	{
 		private readonly string _filepath;
-		private static readonly ILog _log = LogFactory.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+		private readonly ILogger<FileResponseBody> _log;
 		private IDictionary<string, string> _requestHeaders;
 
 		public FileResponseBody(string filepath) {
 			_filepath = filepath;
+			_log = HttpMockLogging.CreateLogger<FileResponseBody>();
 		}
 
 		public byte[] GetBytes()
@@ -42,7 +43,7 @@ namespace HttpMock
 
 				var result = new byte[length];
 				Array.Copy(buffer, offset, result, 0, length);
-				_log.DebugFormat("Wrote {0} bytes to buffer", length);
+				_log.LogDebug("Wrote {Length} bytes to buffer", length);
 				return result;
 			}
 		}
