@@ -39,7 +39,7 @@ namespace HttpMock
 			{
 				try
 				{
-					using var reader = new StreamReader(requestBody, Encoding.UTF8, false, 4096, leaveOpen: false);
+					using var reader = new StreamReader(requestBody, Encoding.UTF8);
 					bufferedBody = reader.ReadToEnd();
 				}
 				catch (Exception error)
