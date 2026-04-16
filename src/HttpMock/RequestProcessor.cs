@@ -23,7 +23,10 @@ namespace HttpMock
 		}
 
 		public void OnRequest(IHttpRequestHead request, Stream requestBody, Action<HttpMockResponseHead, byte[]> respond) {
-			_log.LogDebug("Start Processing request for : {Method}:{Uri}", SanitizeForLog(request.Method), SanitizeForLog(request.Uri));
+			if (_log.IsEnabled(LogLevel.Debug))
+			{
+				_log.LogDebug("Start Processing request for : {Method}:{Uri}", SanitizeForLog(request.Method), SanitizeForLog(request.Uri));
+			}
 			if (GetHandlerCount() < 1) {
 				using var noHandlersActivity = HttpMockActivitySource.Source.StartActivity("httpmock.request");
 				noHandlersActivity?.SetTag("http.request.method", request.Method);
@@ -101,7 +104,10 @@ namespace HttpMock
 	        var statusCode = statusParts is { Length: > 0 } ? statusParts[0] : null;
 	        activity?.SetTag("http.response.status_code", statusCode);
 	        respond(responseHead, responseBody);
-	        _log.LogDebug("End Processing request for : {Method}:{Uri}", SanitizeForLog(request.Method), SanitizeForLog(request.Uri));
+	        if (_log.IsEnabled(LogLevel.Debug))
+	        {
+	            _log.LogDebug("End Processing request for : {Method}:{Uri}", SanitizeForLog(request.Method), SanitizeForLog(request.Uri));
+	        }
 	    }
 
 		private static string SanitizeForLog(string value) =>

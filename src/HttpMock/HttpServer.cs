@@ -189,17 +189,13 @@ namespace HttpMock
 				{
 					foreach (var header in head.Headers)
 					{
-						switch (header.Key.ToLowerInvariant())
+						if (string.Equals(header.Key, "Content-Type", StringComparison.OrdinalIgnoreCase))
 						{
-							case "content-type":
-								response.ContentType = header.Value;
-								break;
-							case "content-length":
-								// set below via ContentLength64
-								break;
-							default:
-								response.Headers[header.Key] = header.Value;
-								break;
+							response.ContentType = header.Value;
+						}
+						else if (!string.Equals(header.Key, "Content-Length", StringComparison.OrdinalIgnoreCase))
+						{
+							response.Headers[header.Key] = header.Value;
 						}
 					}
 				}

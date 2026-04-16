@@ -17,7 +17,7 @@ namespace HttpMock
 			_dataFunc = data;
 		}
 
-		public Func<int> Length => () => _dataFunc().Length;
+		public Func<int> Length => () => GetBytes().Length;
 
 		public byte[] GetBytes()
 		{
