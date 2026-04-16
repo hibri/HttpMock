@@ -11,6 +11,7 @@ namespace HttpMock
 {
 	public class RequestProcessor :  IRequestProcessor
 	{
+		private const string NotFoundStatusCode = "404";
 		private readonly ILogger<RequestProcessor> _log;
 	    private IRequestHandlerList _handlers;
 	    private readonly RequestMatcher _requestMatcher;
@@ -28,7 +29,7 @@ namespace HttpMock
 				noHandlersActivity?.SetTag("http.request.method", request.Method);
 				noHandlersActivity?.SetTag("url.path", request.Uri);
 				noHandlersActivity?.SetTag("httpmock.matched", false);
-				noHandlersActivity?.SetTag("http.response.status_code", "404");
+				noHandlersActivity?.SetTag("http.response.status_code", NotFoundStatusCode);
 				ReturnHttpMockNotFound(respond);
 				return;
 			}
@@ -41,7 +42,7 @@ namespace HttpMock
 				noMatchActivity?.SetTag("http.request.method", request.Method);
 				noMatchActivity?.SetTag("url.path", request.Uri);
 				noMatchActivity?.SetTag("httpmock.matched", false);
-				noMatchActivity?.SetTag("http.response.status_code", "404");
+				noMatchActivity?.SetTag("http.response.status_code", NotFoundStatusCode);
 				ReturnHttpMockNotFound(respond);
 				return;
 			}
@@ -98,7 +99,8 @@ namespace HttpMock
 	        }
 
 	        var responseHead = handler.ResponseBuilder.BuildHeaders();
-	        activity?.SetTag("http.response.status_code", responseHead.Status?.Split(' ')[0]);
+	        var statusCode = responseHead.Status?.Split(' ') is { Length: > 0 } parts ? parts[0] : null;
+	        activity?.SetTag("http.response.status_code", statusCode);
 	        respond(responseHead, responseBody);
 	        _log.LogDebug("End Processing request for : {Method}:{Uri}", SanitizeForLog(request.Method), SanitizeForLog(request.Uri));
 	    }
