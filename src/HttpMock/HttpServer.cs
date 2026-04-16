@@ -149,7 +149,7 @@ namespace HttpMock
 		{
 			try
 			{
-				var headers = new Dictionary<string, string>();
+				var headers = new Dictionary<string, string>(context.Request.Headers.Count);
 				foreach (string key in context.Request.Headers)
 				{
 					if (key != null)
