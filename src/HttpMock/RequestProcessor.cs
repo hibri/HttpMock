@@ -108,7 +108,7 @@ namespace HttpMock
 			value?.Replace("\r", "\\r").Replace("\n", "\\n");
 
 		private int GetHandlerCount() {
-			return _handlers.Count();
+			return _handlers.Count;
 		}
 
 	    public IRequestVerify FindHandler(string method, string path) {
@@ -132,7 +132,7 @@ namespace HttpMock
 
 			var notFoundResponse = new HttpMockResponseHead
 			{
-				Status = string.Format("{0} {1}", 404, "NotFound"),
+				Status = $"{404} NotFound",
 				Headers = dictionary
 			};
 			respond(notFoundResponse, null);

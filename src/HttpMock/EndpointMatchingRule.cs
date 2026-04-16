@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
@@ -9,6 +10,7 @@ namespace HttpMock
 {
 	public class EndpointMatchingRule : IMatchingRule
 	{
+		private static readonly ConcurrentDictionary<string, Regex> PathRegexCache = new();
 		private readonly HeaderMatch _headerMatch;
 		private readonly QueryParamMatch _queryParamMatch;
 
@@ -55,7 +57,8 @@ namespace HttpMock
 	        {
 	            pathToMatch = request.Uri.Substring(0, positionOfQueryStart);
 	        }
-            var pathMatch = new Regex(string.Format(@"^{0}\/*$", Regex.Escape(requestHandler.Path)));
+            var pathMatch = PathRegexCache.GetOrAdd(requestHandler.Path,
+                static path => new Regex($@"^{Regex.Escape(path)}\/*$", RegexOptions.Compiled));
 	        return pathMatch.IsMatch(pathToMatch);
 	    }
 

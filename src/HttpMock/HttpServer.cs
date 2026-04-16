@@ -49,10 +49,10 @@ namespace HttpMock
 				if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && !RuntimeInformation.IsOSPlatform(OSPlatform.OSX)
 				    && !string.IsNullOrEmpty(host) && host != "+" && host != "*" && host != "localhost")
 				{
-					_listener.Prefixes.Add(string.Format("http://{0}:{1}/", host, _uri.Port));
+					_listener.Prefixes.Add($"http://{host}:{_uri.Port}/");
 				}
 
-				_listener.Prefixes.Add(string.Format("http://+:{0}/", _uri.Port));
+				_listener.Prefixes.Add($"http://+:{_uri.Port}/");
 
 				_listener.Start();
 				_running = true;
