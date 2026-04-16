@@ -34,7 +34,21 @@ namespace HttpMock
 				return;
 			}
 
-			var handler = _requestMatcher.Match(request, _handlers);
+			string bufferedBody = null;
+			if (request.HasEntityBody && requestBody != null)
+			{
+				try
+				{
+					using var reader = new StreamReader(requestBody, Encoding.UTF8);
+					bufferedBody = reader.ReadToEnd();
+				}
+				catch (Exception error)
+				{
+					_log.LogDebug(error, "Error while reading body");
+				}
+			}
+
+			var handler = _requestMatcher.Match(request, _handlers, bufferedBody);
 
 			if (handler == null) {
 				_log.LogDebug("No Handlers matched");
@@ -46,10 +60,14 @@ namespace HttpMock
 				ReturnHttpMockNotFound(respond);
 				return;
 			}
-			_ = HandleRequest(request, requestBody, respond, handler);
+
+			_ = HandleRequest(request, bufferedBody, respond, handler)
+				.ContinueWith(
+					t => _log.LogError(t.Exception?.InnerException ?? t.Exception, "Unhandled error processing request"),
+					TaskContinuationOptions.OnlyOnFaulted);
 		}
 
-	    private async Task HandleRequest(IHttpRequestHead request, Stream requestBody, Action<HttpMockResponseHead, byte[]> respond, IRequestHandler handler)
+	    private async Task HandleRequest(IHttpRequestHead request, string bufferedBody, Action<HttpMockResponseHead, byte[]> respond, IRequestHandler handler)
 	    {
 	        using var activity = HttpMockActivitySource.Source.StartActivity("httpmock.request");
 	        activity?.SetTag("http.request.method", request.Method);
@@ -72,30 +90,10 @@ namespace HttpMock
 	            ? handler.ResponseBuilder.BuildBody(request.Headers)
 	            : null;
 
-	        if (request.HasEntityBody && requestBody != null)
+	        handler.RecordRequest(request, bufferedBody);
+	        if (bufferedBody != null && _log.IsEnabled(LogLevel.Debug))
 	        {
-	            try
-	            {
-	                using (var reader = new StreamReader(requestBody, Encoding.UTF8, false, 4096, leaveOpen: true))
-	                {
-	                    string bufferedBody = reader.ReadToEnd();
-	                    handler.RecordRequest(request, bufferedBody);
-	                    if (_log.IsEnabled(LogLevel.Debug))
-	                    {
-	                        _log.LogDebug("Body: {Body}", SanitizeForLog(bufferedBody));
-	                    }
-	                }
-	            }
-	            catch (Exception error)
-	            {
-	                _log.LogDebug(error, "Error while reading body");
-	                activity?.SetStatus(ActivityStatusCode.Error, error.Message);
-	                handler.RecordRequest(request, null);
-	            }
-	        }
-	        else
-	        {
-	            handler.RecordRequest(request, null);
+	            _log.LogDebug("Body: {Body}", SanitizeForLog(bufferedBody));
 	        }
 
 	        var responseHead = handler.ResponseBuilder.BuildHeaders();

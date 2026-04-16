@@ -160,6 +160,32 @@ stubHttp.Stub(x => x.Post("/api"))
 The stub above responds only when the URL does **not** contain `/admin`; otherwise HttpMock returns a 404.
 
 
+## Matching by Request Body
+
+Use `.WithBody` to match only requests whose body equals a specific string, or satisfies an arbitrary predicate. This lets you register multiple stubs for the same path and method and route by body content.
+
+```csharp
+// Match an exact body string
+stubHttp.Stub(x => x.Post("/orders"))
+    .WithBody("{\"type\":\"create\"}")
+    .Return("created")
+    .OK();
+
+stubHttp.Stub(x => x.Post("/orders"))
+    .WithBody("{\"type\":\"cancel\"}")
+    .Return("cancelled")
+    .OK();
+
+// Match using a predicate
+stubHttp.Stub(x => x.Post("/search"))
+    .WithBody(body => body != null && body.Contains("urgent"))
+    .Return("priority result")
+    .OK();
+```
+
+Requests whose body does not satisfy any registered body constraint for a path receive a 404.
+
+
 ## Delayed Responses
 
 Introduce an artificial delay to simulate slow services. Pass a value in milliseconds or a `TimeSpan`.

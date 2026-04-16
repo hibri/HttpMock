@@ -1,32 +1,40 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
 
 namespace HttpMock
 {
 	public class HttpServerFactory
 	{
+		private readonly object _serverLock = new object();
 		private readonly Dictionary<int, IHttpServer> _httpServers = new Dictionary<int, IHttpServer>();
 
-		public IHttpServer Get(Uri uri)
+		public IHttpServer Get(Uri uri, ILoggerFactory loggerFactory = null)
 		{
-			if (_httpServers.ContainsKey(uri.Port))
+			lock (_serverLock)
 			{
-				IHttpServer httpServer = _httpServers[uri.Port];
-				if (httpServer.IsAvailable())
-					return httpServer;
+				if (_httpServers.TryGetValue(uri.Port, out var existing) && existing.IsAvailable())
+					return existing;
+
+				var server = BuildServer(uri, loggerFactory);
+				_httpServers[uri.Port] = server;
+				return server;
 			}
-
-			return Create(uri);
 		}
 
-		public IHttpServer Create(Uri uri) {
-			IHttpServer httpServer = BuildServer(uri);
-			_httpServers[uri.Port] = httpServer;
-			return httpServer;
+		public IHttpServer Create(Uri uri, ILoggerFactory loggerFactory = null)
+		{
+			var server = BuildServer(uri, loggerFactory);
+			lock (_serverLock)
+			{
+				_httpServers[uri.Port] = server;
+			}
+			return server;
 		}
 
-		private IHttpServer BuildServer(Uri uri) {
-			IHttpServer httpServer = new HttpServer(uri);
+		private static IHttpServer BuildServer(Uri uri, ILoggerFactory loggerFactory = null)
+		{
+			IHttpServer httpServer = new HttpServer(uri, loggerFactory);
 			httpServer.Start();
 			return httpServer;
 		}
