@@ -128,7 +128,9 @@ namespace HttpMock
 				try
 				{
 					var context = await _listener.GetContextAsync();
-					_ = HandleContextAsync(context);
+					_ = HandleContextAsync(context).ContinueWith(
+						t => _log.LogError(t.Exception?.InnerException ?? t.Exception, "Unhandled error in request handler"),
+						TaskContinuationOptions.OnlyOnFaulted);
 				}
 				catch (HttpListenerException)
 				{
