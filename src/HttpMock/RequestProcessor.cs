@@ -96,8 +96,9 @@ namespace HttpMock
 	            _log.LogDebug("Body: {Body}", SanitizeForLog(bufferedBody));
 	        }
 
-	        var responseHead = handler.ResponseBuilder.BuildHeaders();
-	        var statusCode = responseHead.Status?.Split(' ') is { Length: > 0 } parts ? parts[0] : null;
+	        var responseHead = handler.ResponseBuilder.BuildHeaders(responseBody?.Length);
+	        var statusParts = responseHead.Status?.Split(' ');
+	        var statusCode = statusParts is { Length: > 0 } ? statusParts[0] : null;
 	        activity?.SetTag("http.response.status_code", statusCode);
 	        respond(responseHead, responseBody);
 	        _log.LogDebug("End Processing request for : {Method}:{Uri}", SanitizeForLog(request.Method), SanitizeForLog(request.Uri));
