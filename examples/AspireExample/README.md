@@ -52,31 +52,33 @@ builder.AddProject<Projects.AspireExample_WeatherApi>("weatherapi")
     .WithReference(externalWeatherApi);
 ```
 
-### 3. Tests start an HttpMock server and override the connection string
+### 3. Tests create the app once and reuse it across the suite
+
+The Aspire application and HttpMock server are created once in `[OneTimeSetUp]`.
+Each test calls `WithNewContext()` to clear previous stubs and register fresh ones —
+exactly the same pattern used in HttpMock's own integration tests.
 
 ```csharp
-// Start HttpMock on a random available port
+// OneTimeSetUp — runs once for the entire test fixture
 var mockUrl = $"http://localhost:{FindAvailablePort()}";
-using var mockServer = HttpMockRepository.At(mockUrl);
+_mockServer = HttpMockRepository.At(mockUrl);
 
-// Stub the downstream response
-mockServer.Stub(x => x.Get("/api/weather"))
+var appHost = await DistributedApplicationTestingBuilder
+    .CreateAsync<Projects.AspireExample_AppHost>();
+appHost.Configuration["ConnectionStrings:ExternalWeatherApi"] = mockUrl;
+
+_app = await appHost.BuildAsync();
+await _app.StartAsync();
+_httpClient = _app.CreateHttpClient("weatherapi");
+
+// Each test — swap stubs without rebuilding the app
+_mockServer.WithNewContext()
+    .Stub(x => x.Get("/api/weather"))
     .Return(jsonPayload)
     .AsContentType("application/json")
     .OK();
 
-// Build the Aspire app, pointing the downstream URL to HttpMock
-var appHost = await DistributedApplicationTestingBuilder
-    .CreateAsync<Projects.AspireExample_AppHost>();
-
-appHost.Configuration["ConnectionStrings:ExternalWeatherApi"] = mockUrl;
-
-await using var app = await appHost.BuildAsync();
-await app.StartAsync();
-
-// Call the WeatherApi — it hits HttpMock instead of a real service
-using var httpClient = app.CreateHttpClient("weatherapi");
-var response = await httpClient.GetAsync("/weatherforecast");
+var response = await _httpClient.GetAsync("/weatherforecast");
 ```
 
 ## Prerequisites

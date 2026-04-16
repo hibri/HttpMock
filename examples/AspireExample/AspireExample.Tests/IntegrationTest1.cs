@@ -1,6 +1,6 @@
 using System.Text.Json;
+using Aspire.Hosting;
 using HttpMock;
-using Microsoft.Extensions.Logging;
 
 namespace AspireExample.Tests;
 
@@ -8,59 +8,88 @@ namespace AspireExample.Tests;
 /// Demonstrates how to use HttpMock with .NET Aspire to mock a downstream API
 /// during integration testing. The WeatherApi service calls an external weather
 /// API; these tests replace that external dependency with an HttpMock stub server.
+///
+/// The Aspire application and HttpMock server are created once for the entire
+/// test suite in <see cref="OneTimeSetUp"/>. Each test calls
+/// <see cref="IHttpServer.WithNewContext"/> to clear previous stubs and register
+/// fresh ones, following the same pattern used in the main HttpMock integration tests.
 /// </summary>
 public class WeatherApiTests
 {
     private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(60);
 
-    [Test]
-    public async Task GetWeatherForecast_ReturnsMockedData()
+    private DistributedApplication _app = null!;
+    private IHttpServer _mockServer = null!;
+    private HttpClient _httpClient = null!;
+    private string _mockUrl = null!;
+
+    [OneTimeSetUp]
+    public async Task OneTimeSetUp()
     {
-        // Arrange – start an HttpMock server to act as the downstream weather API
+        // Start an HttpMock server on an available port – this stays alive for all tests.
         var mockPort = FindAvailablePort();
-        var mockUrl = $"http://localhost:{mockPort}";
-        using var mockServer = HttpMockRepository.At(mockUrl);
+        _mockUrl = $"http://localhost:{mockPort}";
+        _mockServer = HttpMockRepository.At(_mockUrl);
 
-        var mockedResponse = JsonSerializer.Serialize(new[]
-        {
-            new { Date = "2026-04-17", TemperatureC = 22, Summary = "Warm" },
-            new { Date = "2026-04-18", TemperatureC = 15, Summary = "Cool" }
-        });
-
-        mockServer.Stub(x => x.Get("/api/weather"))
-            .Return(mockedResponse)
-            .AsContentType("application/json")
-            .OK();
-
-        // Build the Aspire app host, overriding the downstream API connection string
-        // to point at the HttpMock server instead of a real external service.
+        // Build and start the Aspire app host once, pointing the downstream API
+        // connection string at the HttpMock server.
         using var cts = new CancellationTokenSource(DefaultTimeout);
         var cancellationToken = cts.Token;
 
         var appHost = await DistributedApplicationTestingBuilder
             .CreateAsync<Projects.AspireExample_AppHost>(cancellationToken);
 
-        // Override the ExternalWeatherApi connection string to point to our mock
-        appHost.Configuration["ConnectionStrings:ExternalWeatherApi"] = mockUrl;
+        appHost.Configuration["ConnectionStrings:ExternalWeatherApi"] = _mockUrl;
 
-        await using var app = await appHost.BuildAsync(cancellationToken)
+        _app = await appHost.BuildAsync(cancellationToken)
             .WaitAsync(DefaultTimeout, cancellationToken);
 
-        await app.StartAsync(cancellationToken)
+        await _app.StartAsync(cancellationToken)
             .WaitAsync(DefaultTimeout, cancellationToken);
 
-        // Act – call the WeatherApi endpoint which internally calls the mock
-        using var httpClient = app.CreateHttpClient("weatherapi");
-        await app.ResourceNotifications
+        _httpClient = _app.CreateHttpClient("weatherapi");
+
+        await _app.ResourceNotifications
             .WaitForResourceHealthyAsync("weatherapi", cancellationToken)
             .WaitAsync(DefaultTimeout, cancellationToken);
+    }
 
-        using var response = await httpClient.GetAsync("/weatherforecast", cancellationToken);
+    [OneTimeTearDown]
+    public async Task OneTimeTearDown()
+    {
+        _httpClient?.Dispose();
+
+        if (_app != null)
+        {
+            await _app.DisposeAsync();
+        }
+
+        _mockServer?.Dispose();
+    }
+
+    [Test]
+    public async Task GetWeatherForecast_ReturnsMockedData()
+    {
+        // Arrange – clear previous stubs and register a new one
+        var mockedResponse = JsonSerializer.Serialize(new[]
+        {
+            new { Date = "2026-04-17", TemperatureC = 22, Summary = "Warm" },
+            new { Date = "2026-04-18", TemperatureC = 15, Summary = "Cool" }
+        });
+
+        _mockServer.WithNewContext()
+            .Stub(x => x.Get("/api/weather"))
+            .Return(mockedResponse)
+            .AsContentType("application/json")
+            .OK();
+
+        // Act
+        using var response = await _httpClient.GetAsync("/weatherforecast");
 
         // Assert
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
 
-        var content = await response.Content.ReadAsStringAsync(cancellationToken);
+        var content = await response.Content.ReadAsStringAsync();
         var forecasts = JsonSerializer.Deserialize<JsonElement[]>(content,
             new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
@@ -74,35 +103,13 @@ public class WeatherApiTests
     public async Task GetWeatherForecast_WhenDownstreamReturns500_ReturnsError()
     {
         // Arrange – HttpMock returns a 500 to simulate a downstream failure
-        var mockPort = FindAvailablePort();
-        var mockUrl = $"http://localhost:{mockPort}";
-        using var mockServer = HttpMockRepository.At(mockUrl);
-
-        mockServer.Stub(x => x.Get("/api/weather"))
+        _mockServer.WithNewContext()
+            .Stub(x => x.Get("/api/weather"))
             .Return("Internal Server Error")
             .WithStatus(HttpStatusCode.InternalServerError);
 
-        using var cts = new CancellationTokenSource(DefaultTimeout);
-        var cancellationToken = cts.Token;
-
-        var appHost = await DistributedApplicationTestingBuilder
-            .CreateAsync<Projects.AspireExample_AppHost>(cancellationToken);
-
-        appHost.Configuration["ConnectionStrings:ExternalWeatherApi"] = mockUrl;
-
-        await using var app = await appHost.BuildAsync(cancellationToken)
-            .WaitAsync(DefaultTimeout, cancellationToken);
-
-        await app.StartAsync(cancellationToken)
-            .WaitAsync(DefaultTimeout, cancellationToken);
-
         // Act
-        using var httpClient = app.CreateHttpClient("weatherapi");
-        await app.ResourceNotifications
-            .WaitForResourceHealthyAsync("weatherapi", cancellationToken)
-            .WaitAsync(DefaultTimeout, cancellationToken);
-
-        using var response = await httpClient.GetAsync("/weatherforecast", cancellationToken);
+        using var response = await _httpClient.GetAsync("/weatherforecast");
 
         // Assert – the WeatherApi should propagate the failure
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.InternalServerError));
@@ -112,47 +119,25 @@ public class WeatherApiTests
     public async Task GetWeatherForecast_WithDelayedResponse_StillReturnsData()
     {
         // Arrange – simulate a slow downstream service using HttpMock's WithDelay
-        var mockPort = FindAvailablePort();
-        var mockUrl = $"http://localhost:{mockPort}";
-        using var mockServer = HttpMockRepository.At(mockUrl);
-
         var mockedResponse = JsonSerializer.Serialize(new[]
         {
             new { Date = "2026-04-17", TemperatureC = 30, Summary = "Hot" }
         });
 
-        mockServer.Stub(x => x.Get("/api/weather"))
+        _mockServer.WithNewContext()
+            .Stub(x => x.Get("/api/weather"))
             .Return(mockedResponse)
             .AsContentType("application/json")
             .WithDelay(500)
             .OK();
 
-        using var cts = new CancellationTokenSource(DefaultTimeout);
-        var cancellationToken = cts.Token;
-
-        var appHost = await DistributedApplicationTestingBuilder
-            .CreateAsync<Projects.AspireExample_AppHost>(cancellationToken);
-
-        appHost.Configuration["ConnectionStrings:ExternalWeatherApi"] = mockUrl;
-
-        await using var app = await appHost.BuildAsync(cancellationToken)
-            .WaitAsync(DefaultTimeout, cancellationToken);
-
-        await app.StartAsync(cancellationToken)
-            .WaitAsync(DefaultTimeout, cancellationToken);
-
         // Act
-        using var httpClient = app.CreateHttpClient("weatherapi");
-        await app.ResourceNotifications
-            .WaitForResourceHealthyAsync("weatherapi", cancellationToken)
-            .WaitAsync(DefaultTimeout, cancellationToken);
-
-        using var response = await httpClient.GetAsync("/weatherforecast", cancellationToken);
+        using var response = await _httpClient.GetAsync("/weatherforecast");
 
         // Assert – the response should still come through despite the delay
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
 
-        var content = await response.Content.ReadAsStringAsync(cancellationToken);
+        var content = await response.Content.ReadAsStringAsync();
         var forecasts = JsonSerializer.Deserialize<JsonElement[]>(content,
             new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
