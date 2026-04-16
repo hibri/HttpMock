@@ -223,5 +223,22 @@ namespace HttpMock.Integration.Tests
 
             Assert.That(result, Is.EqualTo(expectedResponse));
 	    }
+
+		[Test]
+		public async Task Return_func_should_invoke_the_func_only_once_per_request()
+		{
+			var invokeCount = 0;
+
+			var stubHttp = HttpMockRepository.At(_hostUrl);
+			stubHttp.Stub(x => x.Get("/api/handler")).Return(() =>
+			{
+				invokeCount++;
+				return "response";
+			}).OK();
+
+			await _httpClient.GetStringAsync($"{_hostUrl}/api/handler");
+
+			Assert.That(invokeCount, Is.EqualTo(1), "The Func<string> body should be invoked exactly once per request, not twice.");
+		}
 	}
 }
