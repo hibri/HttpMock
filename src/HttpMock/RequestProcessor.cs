@@ -96,7 +96,7 @@ namespace HttpMock
 	            _log.LogDebug("Body: {Body}", SanitizeForLog(bufferedBody));
 	        }
 
-	        var responseHead = handler.ResponseBuilder.BuildHeaders(responseBody);
+	        var responseHead = handler.ResponseBuilder.BuildHeaders(responseBody?.Length);
 	        var statusCode = responseHead.Status?.Split(' ') is { Length: > 0 } parts ? parts[0] : null;
 	        activity?.SetTag("http.response.status_code", statusCode);
 	        respond(responseHead, responseBody);

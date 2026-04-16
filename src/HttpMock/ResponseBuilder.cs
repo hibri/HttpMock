@@ -43,10 +43,10 @@ namespace HttpMock
 			return _response.GetBytes();
 		}
 
-		public HttpMockResponseHead BuildHeaders(byte[] body = null) {
-			var contentLength = body?.Length ?? _contentLength();
+		public HttpMockResponseHead BuildHeaders(int? contentLength = null) {
+			var length = contentLength ?? _contentLength();
 			AddHeader(HttpHeaderNames.ContentType, _contentType);
-			AddHeader(HttpHeaderNames.ContentLength, contentLength.ToString());
+			AddHeader(HttpHeaderNames.ContentLength, length.ToString());
 
 			return new HttpMockResponseHead
 			{

@@ -70,7 +70,7 @@ namespace HttpMock.Unit.Tests
 
             var headers = new Dictionary<string, string>();
             var body = requestHandler.ResponseBuilder.BuildBody(headers);
-            requestHandler.ResponseBuilder.BuildHeaders(body);
+            requestHandler.ResponseBuilder.BuildHeaders(body?.Length);
 
             Assert.That(invokeCount, Is.EqualTo(1), "The Func<string> body should be invoked exactly once, not once per BuildBody/BuildHeaders call.");
         }
