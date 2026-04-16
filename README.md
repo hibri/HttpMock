@@ -59,5 +59,42 @@ public async Task SUT_should_return_stubbed_response()
 ```
 
 
+## Logging
+
+Pass an `ILoggerFactory` to `HttpMockRepository.At` (or directly to `HttpServer`) to enable structured logging via any [Microsoft.Extensions.Logging](https://learn.microsoft.com/dotnet/core/extensions/logging)-compatible provider.
+
+```csharp
+using var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
+_stubHttp = HttpMockRepository.At("http://localhost:9191", loggerFactory);
+```
+
+Alternatively, configure a global factory once at startup:
+
+```csharp
+HttpMockLogging.Configure(loggerFactory);
+```
+
+## OpenTelemetry Tracing
+
+HttpMock emits [OpenTelemetry](https://opentelemetry.io/)-compatible `Activity` spans for every request it handles (source name: `"HttpMock"`).  Each span carries the following tags:
+
+| Tag | Description |
+|-----|-------------|
+| `http.request.method` | HTTP method (GET, POST, …) |
+| `url.path` | Request path and query string |
+| `httpmock.matched` | `true` when a stub was matched; `false` otherwise |
+| `http.response.status_code` | Status code returned to the caller |
+
+To capture these spans, subscribe to the source when configuring the OpenTelemetry SDK:
+
+```csharp
+using var tracerProvider = Sdk.CreateTracerProviderBuilder()
+    .AddSource(HttpMockActivitySource.Name)   // "HttpMock"
+    .AddConsoleExporter()
+    .Build();
+```
+
+No additional NuGet packages are required in HttpMock itself — `ActivitySource` is built into .NET.
+
 ## Reporting Issues.
 When reporting issues, please provide a failing test. 

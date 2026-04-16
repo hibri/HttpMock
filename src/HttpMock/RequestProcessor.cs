@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -23,6 +24,11 @@ namespace HttpMock
 		public void OnRequest(IHttpRequestHead request, Stream requestBody, Action<HttpMockResponseHead, byte[]> respond) {
 			_log.LogDebug("Start Processing request for : {Method}:{Uri}", SanitizeForLog(request.Method), SanitizeForLog(request.Uri));
 			if (GetHandlerCount() < 1) {
+				using var noHandlersActivity = HttpMockActivitySource.Source.StartActivity("httpmock.request");
+				noHandlersActivity?.SetTag("http.request.method", request.Method);
+				noHandlersActivity?.SetTag("url.path", request.Uri);
+				noHandlersActivity?.SetTag("httpmock.matched", false);
+				noHandlersActivity?.SetTag("http.response.status_code", "404");
 				ReturnHttpMockNotFound(respond);
 				return;
 			}
@@ -31,6 +37,11 @@ namespace HttpMock
 
 			if (handler == null) {
 				_log.LogDebug("No Handlers matched");
+				using var noMatchActivity = HttpMockActivitySource.Source.StartActivity("httpmock.request");
+				noMatchActivity?.SetTag("http.request.method", request.Method);
+				noMatchActivity?.SetTag("url.path", request.Uri);
+				noMatchActivity?.SetTag("httpmock.matched", false);
+				noMatchActivity?.SetTag("http.response.status_code", "404");
 				ReturnHttpMockNotFound(respond);
 				return;
 			}
@@ -39,6 +50,11 @@ namespace HttpMock
 
 	    private async Task HandleRequest(IHttpRequestHead request, Stream requestBody, Action<HttpMockResponseHead, byte[]> respond, IRequestHandler handler)
 	    {
+	        using var activity = HttpMockActivitySource.Source.StartActivity("httpmock.request");
+	        activity?.SetTag("http.request.method", request.Method);
+	        activity?.SetTag("url.path", request.Uri);
+	        activity?.SetTag("httpmock.matched", true);
+
 	        if (_log.IsEnabled(LogLevel.Debug))
 	        {
 	            _log.LogDebug("Matched a handler {Method}:{Path} {QueryParams}", handler.Method, handler.Path, DumpQueryParams(handler.QueryParams));
@@ -46,7 +62,9 @@ namespace HttpMock
 
             if (handler.ResponseDelay > TimeSpan.Zero)
             {
+                activity?.AddEvent(new ActivityEvent("response.delay.start"));
                 await Task.Delay(handler.ResponseDelay);
+                activity?.AddEvent(new ActivityEvent("response.delay.end"));
             }
 
 	        byte[] responseBody = request.Method != "HEAD"
@@ -70,6 +88,7 @@ namespace HttpMock
 	            catch (Exception error)
 	            {
 	                _log.LogDebug(error, "Error while reading body");
+	                activity?.SetStatus(ActivityStatusCode.Error, error.Message);
 	                handler.RecordRequest(request, null);
 	            }
 	        }
@@ -78,7 +97,9 @@ namespace HttpMock
 	            handler.RecordRequest(request, null);
 	        }
 
-	        respond(handler.ResponseBuilder.BuildHeaders(), responseBody);
+	        var responseHead = handler.ResponseBuilder.BuildHeaders();
+	        activity?.SetTag("http.response.status_code", responseHead.Status?.Split(' ')[0]);
+	        respond(responseHead, responseBody);
 	        _log.LogDebug("End Processing request for : {Method}:{Uri}", SanitizeForLog(request.Method), SanitizeForLog(request.Uri));
 	    }
 
