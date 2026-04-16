@@ -54,5 +54,24 @@ namespace HttpMock.Unit.Tests
 	        
 	        Assert.That(receivedRequest.Body, Is.EqualTo(expected));
         }
+
+        [Test]
+        public void Return_func_should_invoke_the_func_only_once_when_building_body_and_headers()
+        {
+            var invokeCount = 0;
+
+            var requestHandler = new RequestHandler("/path", null);
+            requestHandler.Return(() =>
+            {
+                invokeCount++;
+                return "response";
+            });
+
+            var headers = new System.Collections.Generic.Dictionary<string, string>();
+            requestHandler.ResponseBuilder.BuildBody(headers);
+            requestHandler.ResponseBuilder.BuildHeaders();
+
+            Assert.That(invokeCount, Is.EqualTo(1), "The Func<string> body should be invoked exactly once, not once per BuildBody/BuildHeaders call.");
+        }
     }
 }
