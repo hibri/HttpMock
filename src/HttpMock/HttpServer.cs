@@ -4,8 +4,8 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
 namespace HttpMock
@@ -17,7 +17,6 @@ namespace HttpMock
 		private readonly IRequestProcessor _requestProcessor;
 		private readonly Uri _uri;
 		private HttpListener _listener;
-		private Thread _listenerThread;
 		private volatile bool _running;
 
 		/// <summary>
@@ -56,8 +55,7 @@ namespace HttpMock
 
 				_listener.Start();
 				_running = true;
-				_listenerThread = new Thread(ListenLoop) { IsBackground = true };
-				_listenerThread.Start();
+				_ = ListenLoopAsync();
 			}
 			if (!IsAvailable())
 			{
@@ -105,8 +103,6 @@ namespace HttpMock
 				try { _listener.Stop(); } catch { }
 				try { _listener.Close(); } catch { }
 			}
-			if (_listenerThread != null && _listenerThread.IsAlive)
-				_listenerThread.Join(500);
 		}
 
 		public IRequestStub Stub(Func<RequestHandlerFactory, IRequestStub> func)
@@ -125,18 +121,22 @@ namespace HttpMock
 			return _requestProcessor.WhatDoIHave();
 		}
 
-		private void ListenLoop()
+		private async Task ListenLoopAsync()
 		{
 			while (_running)
 			{
 				try
 				{
-					var context = _listener.GetContext();
-					ThreadPool.QueueUserWorkItem(_ => HandleContext(context));
+					var context = await _listener.GetContextAsync();
+					_ = HandleContextAsync(context);
 				}
 				catch (HttpListenerException)
 				{
 					if (!_running) break;
+				}
+				catch (ObjectDisposedException)
+				{
+					break;
 				}
 				catch (Exception ex)
 				{
@@ -145,7 +145,7 @@ namespace HttpMock
 			}
 		}
 
-		private void HandleContext(HttpListenerContext context)
+		private async Task HandleContextAsync(HttpListenerContext context)
 		{
 			try
 			{
@@ -165,7 +165,7 @@ namespace HttpMock
 				};
 				Stream body = context.Request.HasEntityBody ? context.Request.InputStream : null;
 
-				_requestProcessor.OnRequest(requestHead, body, (responseHead, responseBody) =>
+				await _requestProcessor.OnRequest(requestHead, body, (responseHead, responseBody) =>
 					WriteResponse(context.Response, responseHead, responseBody));
 			}
 			catch (Exception ex)

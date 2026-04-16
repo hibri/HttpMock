@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
 
@@ -65,21 +66,21 @@ namespace HttpMock.Unit.Tests {
 		}
 
 		[Test]
-		public void If_no_handlers_found_should_fire_onresponse_with_a_404() {
+		public async Task If_no_handlers_found_should_fire_onresponse_with_a_404() {
 			_processor = new RequestProcessor(_ruleThatReturnsNoHandlers.Object, new RequestHandlerList());
 
 			_processor.Add(_requestHandlerFactory.Get("test"));
 
 			HttpMockResponseHead capturedHead = null;
 			byte[] capturedBody = null;
-			_processor.OnRequest(new HttpRequestHead(), null, (h, b) => { capturedHead = h; capturedBody = b; });
+			await _processor.OnRequest(new HttpRequestHead(), null, (h, b) => { capturedHead = h; capturedBody = b; });
 
 			Assert.That(capturedHead.Status, Is.EqualTo("404 NotFound"));
 			Assert.That(capturedBody, Is.Null);
 		}
 
 		[Test]
-		public void If_a_handler_found_should_fire_onresponse_with_that_repsonse() {
+		public async Task If_a_handler_found_should_fire_onresponse_with_that_repsonse() {
 			_processor = new RequestProcessor(_ruleThatReturnsFirstHandler.Object, new RequestHandlerList());
 
 			RequestHandler requestHandler = _requestHandlerFactory.Get("test");
@@ -88,7 +89,7 @@ namespace HttpMock.Unit.Tests {
 
 			HttpMockResponseHead capturedHead = null;
 			byte[] capturedBody = null;
-			_processor.OnRequest(new HttpRequestHead { Headers = headers }, null,
+			await _processor.OnRequest(new HttpRequestHead { Headers = headers }, null,
 				(h, b) => { capturedHead = h; capturedBody = b; });
 
 			Assert.That(capturedHead.Status, Is.EqualTo(requestHandler.ResponseBuilder.BuildHeaders().Status));
@@ -96,7 +97,7 @@ namespace HttpMock.Unit.Tests {
 		}
 		
 		[Test]
-		public void Matching_HEAD_handler_should_output_handlers_expected_response_with_null_body() {
+		public async Task Matching_HEAD_handler_should_output_handlers_expected_response_with_null_body() {
 
 			_processor = new RequestProcessor(_ruleThatReturnsFirstHandler.Object, new RequestHandlerList());
 
@@ -106,7 +107,7 @@ namespace HttpMock.Unit.Tests {
 
 			HttpMockResponseHead capturedHead = null;
 			byte[] capturedBody = null;
-			_processor.OnRequest(httpRequestHead, null, (h, b) => { capturedHead = h; capturedBody = b; });
+			await _processor.OnRequest(httpRequestHead, null, (h, b) => { capturedHead = h; capturedBody = b; });
 
 			Assert.That(capturedHead, Is.Not.Null);
 			Assert.That(capturedBody, Is.Null);
@@ -129,7 +130,7 @@ namespace HttpMock.Unit.Tests {
 		}
 
 		[Test]
-		public void When_a_handler_is_hit_handlers_request_count_is_incremented() {
+		public async Task When_a_handler_is_hit_handlers_request_count_is_incremented() {
 
 			string expectedPath = "/blah/test";
 			string expectedMethod = "GET";
@@ -138,14 +139,14 @@ namespace HttpMock.Unit.Tests {
 
 			requestProcessor.Add(_requestHandlerFactory.Get(expectedPath));
 			var httpRequestHead = new HttpRequestHead { Headers = new Dictionary<string, string>(), Uri = expectedPath, Method = expectedPath };
-			requestProcessor.OnRequest(httpRequestHead, null, (h, b) => { });
+			await requestProcessor.OnRequest(httpRequestHead, null, (h, b) => { });
 
 			var handler = requestProcessor.FindHandler(expectedMethod, expectedPath);
 			Assert.That(handler.RequestCount(), Is.EqualTo(1));
 		}
 
         [Test]
-        public void Returns_mock_not_found_when_handler_constraints_cannot_be_verified()
+        public async Task Returns_mock_not_found_when_handler_constraints_cannot_be_verified()
         {
             var excludePhrase = "OhMyDaysssss";
 
@@ -160,7 +161,7 @@ namespace HttpMock.Unit.Tests {
             var p = new RequestProcessor(matchingRule.Object, new RequestHandlerList { handlerWithConstraints });
 
             HttpMockResponseHead capturedHead = null;
-            p.OnRequest(new HttpRequestHead { Uri = "http://blah.com/cheese/" + excludePhrase }, null,
+            await p.OnRequest(new HttpRequestHead { Uri = "http://blah.com/cheese/" + excludePhrase }, null,
                 (h, b) => capturedHead = h);
 
             Assert.That(capturedHead.Status, Is.EqualTo("404 NotFound"));

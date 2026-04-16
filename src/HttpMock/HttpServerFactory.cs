@@ -15,11 +15,20 @@ namespace HttpMock
 			{
 				if (_httpServers.TryGetValue(uri.Port, out var existing) && existing.IsAvailable())
 					return existing;
-
-				var server = BuildServer(uri, loggerFactory);
-				_httpServers[uri.Port] = server;
-				return server;
 			}
+
+			var server = BuildServer(uri, loggerFactory);
+			lock (_serverLock)
+			{
+				// Double-check: another thread may have created a server while we were building
+				if (_httpServers.TryGetValue(uri.Port, out var existing) && existing.IsAvailable())
+				{
+					server.Dispose();
+					return existing;
+				}
+				_httpServers[uri.Port] = server;
+			}
+			return server;
 		}
 
 		public IHttpServer Create(Uri uri, ILoggerFactory loggerFactory = null)
