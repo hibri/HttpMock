@@ -5,7 +5,7 @@ namespace HttpMock
 {
     public interface IRequestMatcher
     {
-        IRequestHandler Match(IHttpRequestHead request, IEnumerable<IRequestHandler> requestHandlerList);
+        IRequestHandler Match(IHttpRequestHead request, IEnumerable<IRequestHandler> requestHandlerList, string body = null);
     }
 
     public class RequestMatcher : IRequestMatcher
@@ -17,11 +17,12 @@ namespace HttpMock
             _matchingRule = matchingRule;
         }
 
-        public IRequestHandler Match(IHttpRequestHead request, IEnumerable<IRequestHandler> requestHandlerList)
+        public IRequestHandler Match(IHttpRequestHead request, IEnumerable<IRequestHandler> requestHandlerList, string body = null)
         {
             var matches = requestHandlerList
                 .Where(handler => _matchingRule.IsEndpointMatch(handler, request))
-                .Where(handler => handler.CanVerifyConstraintsFor(request.Uri));
+                .Where(handler => handler.CanVerifyConstraintsFor(request.Uri))
+                .Where(handler => handler.MatchesBody(body));
 
             return matches.FirstOrDefault();
         }

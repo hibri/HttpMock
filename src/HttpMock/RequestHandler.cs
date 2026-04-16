@@ -11,6 +11,7 @@ namespace HttpMock
 		private readonly ResponseBuilder _webResponseBuilder = new ResponseBuilder();
 		private readonly IList<Func<string, bool>> _constraints = new List<Func<string, bool>>();
 		private readonly List<ReceivedRequest> _observedRequests = new List<ReceivedRequest>();
+		private Func<string, bool> _bodyConstraint;
 
 		public RequestHandler(string path, IRequestProcessor requestProcessor) {
 			Path = path;
@@ -69,17 +70,35 @@ namespace HttpMock
 			return this;
 		}
 
-		public void OK() {
-			WithStatus(HttpStatusCode.OK);
+		public IRequestStub WithBody(string body)
+		{
+			_bodyConstraint = b => b != null && b == body;
+			return this;
 		}
 
-		public void WithStatus(HttpStatusCode httpStatusCode) {
+		public IRequestStub WithBody(Func<string, bool> predicate)
+		{
+			_bodyConstraint = predicate;
+			return this;
+		}
+
+		public bool MatchesBody(string body)
+		{
+			return _bodyConstraint == null || _bodyConstraint(body);
+		}
+
+		public IRequestStub OK() {
+			return WithStatus(HttpStatusCode.OK);
+		}
+
+		public IRequestStub WithStatus(HttpStatusCode httpStatusCode) {
 			ResponseBuilder.WithStatus(httpStatusCode);
 			RequestProcessor.Add(this);
+			return this;
 		}
 
-		public void NotFound() {
-			WithStatus(HttpStatusCode.NotFound);
+		public IRequestStub NotFound() {
+			return WithStatus(HttpStatusCode.NotFound);
 		}
 
 		public IRequestStub AsXmlContent() {
