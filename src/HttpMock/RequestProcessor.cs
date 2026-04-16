@@ -63,7 +63,7 @@ namespace HttpMock
 
 			_ = HandleRequest(request, bufferedBody, respond, handler)
 				.ContinueWith(
-					t => _log.LogError(t.Exception, "Unhandled error processing request"),
+					t => _log.LogError(t.Exception?.InnerException ?? t.Exception, "Unhandled error processing request"),
 					TaskContinuationOptions.OnlyOnFaulted);
 		}
 
