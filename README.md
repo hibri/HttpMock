@@ -365,5 +365,35 @@ using var tracerProvider = Sdk.CreateTracerProviderBuilder()
 
 No additional NuGet packages are required in HttpMock itself — `ActivitySource` is built into .NET.
 
+## Examples
+
+### .NET Aspire Integration
+
+The [Aspire example](examples/AspireExample/) demonstrates using HttpMock to mock downstream APIs in a .NET Aspire distributed application. The test suite starts an HttpMock server once, builds the Aspire app host pointing at it, and uses `WithNewContext()` to swap stubs between tests:
+
+```csharp
+// OneTimeSetUp — create the app and mock server once for all tests
+_mockServer = HttpMockRepository.At($"http://localhost:{FindAvailablePort()}");
+
+var appHost = await DistributedApplicationTestingBuilder
+    .CreateAsync<Projects.AspireExample_AppHost>();
+appHost.Configuration["ConnectionStrings:ExternalWeatherApi"] = mockUrl;
+
+_app = await appHost.BuildAsync();
+await _app.StartAsync();
+_httpClient = _app.CreateHttpClient("weatherapi");
+
+// Each test — swap stubs without rebuilding the app
+_mockServer.WithNewContext()
+    .Stub(x => x.Get("/api/weather"))
+    .Return(jsonPayload)
+    .AsContentType("application/json")
+    .OK();
+
+var response = await _httpClient.GetAsync("/weatherforecast");
+```
+
+See the [full example README](examples/AspireExample/README.md) for project structure, prerequisites, and test details.
+
 ## Reporting Issues.
 When reporting issues, please provide a failing test. 
