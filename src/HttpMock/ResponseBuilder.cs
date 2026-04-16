@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
-using System.Threading;
 
 namespace HttpMock
 {
@@ -14,7 +13,6 @@ namespace HttpMock
 		private IResponse _response = new BufferedBody("");
 		private Func<int> _contentLength = () => 0;
 		private Dictionary<string, string> _headers = new Dictionary<string, string>();
-		private readonly ThreadLocal<byte[]> _pendingBody = new ThreadLocal<byte[]>();
 
 		public ResponseBuilder Return(string body) {
 			var bufferedBody = new BufferedBody(body);
@@ -42,13 +40,11 @@ namespace HttpMock
 
 		public byte[] BuildBody(IDictionary<string, string> headers) {
 			_response.SetRequestHeaders(headers);
-			_pendingBody.Value = _response.GetBytes();
-			return _pendingBody.Value;
+			return _response.GetBytes();
 		}
 
-		public HttpMockResponseHead BuildHeaders() {
-			var contentLength = _pendingBody.Value != null ? _pendingBody.Value.Length : _contentLength();
-			_pendingBody.Value = null;
+		public HttpMockResponseHead BuildHeaders(byte[] body = null) {
+			var contentLength = body?.Length ?? _contentLength();
 			AddHeader(HttpHeaderNames.ContentType, _contentType);
 			AddHeader(HttpHeaderNames.ContentLength, contentLength.ToString());
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 using NUnit.Framework;
 
@@ -67,9 +68,9 @@ namespace HttpMock.Unit.Tests
                 return "response";
             });
 
-            var headers = new System.Collections.Generic.Dictionary<string, string>();
-            requestHandler.ResponseBuilder.BuildBody(headers);
-            requestHandler.ResponseBuilder.BuildHeaders();
+            var headers = new Dictionary<string, string>();
+            var body = requestHandler.ResponseBuilder.BuildBody(headers);
+            requestHandler.ResponseBuilder.BuildHeaders(body);
 
             Assert.That(invokeCount, Is.EqualTo(1), "The Func<string> body should be invoked exactly once, not once per BuildBody/BuildHeaders call.");
         }
