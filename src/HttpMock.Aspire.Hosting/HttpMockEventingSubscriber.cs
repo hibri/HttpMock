@@ -1,5 +1,3 @@
-using System.Net;
-using System.Net.Sockets;
 using Aspire.Hosting;
 using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Eventing;
@@ -33,7 +31,7 @@ internal sealed class HttpMockEventingSubscriber : IDistributedApplicationEventi
         {
             foreach (var resource in evt.Model.Resources.OfType<HttpMockResource>())
             {
-                var port = FindFreePort();
+                var port = HttpMockRepository.FindFreePort();
                 var url = $"http://localhost:{port}";
 
                 resource.Url = url;
@@ -62,18 +60,5 @@ internal sealed class HttpMockEventingSubscriber : IDistributedApplicationEventi
         }
 
         _startedResources.Clear();
-    }
-
-    private static int FindFreePort()
-    {
-        // Bind to port 0 to let the OS assign a free port, then immediately release
-        // the listener. There is a small TOCTOU window between releasing the port and
-        // HttpServer binding to it; this is an accepted limitation for test/mock usage
-        // where exact port stability is not required.
-        using var listener = new TcpListener(IPAddress.Loopback, 0);
-        listener.Start();
-        var port = ((IPEndPoint)listener.LocalEndpoint).Port;
-        listener.Stop();
-        return port;
     }
 }

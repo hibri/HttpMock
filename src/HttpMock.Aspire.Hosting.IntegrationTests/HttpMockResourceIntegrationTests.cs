@@ -1,5 +1,6 @@
 using System.Net;
 using System.Text;
+using Aspire.Hosting;
 using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Testing;
 using HttpMock;

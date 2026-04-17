@@ -13,7 +13,11 @@ namespace HttpMock.Aspire.Hosting;
 /// </remarks>
 public sealed class HttpMockResource : Resource, IResourceWithConnectionString, IDisposable
 {
-    internal string? Url { get; set; }
+    /// <summary>
+    /// Gets the URL of the running mock server (e.g. <c>http://localhost:54321</c>).
+    /// Set by the Aspire lifecycle before any dependent resource starts.
+    /// </summary>
+    public string? Url { get; internal set; }
 
     /// <summary>
     /// Gets the live <see cref="IHttpServer"/> instance once the resource has started.
