@@ -1,4 +1,5 @@
 using Aspire.Hosting.ApplicationModel;
+using HttpMock;
 
 namespace HttpMock.Aspire.Hosting;
 

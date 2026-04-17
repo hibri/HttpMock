@@ -1,6 +1,7 @@
 using Aspire.Hosting;
 using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Eventing;
+using HttpMock;
 using HttpMock.Aspire.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -36,7 +37,7 @@ public class HttpMockResourceTests
     public void Dispose_ClearsMockServerProperty()
     {
         var resource = new HttpMockResource("test");
-        resource.MockServer = HttpMockRepository.At("http://localhost:59998");
+        resource.MockServer = HttpMockRepository.At($"http://localhost:{HttpMockRepository.FindFreePort()}");
 
         resource.Dispose();
 
