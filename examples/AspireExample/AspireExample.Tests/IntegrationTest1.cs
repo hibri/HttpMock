@@ -44,7 +44,10 @@ public class WeatherApiTests
             .OfType<HttpMockResource>()
             .Single(r => r.Name == "ExternalWeatherApi");
 
-        _mockServer = mockResource.MockServer!;
+        _mockServer = mockResource.MockServer
+            ?? throw new InvalidOperationException(
+                $"HttpMockResource '{mockResource.Name}' has no MockServer. " +
+                "Ensure the app has started before accessing MockServer.");
 
         _httpClient = _app.CreateHttpClient("weatherapi");
 
