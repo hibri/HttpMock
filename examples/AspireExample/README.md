@@ -25,14 +25,33 @@ A `WeatherApi` service exposes a `/weatherforecast` endpoint that internally cal
 
 | Project | Description |
 |---------|-------------|
-| `AspireExample.AppHost` | Aspire orchestrator. Registers the `WeatherApi` and wires up the external API connection string. |
+| `AspireExample.AppHost` | Aspire orchestrator. Registers the `WeatherApi` and an `HttpMockResource` via `AddHttpMock`. |
 | `AspireExample.WeatherApi` | Minimal API that calls a downstream weather service via `HttpClient`. The base address is read from the `ExternalWeatherApi` connection string. |
 | `AspireExample.ServiceDefaults` | Shared Aspire service defaults (OpenTelemetry, health checks, resilience, service discovery). |
-| `AspireExample.Tests` | NUnit integration tests using `Aspire.Hosting.Testing` and `HttpMock`. |
+| `AspireExample.Tests` | NUnit integration tests using `Aspire.Hosting.Testing` and `HttpMock.Aspire.Hosting`. |
 
-## How It Works
+## How It Works — First-Class Aspire Resource (`HttpMock.Aspire.Hosting`)
 
-### 1. The WeatherApi reads the downstream URL from configuration
+The `HttpMock.Aspire.Hosting` package lets you register an HttpMock stub server as a proper Aspire resource. Aspire starts the server automatically, shows it on the dashboard, and injects its URL into dependent projects — no manual port allocation required.
+
+### 1. The AppHost registers the mock as a first-class resource
+
+```csharp
+using HttpMock.Aspire.Hosting;
+
+var builder = DistributedApplication.CreateBuilder(args);
+
+var externalWeatherApi = builder.AddHttpMock("ExternalWeatherApi");
+
+builder.AddProject<Projects.AspireExample_WeatherApi>("weatherapi")
+    .WithReference(externalWeatherApi);
+
+builder.Build().Run();
+```
+
+`WithReference` automatically injects `ConnectionStrings__ExternalWeatherApi = http://localhost:<port>` into the WeatherApi process — exactly what it reads via `GetConnectionString("ExternalWeatherApi")`.
+
+### 2. The WeatherApi reads the downstream URL from configuration (unchanged)
 
 ```csharp
 builder.Services.AddHttpClient("ExternalWeatherApi", client =>
@@ -43,33 +62,17 @@ builder.Services.AddHttpClient("ExternalWeatherApi", client =>
 });
 ```
 
-### 2. The AppHost registers it as a connection string reference
+### 3. Tests configure stubs via the `MockServer` property
 
 ```csharp
-var externalWeatherApi = builder.AddConnectionString("ExternalWeatherApi");
+// OneTimeSetUp — get the resource that Aspire already started
+var mockResource = _app.Services
+    .GetRequiredService<DistributedApplicationModel>()
+    .Resources
+    .OfType<HttpMockResource>()
+    .Single(r => r.Name == "ExternalWeatherApi");
 
-builder.AddProject<Projects.AspireExample_WeatherApi>("weatherapi")
-    .WithReference(externalWeatherApi);
-```
-
-### 3. Tests create the app once and reuse it across the suite
-
-The Aspire application and HttpMock server are created once in `[OneTimeSetUp]`.
-Each test calls `WithNewContext()` to clear previous stubs and register fresh ones —
-exactly the same pattern used in HttpMock's own integration tests.
-
-```csharp
-// OneTimeSetUp — runs once for the entire test fixture
-var mockUrl = $"http://localhost:{FindAvailablePort()}";
-_mockServer = HttpMockRepository.At(mockUrl);
-
-var appHost = await DistributedApplicationTestingBuilder
-    .CreateAsync<Projects.AspireExample_AppHost>();
-appHost.Configuration["ConnectionStrings:ExternalWeatherApi"] = mockUrl;
-
-_app = await appHost.BuildAsync();
-await _app.StartAsync();
-_httpClient = _app.CreateHttpClient("weatherapi");
+_mockServer = mockResource.MockServer!;
 
 // Each test — swap stubs without rebuilding the app
 _mockServer.WithNewContext()
@@ -80,6 +83,8 @@ _mockServer.WithNewContext()
 
 var response = await _httpClient.GetAsync("/weatherforecast");
 ```
+
+---
 
 ## Prerequisites
 

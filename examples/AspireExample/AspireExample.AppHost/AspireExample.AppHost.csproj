@@ -2,6 +2,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AspireExample.WeatherApi\AspireExample.WeatherApi.csproj" />
+    <ProjectReference Include="..\..\..\src\HttpMock.Aspire.Hosting\HttpMock.Aspire.Hosting.csproj"
+                      IsAspireProjectResource="false" />
   </ItemGroup>
 
   <PropertyGroup>
