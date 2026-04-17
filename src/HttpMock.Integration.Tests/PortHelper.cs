@@ -4,7 +4,7 @@ internal static class PortHelper
 {
 internal static int FindLocalAvailablePortForTesting()
 {
-return HttpMockRepository.FindFreePort();
+return HttpMock.HttpMockRepository.FindFreePort();
 }
 }
 }
