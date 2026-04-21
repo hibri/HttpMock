@@ -11,8 +11,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpMock.Unit.Tests", "src\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpMock.Verify.NUnit", "src\HttpMock.Verify.NUnit\HttpMock.Verify.NUnit.csproj", "{1B61C8E3-7A43-479B-B7FE-D374DFEAA5E7}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{827E0CD3-B72D-47B6-A68D-7590B98EB39B}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpMock.Aspire.Hosting", "src\HttpMock.Aspire.Hosting\HttpMock.Aspire.Hosting.csproj", "{263B28F3-85D5-4357-9043-11210B1799A1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpMock.Aspire.Hosting.Tests", "src\HttpMock.Aspire.Hosting.Tests\HttpMock.Aspire.Hosting.Tests.csproj", "{9B2EB8C3-7C3C-4BBC-8058-A9B2BA4A2E09}"
@@ -129,9 +127,5 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{263B28F3-85D5-4357-9043-11210B1799A1} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
-		{9B2EB8C3-7C3C-4BBC-8058-A9B2BA4A2E09} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
-		{35191166-4086-4A21-840B-D6894E24D9FF} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
-		{5A9E205D-8837-4AB6-B449-15B14E13E6E0} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 	EndGlobalSection
 EndGlobal
