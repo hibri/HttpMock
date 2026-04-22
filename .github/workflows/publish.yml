@@ -39,6 +39,7 @@ jobs:
       run: |
         dotnet pack src/HttpMock/HttpMock.csproj --configuration Release --no-build -p:PackageVersion=${{ steps.version.outputs.VERSION }} --output ./nupkgs
         dotnet pack src/HttpMock.Verify.NUnit/HttpMock.Verify.NUnit.csproj --configuration Release --no-build -p:PackageVersion=${{ steps.version.outputs.VERSION }} --output ./nupkgs
+        dotnet pack src/HttpMock.Aspire.Hosting/HttpMock.Aspire.Hosting.csproj --configuration Release --no-build -p:PackageVersion=${{ steps.version.outputs.VERSION }} --output ./nupkgs
 
     - name: Push to NuGet.org
       run: dotnet nuget push ./nupkgs/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate

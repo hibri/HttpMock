@@ -365,5 +365,75 @@ using var tracerProvider = Sdk.CreateTracerProviderBuilder()
 
 No additional NuGet packages are required in HttpMock itself — `ActivitySource` is built into .NET.
 
+## Finding a Free Port
+
+`HttpMockRepository.FindFreePort()` returns a free TCP port on the loopback interface by asking the OS to assign one (via `TcpListener` on port 0). Use it whenever you need a collision-free port for a stub server:
+
+```csharp
+var port = HttpMockRepository.FindFreePort();
+var server = HttpMockRepository.At($"http://localhost:{port}");
+```
+
+
+## .NET Aspire Integration
+
+Install the companion package to register an HttpMock server as a first-class [.NET Aspire](https://learn.microsoft.com/dotnet/aspire/get-started/aspire-overview) resource. The server appears on the Aspire dashboard, starts automatically before dependent projects, and injects its URL into them via the standard Aspire connection-string mechanism — no manual port allocation or configuration overrides needed.
+
+```
+dotnet add package HttpMock.Aspire.Hosting
+```
+
+### App host
+
+```csharp
+using HttpMock.Aspire.Hosting;
+
+var builder = DistributedApplication.CreateBuilder(args);
+
+var mockWeatherApi = builder.AddHttpMock("external-weather-api");
+
+builder.AddProject<Projects.WeatherApi>("weatherapi")
+       .WithReference(mockWeatherApi);
+
+builder.Build().Run();
+```
+
+`WithReference` injects `ConnectionStrings__external-weather-api = http://localhost:<port>` into `weatherapi` automatically.
+
+### Test project
+
+```csharp
+// OneTimeSetUp — start the Aspire application once for all tests
+var appHost = await DistributedApplicationTestingBuilder
+    .CreateAsync<Projects.MyAppHost>();
+
+_app = await appHost.BuildAsync();
+await _app.StartAsync();
+
+await _app.ResourceNotifications
+    .WaitForResourceAsync("external-weather-api", KnownResourceStates.Running);
+
+// Retrieve the live mock server
+var resource = _app.Services
+    .GetRequiredService<DistributedApplicationModel>()
+    .Resources
+    .OfType<HttpMockResource>()
+    .Single(r => r.Name == "external-weather-api");
+
+_mockServer = resource.MockServer!;
+_httpClient = _app.CreateHttpClient("weatherapi");
+
+// Each test — clear previous stubs and register new ones
+_mockServer.WithNewContext()
+    .Stub(x => x.Get("/api/weather"))
+    .Return(jsonPayload)
+    .AsContentType("application/json")
+    .OK();
+
+var response = await _httpClient.GetAsync("/weatherforecast");
+```
+
+See the [Aspire example](examples/AspireExample/) and the [integration tests](src/HttpMock.Aspire.Hosting.IntegrationTests/) for a fully worked end-to-end example.
+
 ## Reporting Issues.
 When reporting issues, please provide a failing test. 

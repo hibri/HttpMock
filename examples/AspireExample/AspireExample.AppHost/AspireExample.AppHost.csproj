@@ -1,0 +1,17 @@
+<Project Sdk="Aspire.AppHost.Sdk/13.2.2">
+
+  <ItemGroup>
+    <ProjectReference Include="..\AspireExample.WeatherApi\AspireExample.WeatherApi.csproj" />
+    <ProjectReference Include="..\..\..\src\HttpMock.Aspire.Hosting\HttpMock.Aspire.Hosting.csproj"
+                      IsAspireProjectResource="false" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <UserSecretsId>6af98024-4a3b-4884-b00b-1e2e5469901d</UserSecretsId>
+  </PropertyGroup>
+
+</Project>
