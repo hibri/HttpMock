@@ -12,7 +12,7 @@ namespace HttpMock.Aspire.Hosting;
 /// application starts, and disposes each server when the
 /// <see cref="global::Aspire.Hosting.DistributedApplication"/> is torn down.
 /// </summary>
-internal sealed class HttpMockEventingSubscriber : IDistributedApplicationEventingSubscriber, IDisposable
+public sealed class HttpMockEventingSubscriber : IDistributedApplicationEventingSubscriber, IDisposable
 {
     private readonly ResourceNotificationService _notificationService;
     private readonly List<HttpMockResource> _startedResources = [];

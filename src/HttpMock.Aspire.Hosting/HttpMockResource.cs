@@ -18,7 +18,7 @@ public sealed class HttpMockResource : Resource, IResourceWithConnectionString, 
     /// Gets the URL of the running mock server (e.g. <c>http://localhost:54321</c>).
     /// Set by the Aspire lifecycle before any dependent resource starts.
     /// </summary>
-    public string? Url { get; internal set; }
+    public string? Url { get; set; }
 
     /// <summary>
     /// Gets the live <see cref="IHttpServer"/> instance once the resource has started.
@@ -27,7 +27,7 @@ public sealed class HttpMockResource : Resource, IResourceWithConnectionString, 
     /// resource.MockServer.WithNewContext().Stub(x => x.Get("/path")).Return("body").OK();
     /// </code>
     /// </summary>
-    public IHttpServer? MockServer { get; internal set; }
+    public IHttpServer? MockServer { get; set; }
 
     /// <inheritdoc/>
     public HttpMockResource(string name) : base(name) { }
