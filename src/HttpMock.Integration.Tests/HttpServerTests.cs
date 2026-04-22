@@ -10,7 +10,7 @@ namespace HttpMock.Integration.Tests
 		public void IsAvailableReturnsFalseIfStartNotCalled()
 		{
 			IHttpServer httpServer = new HttpServer(new Uri(String.Format("http://localhost:{0}",
-															              PortHelper.FindLocalAvailablePortForTesting())));
+															              HttpMockRepository.FindFreePort())));
 			Assert.That(httpServer.IsAvailable(), Is.EqualTo(false));
 		}
 	}

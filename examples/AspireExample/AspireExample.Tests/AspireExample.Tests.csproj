@@ -19,15 +19,17 @@
 
   <ItemGroup>
     <Using Include="System.Net" />
+    <Using Include="HttpMock" />
     <Using Include="Microsoft.Extensions.DependencyInjection" />
     <Using Include="Aspire.Hosting.ApplicationModel" />
     <Using Include="Aspire.Hosting.Testing" />
+    <Using Include="HttpMock.Aspire.Hosting" />
     <Using Include="NUnit.Framework" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\AspireExample.AppHost\AspireExample.AppHost.csproj" />
-    <ProjectReference Include="..\..\..\src\HttpMock\HttpMock.csproj" />
+    <ProjectReference Include="..\..\..\src\HttpMock.Aspire.Hosting\HttpMock.Aspire.Hosting.csproj" />
   </ItemGroup>
 
 </Project>

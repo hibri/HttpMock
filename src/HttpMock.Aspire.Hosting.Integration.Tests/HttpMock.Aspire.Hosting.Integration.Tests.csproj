@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.Testing" Version="13.2.2" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.0" />
+    <PackageReference Include="NUnit" Version="4.3.2" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Reference the AppHost so that Aspire.Hosting.Testing can resolve the entry point. -->
+    <ProjectReference Include="..\HttpMock.Aspire.Hosting.Integration.Tests.AppHost\HttpMock.Aspire.Hosting.Integration.Tests.AppHost.csproj" />
+    <!-- Direct reference so that HttpMockResource and IHttpServer types are available. -->
+    <ProjectReference Include="..\HttpMock.Aspire.Hosting\HttpMock.Aspire.Hosting.csproj" />
+  </ItemGroup>
+
+</Project>

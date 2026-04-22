@@ -1,16 +1,16 @@
 using System.Text.Json;
 using Aspire.Hosting;
-using HttpMock;
 
 namespace AspireExample.Tests;
 
 /// <summary>
-/// Demonstrates how to use HttpMock with .NET Aspire to mock a downstream API
+/// Demonstrates how to use the HttpMock Aspire resource to mock a downstream API
 /// during integration testing. The WeatherApi service calls an external weather
-/// API; these tests replace that external dependency with an HttpMock stub server.
+/// API; these tests replace that external dependency with an HttpMock stub server
+/// registered via <see cref="HttpMockResourceBuilderExtensions.AddHttpMock"/>.
 ///
-/// The Aspire application and HttpMock server are created once for the entire
-/// test suite in <see cref="OneTimeSetUp"/>. Each test calls
+/// The Aspire application is created once for the entire test suite in
+/// <see cref="OneTimeSetUp"/>. Each test calls
 /// <see cref="IHttpServer.WithNewContext"/> to clear previous stubs and register
 /// fresh ones, following the same pattern used in the main HttpMock integration tests.
 /// </summary>
@@ -21,31 +21,33 @@ public class WeatherApiTests
     private DistributedApplication _app = null!;
     private IHttpServer _mockServer = null!;
     private HttpClient _httpClient = null!;
-    private string _mockUrl = null!;
 
     [OneTimeSetUp]
     public async Task OneTimeSetUp()
     {
-        // Start an HttpMock server on an available port – this stays alive for all tests.
-        var mockPort = FindAvailablePort();
-        _mockUrl = $"http://localhost:{mockPort}";
-        _mockServer = HttpMockRepository.At(_mockUrl);
-
-        // Build and start the Aspire app host once, pointing the downstream API
-        // connection string at the HttpMock server.
         using var cts = new CancellationTokenSource(DefaultTimeout);
         var cancellationToken = cts.Token;
 
         var appHost = await DistributedApplicationTestingBuilder
             .CreateAsync<Projects.AspireExample_AppHost>(cancellationToken);
 
-        appHost.Configuration["ConnectionStrings:ExternalWeatherApi"] = _mockUrl;
-
         _app = await appHost.BuildAsync(cancellationToken)
             .WaitAsync(DefaultTimeout, cancellationToken);
 
         await _app.StartAsync(cancellationToken)
             .WaitAsync(DefaultTimeout, cancellationToken);
+
+        // Retrieve the HttpMock resource that was started by the Aspire lifecycle.
+        var mockResource = _app.Services
+            .GetRequiredService<DistributedApplicationModel>()
+            .Resources
+            .OfType<HttpMockResource>()
+            .Single(r => r.Name == "ExternalWeatherApi");
+
+        _mockServer = mockResource.MockServer
+            ?? throw new InvalidOperationException(
+                $"HttpMockResource '{mockResource.Name}' has no MockServer. " +
+                "Ensure the app has started before accessing MockServer.");
 
         _httpClient = _app.CreateHttpClient("weatherapi");
 
@@ -63,8 +65,6 @@ public class WeatherApiTests
         {
             await _app.DisposeAsync();
         }
-
-        _mockServer?.Dispose();
     }
 
     [Test]
@@ -144,15 +144,5 @@ public class WeatherApiTests
         Assert.That(forecasts, Is.Not.Null);
         Assert.That(forecasts!.Length, Is.EqualTo(1));
         Assert.That(forecasts[0].GetProperty("summary").GetString(), Is.EqualTo("Hot"));
-    }
-
-    private static int FindAvailablePort()
-    {
-        using var listener = new System.Net.Sockets.TcpListener(
-            System.Net.IPAddress.Loopback, 0);
-        listener.Start();
-        var port = ((System.Net.IPEndPoint)listener.LocalEndpoint).Port;
-        listener.Stop();
-        return port;
     }
 }

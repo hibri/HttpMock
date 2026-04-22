@@ -12,7 +12,7 @@ namespace HttpMock.Integration.Tests
 
 		public static string GenerateAHostUrlForAStubServer()
 		{
-			return String.Format("http://localhost:{0}", PortHelper.FindLocalAvailablePortForTesting());
+			return String.Format("http://localhost:{0}", HttpMockRepository.FindFreePort());
 		}
 	}
 }
