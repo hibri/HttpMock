@@ -4,8 +4,8 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
 namespace HttpMock
@@ -17,7 +17,6 @@ namespace HttpMock
 		private readonly IRequestProcessor _requestProcessor;
 		private readonly Uri _uri;
 		private HttpListener _listener;
-		private Thread _listenerThread;
 		private volatile bool _running;
 
 		/// <summary>
@@ -49,15 +48,14 @@ namespace HttpMock
 				if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && !RuntimeInformation.IsOSPlatform(OSPlatform.OSX)
 				    && !string.IsNullOrEmpty(host) && host != "+" && host != "*" && host != "localhost")
 				{
-					_listener.Prefixes.Add(string.Format("http://{0}:{1}/", host, _uri.Port));
+					_listener.Prefixes.Add($"http://{host}:{_uri.Port}/");
 				}
 
-				_listener.Prefixes.Add(string.Format("http://+:{0}/", _uri.Port));
+				_listener.Prefixes.Add($"http://+:{_uri.Port}/");
 
 				_listener.Start();
 				_running = true;
-				_listenerThread = new Thread(ListenLoop) { IsBackground = true };
-				_listenerThread.Start();
+				_ = ListenLoopAsync();
 			}
 			if (!IsAvailable())
 			{
@@ -105,8 +103,6 @@ namespace HttpMock
 				try { _listener.Stop(); } catch { }
 				try { _listener.Close(); } catch { }
 			}
-			if (_listenerThread != null && _listenerThread.IsAlive)
-				_listenerThread.Join(500);
 		}
 
 		public IRequestStub Stub(Func<RequestHandlerFactory, IRequestStub> func)
@@ -125,18 +121,24 @@ namespace HttpMock
 			return _requestProcessor.WhatDoIHave();
 		}
 
-		private void ListenLoop()
+		private async Task ListenLoopAsync()
 		{
 			while (_running)
 			{
 				try
 				{
-					var context = _listener.GetContext();
-					ThreadPool.QueueUserWorkItem(_ => HandleContext(context));
+					var context = await _listener.GetContextAsync();
+					_ = HandleContextAsync(context).ContinueWith(
+						t => _log.LogError(t.Exception?.InnerException ?? t.Exception, "Unhandled error in request handler"),
+						TaskContinuationOptions.OnlyOnFaulted);
 				}
 				catch (HttpListenerException)
 				{
 					if (!_running) break;
+				}
+				catch (ObjectDisposedException)
+				{
+					break;
 				}
 				catch (Exception ex)
 				{
@@ -145,11 +147,11 @@ namespace HttpMock
 			}
 		}
 
-		private void HandleContext(HttpListenerContext context)
+		private async Task HandleContextAsync(HttpListenerContext context)
 		{
 			try
 			{
-				var headers = new Dictionary<string, string>();
+				var headers = new Dictionary<string, string>(context.Request.Headers.Count);
 				foreach (string key in context.Request.Headers)
 				{
 					if (key != null)
@@ -165,7 +167,7 @@ namespace HttpMock
 				};
 				Stream body = context.Request.HasEntityBody ? context.Request.InputStream : null;
 
-				_requestProcessor.OnRequest(requestHead, body, (responseHead, responseBody) =>
+				await _requestProcessor.OnRequest(requestHead, body, (responseHead, responseBody) =>
 					WriteResponse(context.Response, responseHead, responseBody));
 			}
 			catch (Exception ex)
@@ -189,17 +191,13 @@ namespace HttpMock
 				{
 					foreach (var header in head.Headers)
 					{
-						switch (header.Key.ToLowerInvariant())
+						if (string.Equals(header.Key, "Content-Type", StringComparison.OrdinalIgnoreCase))
 						{
-							case "content-type":
-								response.ContentType = header.Value;
-								break;
-							case "content-length":
-								// set below via ContentLength64
-								break;
-							default:
-								response.Headers[header.Key] = header.Value;
-								break;
+							response.ContentType = header.Value;
+						}
+						else if (!string.Equals(header.Key, "Content-Length", StringComparison.OrdinalIgnoreCase))
+						{
+							response.Headers[header.Key] = header.Value;
 						}
 					}
 				}

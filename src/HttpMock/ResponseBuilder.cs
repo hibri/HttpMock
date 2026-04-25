@@ -50,7 +50,7 @@ namespace HttpMock
 
 			return new HttpMockResponseHead
 			{
-				Status = string.Format("{0} {1}", (int)_httpStatusCode, _httpStatusCode),
+				Status = $"{(int)_httpStatusCode} {_httpStatusCode}",
 				Headers = _headers
 			};
 		}
@@ -80,7 +80,7 @@ namespace HttpMock
 				var fileInfo = new FileInfo(pathToFile);
 				_contentLength = () => (to - from) + 1;
 				_response = new FileResponseBody(pathToFile);
-				AddHeader(HttpResponseHeader.ContentRange.ToString(), string.Format("bytes={0}-{1}/{2}",  from, to, fileInfo.Length));
+				AddHeader(HttpResponseHeader.ContentRange.ToString(), $"bytes={from}-{to}/{fileInfo.Length}");
 			}
 			else
 			{

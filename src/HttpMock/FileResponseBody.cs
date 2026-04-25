@@ -9,6 +9,7 @@ namespace HttpMock
 {
 	class FileResponseBody : IResponse
 	{
+		private static readonly Regex RangeRegex = new(@"bytes=([\d]*)-([\d]*)", RegexOptions.Compiled);
 		private readonly string _filepath;
 		private readonly ILogger<FileResponseBody> _log;
 		private IDictionary<string, string> _requestHeaders;
@@ -23,26 +24,29 @@ namespace HttpMock
 			var fileInfo = new FileInfo(_filepath);
 			using (FileStream fileStream = fileInfo.Open(FileMode.Open, FileAccess.Read))
 			{
-				var buffer = new byte[fileInfo.Length];
-				fileStream.ReadExactly(buffer, 0, (int)fileInfo.Length);
 				int length = (int)fileInfo.Length;
 				int offset = 0;
 
 				if (_requestHeaders != null && _requestHeaders.ContainsKey(HttpRequestHeader.Range.ToString()))
 				{
 					string range = _requestHeaders[HttpRequestHeader.Range.ToString()];
-					Regex rangeEx = new Regex(@"bytes=([\d]*)-([\d]*)");
-					if (rangeEx.IsMatch(range))
+					var match = RangeRegex.Match(range);
+					if (match.Success)
 					{
-						int from = Convert.ToInt32(rangeEx.Match(range).Groups[1].Value);
-						int to = Convert.ToInt32(rangeEx.Match(range).Groups[2].Value);
+						int from = Convert.ToInt32(match.Groups[1].Value);
+						int to = Convert.ToInt32(match.Groups[2].Value);
 						offset = from;
 						length = (to - from) + 1;
 					}
 				}
 
+				if (offset > 0)
+				{
+					fileStream.Seek(offset, SeekOrigin.Begin);
+				}
+
 				var result = new byte[length];
-				Array.Copy(buffer, offset, result, 0, length);
+				fileStream.ReadExactly(result, 0, length);
 				_log.LogDebug("Wrote {Length} bytes to buffer", length);
 				return result;
 			}

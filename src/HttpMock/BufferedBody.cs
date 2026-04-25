@@ -17,7 +17,7 @@ namespace HttpMock
 			_dataFunc = data;
 		}
 
-		public Func<int> Length => () => _dataFunc().Length;
+		public Func<int> Length => () => GetBytes().Length;
 
 		public byte[] GetBytes()
 		{
@@ -29,7 +29,7 @@ namespace HttpMock
 
 	class NoBody : IResponse
 	{
-		public byte[] GetBytes() => new byte[0];
+		public byte[] GetBytes() => Array.Empty<byte>();
 
 		public void SetRequestHeaders(IDictionary<string, string> requestHeaders) { }
 	}

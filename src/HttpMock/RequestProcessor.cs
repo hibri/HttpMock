@@ -22,8 +22,11 @@ namespace HttpMock
 		    _log = (loggerFactory ?? HttpMockLogging.GetLoggerFactory()).CreateLogger<RequestProcessor>();
 		}
 
-		public void OnRequest(IHttpRequestHead request, Stream requestBody, Action<HttpMockResponseHead, byte[]> respond) {
-			_log.LogDebug("Start Processing request for : {Method}:{Uri}", SanitizeForLog(request.Method), SanitizeForLog(request.Uri));
+		public async Task OnRequest(IHttpRequestHead request, Stream requestBody, Action<HttpMockResponseHead, byte[]> respond) {
+			if (_log.IsEnabled(LogLevel.Debug))
+			{
+				_log.LogDebug("Start Processing request for : {Method}:{Uri}", SanitizeForLog(request.Method), SanitizeForLog(request.Uri));
+			}
 			if (GetHandlerCount() < 1) {
 				using var noHandlersActivity = HttpMockActivitySource.Source.StartActivity("httpmock.request");
 				noHandlersActivity?.SetTag("http.request.method", request.Method);
@@ -40,7 +43,7 @@ namespace HttpMock
 				try
 				{
 					using var reader = new StreamReader(requestBody, Encoding.UTF8);
-					bufferedBody = reader.ReadToEnd();
+					bufferedBody = await reader.ReadToEndAsync();
 				}
 				catch (Exception error)
 				{
@@ -61,10 +64,7 @@ namespace HttpMock
 				return;
 			}
 
-			_ = HandleRequest(request, bufferedBody, respond, handler)
-				.ContinueWith(
-					t => _log.LogError(t.Exception?.InnerException ?? t.Exception, "Unhandled error processing request"),
-					TaskContinuationOptions.OnlyOnFaulted);
+			await HandleRequest(request, bufferedBody, respond, handler);
 		}
 
 	    private async Task HandleRequest(IHttpRequestHead request, string bufferedBody, Action<HttpMockResponseHead, byte[]> respond, IRequestHandler handler)
@@ -101,14 +101,17 @@ namespace HttpMock
 	        var statusCode = statusParts is { Length: > 0 } ? statusParts[0] : null;
 	        activity?.SetTag("http.response.status_code", statusCode);
 	        respond(responseHead, responseBody);
-	        _log.LogDebug("End Processing request for : {Method}:{Uri}", SanitizeForLog(request.Method), SanitizeForLog(request.Uri));
+	        if (_log.IsEnabled(LogLevel.Debug))
+	        {
+	            _log.LogDebug("End Processing request for : {Method}:{Uri}", SanitizeForLog(request.Method), SanitizeForLog(request.Uri));
+	        }
 	    }
 
 		private static string SanitizeForLog(string value) =>
 			value?.Replace("\r", "\\r").Replace("\n", "\\n");
 
 		private int GetHandlerCount() {
-			return _handlers.Count();
+			return _handlers.Count;
 		}
 
 	    public IRequestVerify FindHandler(string method, string path) {
@@ -132,7 +135,7 @@ namespace HttpMock
 
 			var notFoundResponse = new HttpMockResponseHead
 			{
-				Status = string.Format("{0} {1}", 404, "NotFound"),
+				Status = $"{404} NotFound",
 				Headers = dictionary
 			};
 			respond(notFoundResponse, null);

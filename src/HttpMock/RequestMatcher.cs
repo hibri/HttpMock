@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 
 namespace HttpMock
 {
@@ -19,12 +18,17 @@ namespace HttpMock
 
         public IRequestHandler Match(IHttpRequestHead request, IEnumerable<IRequestHandler> requestHandlerList, string body = null)
         {
-            var matches = requestHandlerList
-                .Where(handler => _matchingRule.IsEndpointMatch(handler, request))
-                .Where(handler => handler.CanVerifyConstraintsFor(request.Uri))
-                .Where(handler => handler.MatchesBody(body));
+            foreach (var handler in requestHandlerList)
+            {
+                if (_matchingRule.IsEndpointMatch(handler, request)
+                    && handler.CanVerifyConstraintsFor(request.Uri)
+                    && handler.MatchesBody(body))
+                {
+                    return handler;
+                }
+            }
 
-            return matches.FirstOrDefault();
+            return null;
         }
     }
 }

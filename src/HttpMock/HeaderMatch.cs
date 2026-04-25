@@ -7,17 +7,29 @@ namespace HttpMock
 	public class HeaderMatch {
 		internal bool MatchHeaders(IRequestHandler requestHandler, IDictionary<string, string> requestHeaders)
 		{
-			return requestHandler.RequestHeaders.All(
-				expectedHeader => requestHeaders.Any(header => HeadersMatch(expectedHeader, header)));
-		}
-
-		private static bool HeadersMatch(KeyValuePair<string, string> expectedHeader, KeyValuePair<string, string> header)
-		{
-			if (!string.Equals(expectedHeader.Key, header.Key, StringComparison.OrdinalIgnoreCase))
+			foreach (var expectedHeader in requestHandler.RequestHeaders)
 			{
-				return false;
+				if (!requestHeaders.TryGetValue(expectedHeader.Key, out var actualValue))
+				{
+					// Try case-insensitive key lookup as a fallback
+					bool found = false;
+					foreach (var header in requestHeaders)
+					{
+						if (string.Equals(header.Key, expectedHeader.Key, StringComparison.OrdinalIgnoreCase)
+						    && string.Equals(header.Value, expectedHeader.Value, StringComparison.OrdinalIgnoreCase))
+						{
+							found = true;
+							break;
+						}
+					}
+					if (!found) return false;
+				}
+				else if (!string.Equals(actualValue, expectedHeader.Value, StringComparison.OrdinalIgnoreCase))
+				{
+					return false;
+				}
 			}
-			return string.Equals(expectedHeader.Value, header.Value, StringComparison.OrdinalIgnoreCase);
+			return true;
 		}
 	}
 }

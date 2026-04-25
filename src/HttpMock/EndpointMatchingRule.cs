@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
@@ -9,6 +10,7 @@ namespace HttpMock
 {
 	public class EndpointMatchingRule : IMatchingRule
 	{
+		private static readonly ConcurrentDictionary<string, Regex> PathRegexCache = new();
 		private readonly HeaderMatch _headerMatch;
 		private readonly QueryParamMatch _queryParamMatch;
 
@@ -22,29 +24,30 @@ namespace HttpMock
 			if (requestHandler.QueryParams == null)
 				throw new ArgumentException("requestHandler QueryParams cannot be null");
 
-			var requestQueryParams = GetQueryParams(request);
-			var requestHeaders = GetHeaders(request);
+			// Check cheapest conditions first before parsing query/headers
+			bool httpMethodsMatch = requestHandler.Method == request.Method;
+			if (!httpMethodsMatch) return false;
 
 			bool uriStartsWith = MatchPath(requestHandler, request);
+			if (!uriStartsWith) return false;
 
-			bool httpMethodsMatch = requestHandler.Method == request.Method;
-			
-			bool queryParamMatch = true;
 			bool shouldMatchQueryParams = (requestHandler.QueryParams.Count > 0);
-			
 			if (shouldMatchQueryParams) {
-				queryParamMatch = _queryParamMatch.MatchQueryParams(requestHandler, requestQueryParams);
+				var requestQueryParams = GetQueryParams(request);
+				if (!_queryParamMatch.MatchQueryParams(requestHandler, requestQueryParams))
+					return false;
 			}
 
-			bool headerMatch = true;
 			bool shouldMatchHeaders = requestHandler.RequestHeaders != null
 				&& requestHandler.RequestHeaders.Count > 0;
 
 			if (shouldMatchHeaders) {
-				headerMatch = _headerMatch.MatchHeaders(requestHandler, requestHeaders);
+				var requestHeaders = GetHeaders(request);
+				if (!_headerMatch.MatchHeaders(requestHandler, requestHeaders))
+					return false;
 			}
 
-			return uriStartsWith && httpMethodsMatch && queryParamMatch && headerMatch;
+			return true;
 		}
 
 	    private static bool MatchPath(IRequestHandler requestHandler, IHttpRequestHead request)
@@ -55,7 +58,8 @@ namespace HttpMock
 	        {
 	            pathToMatch = request.Uri.Substring(0, positionOfQueryStart);
 	        }
-            var pathMatch = new Regex(string.Format(@"^{0}\/*$", Regex.Escape(requestHandler.Path)));
+            var pathMatch = PathRegexCache.GetOrAdd(requestHandler.Path,
+                static path => new Regex($@"^{Regex.Escape(path)}\/*$", RegexOptions.Compiled));
 	        return pathMatch.IsMatch(pathToMatch);
 	    }
 
