@@ -18,7 +18,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspire.Hosting" Version="13.2.2" />
+    <PackageReference Include="Aspire.Hosting" Version="13.6.5" />
   </ItemGroup>
 
   <ItemGroup>
